@@ -1,0 +1,75 @@
+  .tag { display: inline-block; padding: .05rem .4rem; border-radius: 3px;
+         font-size: .75rem; font-weight: 600; margin-right: .15rem; }
+  .tag-quant { background: #dbeafe; color: #1e40af; }
+  .tag-hft   { background: #fef3c7; color: #92400e; }
+  .tag-rating { background: #dcfce7; color: #166534; }
+
+  /* Mini chip inline */
+  .mini-chip { display: inline-block; font-size: .7rem; background: #f3f4f6;
+               color: #6b7280; border-radius: 3px; padding: .05rem .35rem;
+               margin-left: .3rem; vertical-align: middle; }
+
+  /* Offering chips */
+  .chips { display: flex; flex-wrap: wrap; gap: .15rem; }
+  .chip { display: inline-flex; flex-direction: column; align-items: center;
+          padding: .18rem .45rem; border-radius: 5px; font-size: .72rem;
+          font-weight: 600; min-width: 2.6rem; text-align: center;
+          text-decoration: none; line-height: 1.3; }
+  .chip .mini { font-size: .6rem; font-weight: 400; }
+  .chip-F { background: #fff3e0; color: #bf360c; }
+  .chip-S { background: #e8f5e9; color: #1b5e20; }
+  .chip-M { background: #e3f2fd; color: #0d47a1; }
+  a.chip:hover { opacity: .75; }
+  .no-prereqs { color: #9ca3af; font-size: .82rem; }
+  .prereq-info, .semester-offerings-info { position: relative; display: inline-block; }
+  .prereq-info summary, .semester-offerings-info summary { width: 1.3rem; height: 1.3rem; border-radius: 999px;
+                         border: 1px solid #9ca3af; color: #374151; display: inline-flex;
+                         align-items: center; justify-content: center; cursor: pointer;
+                         list-style: none; font-size: .78rem; font-weight: 700; }
+  .prereq-info summary::-webkit-details-marker, .semester-offerings-info summary::-webkit-details-marker { display: none; }
+  .prereq-info summary:hover, .semester-offerings-info summary:hover { border-color: #c41230; color: #c41230; background: #fff7f7; }
+  .prereq-popover { position: absolute; z-index: 10; top: 1.65rem; right: 0; width: min(28rem, 70vw);
+                    padding: .6rem .7rem; border: 1px solid #d1d5db; border-radius: 6px;
+                    background: #fff; color: #1f2937; box-shadow: 0 10px 24px rgba(0,0,0,.14);
+                    font-size: .82rem; line-height: 1.45; }
+  .semester-offerings-popover { position: absolute; z-index: 10; top: 1.65rem; left: 0; width: min(34rem, 82vw);
+                    padding: .65rem .75rem; border: 1px solid #d1d5db; border-radius: 6px;
+                    background: #fff; color: #1f2937; box-shadow: 0 10px 24px rgba(0,0,0,.14);
+                    font-size: .82rem; line-height: 1.45; }
+  .available-list { margin: .45rem 0 0; padding-left: 1.1rem; }
+  .available-list li { margin: .2rem 0; }
+  .available-title { color: #374151; }
+  .available-time { display: block; color: #6b7280; font-size: .78rem; }
+
+  /* Unplaced section */
+  .unplaced { background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;
+              padding: .7rem 1rem; margin-top: 1.5rem; }
+  .unplaced h2 { border-left-color: #ef4444; color: #ef4444; }
+  .empty { color: #9ca3af; font-style: italic; }
+  @media (max-width: 760px) {
+    .route-tab-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 520px) {
+    .route-tab-summary { grid-template-columns: 1fr; }
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #121212; color: #e5e5e5; }
+    h1 { color: #e8455a; border-bottom-color: #e8455a; }
+    h2 { color: #d1d5db; border-left-color: #e8455a; }
+    h3 { color: #d1d5db; }
+    .semester-heading-underfilled, .semester-unit-warning { color: #fbbf24; }
+    .meta { color: #9ca3af; }
+    .route-count { color: #9ca3af; }
+    .tab-btn { background: #1e1e1e; border-color: #3a3a3a; color: #d1d5db; }
+    .tab-btn:hover { border-color: #e8455a; color: #e8455a; }
+    .tab-btn.active { background: #9b0e23; border-color: #9b0e23; color: #fff; }
+    .variant-desc { color: #9ca3af; }
+    .route-tab-btn { background: #1e1e1e; border-color: #3a3a3a; }
+    .route-tab-btn:hover { border-color: #e8455a; }
+    .route-tab-btn.active { border-color: #e8455a; box-shadow: 0 0 0 2px rgba(232,69,90,.18); }
+    .route-count-summary { background: #171717; }
+    .route-sem-dark { background: #050505; }
+    .route-sem-gray { background: #4b5563; }
+    th { background: #9b0e23; }
+    td { border-bottom-color: #2d2d2d; }
+    tr:hover td { background: #2a1519; }

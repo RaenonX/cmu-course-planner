@@ -1,0 +1,31 @@
+</tbody>
+</table>
+<script>
+(function () {
+  const tbl = document.getElementById('tbl');
+  const tbody = tbl.querySelector('tbody');
+  let lastCol = 0, asc = true;
+
+  tbl.querySelectorAll('th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = +th.dataset.col;
+      if (lastCol === col) asc = !asc; else { lastCol = col; asc = true; }
+      tbl.querySelectorAll('th').forEach(h => h.classList.remove('sorted-asc','sorted-desc'));
+      th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+      const rows = [...tbody.querySelectorAll('tr')];
+      rows.sort((a, b) => {
+        const av = a.cells[col].dataset.sort || a.cells[col].textContent.trim();
+        const bv = b.cells[col].dataset.sort || b.cells[col].textContent.trim();
+        const n = (col === 2 || col === 3) ? (+av - +bv) : av.localeCompare(bv);
+        return asc ? n : -n;
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
+
+  // Default sort: Course ASC
+  tbl.querySelector('th[data-col="0"]').click();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Ensure all given file extensions to use LF EOL
+.gitattributes text eol=lf
+*.py    eol=lf

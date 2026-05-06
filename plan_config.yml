@@ -1,0 +1,322 @@
+# ---------------------------------------------------------
+# Auto plan suggester configuration
+# ---------------------------------------------------------
+
+# Maximum units to take in a single semester
+units_per_semester: 12
+
+# Your planned semesters in order.
+# Use: F (Fall)  S (Spring)  Su (Summer)
+semesters: [F, S, Su, F]
+
+# Teaching location to include when detecting course offerings.
+# Only Pittsburgh, Pennsylvania is supported for now.
+teaching_location: "Pittsburgh, Pennsylvania"
+
+# Categories to use for category-specific course ratings.
+# Available values: Quant, HFT, FAANG
+# Leave empty ([]) to use each course's default rating.
+prefer_categories: [HFT]
+
+# If true, only include courses that match at least one prefer_category.
+# If false (default), all courses are considered; prefer_categories only
+# affects which category-specific rating overrides are used.
+require_categories: false
+
+# Existing time ranges to consider when generating the Time Continuity First tab.
+# Use this for courses already in the schedule so suggestions prefer smaller
+# same-day gaps around them. Multiple ranges are allowed.
+current_time_ranges:
+  # COM FOR SW LEADER I / 17603 E
+  - days: "Th"
+    begin: "12:30PM"
+    end: "01:50PM"
+  # STATS FOR DEC MAKING / 17611 A1
+  - days: "M W"
+    begin: "11:00AM"
+    end: "12:20PM"
+  # FORMAL METHODS / 17614 11
+  - days: "M W"
+    begin: "09:30AM"
+    end: "10:50AM"
+  # FORMAL METHODS / 17614 B1
+  - days: "F"
+    begin: "12:30PM"
+    end: "01:50PM"
+  # PROD MGMT ESSEN I / 17619 B1
+  - days: "T Th"
+    begin: "02:00PM"
+    end: "03:20PM"
+  # AGILE METHODS / 17622 22
+  - days: "M W"
+    begin: "02:00PM"
+    end: "03:20PM"
+  # AGILE METHODS / 17622 B2
+  - days: "F"
+    begin: "11:00AM"
+    end: "12:20PM"
+  # QUALITY ASSURANCE / 17623 12
+  - days: "M W"
+    begin: "11:00AM"
+    end: "12:20PM"
+  # QUALITY ASSURANCE / 17623 A2
+  - days: "F"
+    begin: "12:30PM"
+    end: "01:50PM"
+  # RQ FOR INFO SYS / 17626 A2
+  - days: "T Th"
+    begin: "11:00AM"
+    end: "12:20PM"
+
+# ---------------------------------------------------------
+# Course list
+# Title, units, prerequisites, and offerings are fetched from
+# course pages at runtime and stored in out/course-snapshot.json.
+#
+# Each course must have a star score from 1 to 5.
+# Use either:
+#   rating: 3
+# or category-specific overrides with a default:
+#   rating:
+#     default: 3
+#     HFT: 4
+# When prefer_categories includes HFT, the HFT score is used for HFT courses.
+# ---------------------------------------------------------
+
+courses:
+  # Advanced Database Systems
+  # Andy Pavlo's course. Content covers OLAP / data-warehouse systems
+  # (Snowflake, DuckDB, Iceberg): storage engines, query execution, and
+  # batch/throughput optimization. Strong fit for FAANG systems interviews.
+  # No prereqs. S26 confirmed.
+  - course: "15-721"
+    category: [FAANG]
+    rating:
+      default: 3
+      FAANG: 4
+
+  # ---------------------------------------------------------------------------
+  # HFT / Low-Latency Systems
+  # ---------------------------------------------------------------------------
+
+  # Market Microstructure and Algorithmic Trading
+  # Core HFT course. Order book dynamics, adverse selection, latency arbitrage.
+  # Also directly relevant for Quant Researchers working on execution algorithms
+  # and market impact modeling (used at Two Sigma, Citadel). Uses kdb+ and Python
+  # with real intraday data.
+  - course: "46-982"
+    category: [HFT, Quant]
+    rating:
+      default: 3
+      HFT: 5
+      Quant: 4
+
+  # Parallel Computer Architecture and Programming
+  # SIMD, cache hierarchy, lock-free programming, memory consistency — core skills
+  # for low-latency systems engineers. Cache coherence (L1/L2 tuning), branch
+  # prediction, and CPU affinity are critical-path optimizations in
+  # performance-critical systems.
+  - course: "15-618"
+    category: [HFT]
+    rating:
+      default: 3
+      HFT: 5
+
+  # Networking and the Internet
+  # Standard TCP/IP stack design, routing, congestion control. Covers networking
+  # fundamentals but not kernel bypass (DPDK, AF_XDP), RDMA, or SmartNIC — the
+  # tools used in ultra-low-latency network paths.
+  - course: "15-641"
+    category: [HFT, FAANG]
+    rating: 3
+
+  # Distributed Systems
+  # Replication, consistency, fault tolerance. Core FAANG SWE competency.
+  # Also relevant to HFT infrastructure: feed handlers, order routing, and risk
+  # systems all require distributed coordination, even if the latency-critical
+  # hot path is single-machine.
+  - course: "15-640"
+    category: [HFT, FAANG]
+    rating:
+      default: 3
+      HFT: 4
+      FAANG: 5
+
+  # Markov Processes (15-853)
+  # Full title: "Theory of Markov Processes: Selected Topics with
+  # Applications in ML and GenAI". Covers Markov chains, diffusion processes,
+  # Bellman equations, Q-learning. Strong Quant Research fit (price-process
+  # modeling, RL strategies). No prereqs. S26 confirmed.
+  - course: "15-853"
+    category: [Quant]
+    rating:
+      default: 3
+      Quant: 5
+
+  # Deep Reinforcement Learning & Control
+  # RL-based portfolio rebalancing, execution optimization, and market-making
+  # strategies. Quant Researcher territory (strategy/modeling) rather than
+  # systems/infra work. Prereq: 10-601. F26 confirmed.
+  - course: "10-703"
+    category: [Quant]
+    rating:
+      default: 3
+      Quant: 4
+
+  # Probabilistic Graphical Models
+  # Bayesian networks, MCMC, variational inference, deep generative models (VAEs,
+  # diffusion). Bayesian inference is core to quant risk and factor modeling and
+  # differentiating in quant researcher interviews at top firms. The generative
+  # model content overlaps with FAANG ML engineering but is less central there.
+  # Prereq: 10-601. S26 confirmed.
+  - course: "10-708"
+    category: [Quant, FAANG]
+    rating:
+      default: 2
+      Quant: 4
+      FAANG: 3
+
+  # Accounting and Finance Analytics
+  # Financial-statement analysis with ML; bridges accounting data and
+  # quantitative signals. Among the most directly goal-aligned courses
+  # available to MSE students.
+  - course: "95-719"
+    rating: 5
+
+  # Introduction to Machine Learning
+  # Foundational prereq for 10-703, 10-708, and other Quant-track courses.
+  # ML signal generation is Quant Researcher work; not directly relevant to
+  # low-latency systems engineering.
+  - course: "10-601"
+    category: [Quant]
+    rating:
+      default: 3
+      Quant: 4
+
+  # Advanced Topics in Machine Learning and Game Theory
+  # Game theory concepts (MARL, mechanism design, strategic equilibria) are
+  # intellectually connected to market making and quote competition, but the
+  # course applies them to security/transportation/sustainability — not financial
+  # markets. Requires transferring concepts to quant finance independently.
+  - course: "17-759"
+    category: [Quant]
+    rating:
+      default: 2
+      Quant: 3
+
+  # (Hard math prereq - stochastic calculus required)
+  # Advanced Derivative Models
+  # Pricing exotic derivatives. Math gap (no stochastic calc) makes this a
+  # high-risk enrollment.
+  - course: "46-915"
+    category: [Quant]
+    rating: 1
+
+  # (Hard math prereq - optimization theory required)
+  # Financial Optimization
+  # Portfolio optimization theory. Math gap (no optimization theory) makes this
+  # a high-risk enrollment.
+  - course: "46-976"
+    category: [Quant]
+    rating: 1
+
+  # Generative Modeling and Foundation Models
+  # Transformers, LLM pretraining/fine-tuning, RLHF, diffusion models, multimodal
+  # systems, scaling laws, distributed training — the core skill set at Google,
+  # Meta, Microsoft, and Apple right now. Also adds minor Quant value since some
+  # firms are beginning to use LLMs for text-based alpha signals.
+  # Prereq: 10-601. F26 + S26 confirmed.
+  - course: "10-423"
+    category: [FAANG, Quant]
+    rating:
+      default: 3
+      FAANG: 5
+      Quant: 2
+
+  # Software System Design
+  # Software architecture, design principles, STRIDE threat modeling, and design
+  # tradeoffs for real-world systems. Strong preparation for FAANG system design
+  # interviews; complements distributed systems depth with architecture judgment
+  # and trade-off analysis.
+  - course: "17-723"
+    category: [FAANG]
+    rating:
+      default: 3
+      FAANG: 4
+
+  # Machine Learning in Production
+  # Full ML system lifecycle: Docker, Kubernetes, Kafka, MLFlow, Prometheus,
+  # CI/CD, concept drift, A/B testing, responsible AI. The tools and practices
+  # taught here are exactly what ML engineers at Google, Meta, and Amazon use
+  # daily. One of the most directly job-ready FAANG ML engineering courses.
+  - course: "17-745"
+    category: [FAANG]
+    rating:
+      default: 3
+      FAANG: 5
+
+  # Introduction to Deep Learning
+  # Implementation-level rigor (backprop from scratch, attention from scratch in
+  # PyTorch) makes this more valuable than a typical survey course. FAANG ML
+  # interviews test both conceptual understanding and implementation ability.
+  - course: "11-685"
+    category: [FAANG]
+    rating:
+      default: 2
+      FAANG: 4
+
+  # Natural Language Processing
+  # LLM/NLP engineering is increasingly core at FAANG; relevant for AI-product
+  # roles.
+  - course: "11-611"
+    category: [FAANG]
+    rating:
+      default: 2
+      FAANG: 3
+
+  # Search Engines
+  # Information retrieval, ranking, and indexing; relevant for search-focused
+  # FAANG roles (Google, Amazon). Moderate fit.
+  - course: "11-642"
+    category: [FAANG]
+    rating:
+      default: 2
+      FAANG: 3
+
+  # Engineering Data Intensive Scalable Systems
+  # Design and operation of large-scale data pipelines: Kafka, deployment,
+  # monitoring, reliability, and scaling. Directly applicable to HFT market data
+  # infrastructure and backtesting pipelines; also strong for FAANG backend/infra.
+  - course: "17-647"
+    category: [HFT, FAANG]
+    rating:
+      default: 2
+      HFT: 3
+      FAANG: 3
+
+  # Foundations of Computational Data Science
+  # Broad intro course (stats, ML basics, data wrangling). Less goal-specific
+  # given the other targeted courses; useful as a fallback.
+  - course: "11-637"
+    rating: 2
+
+  # Negotiations for Software Leaders
+  - course: "17-693"
+    rating: 3
+
+  # Marketing for Entrepreneurship
+  # No alignment with HFT/Quant/FAANG goals. Low-priority elective for
+  # filling schedule gaps.
+  - course: "45-908"
+    rating: 2
+
+  # Corporate Startup Lab
+  # No alignment with technical goals. Low-priority option.
+  - course: "45-996"
+    rating: 2
+
+  # Design Patterns
+  # Foundational but too basic given existing SWE background; crowded out by
+  # higher-value technical electives.
+  - course: "17-695"
+    rating: 1

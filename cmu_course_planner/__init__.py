@@ -1,0 +1,1 @@
+"""CMU course planner internals."""

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CMU Course Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  html { font-family: "Open Sans", sans-serif; }
+  body { font-family: inherit; max-width: 1020px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+  button, input, select, textarea, summary { font-family: inherit; }
+  h1 { border-bottom: 2px solid #c41230; padding-bottom: .4rem; color: #c41230; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 2.5rem; }
+  th { background: #c41230; color: #fff; text-align: left; padding: .5rem .75rem; cursor: pointer; user-select: none; }
+  th:hover { background: #a01025; }
+  th.sorted-asc::after  { content: ' ▲'; font-size: .7em; }
+  th.sorted-desc::after { content: ' ▼'; font-size: .7em; }
+  td { padding: .45rem .75rem; border-bottom: 1px solid #e0e0e0; vertical-align: middle; }
+  tr:hover td { background: #fdf5f5; }
+  .course { font-family: "Open Sans", sans-serif; white-space: nowrap; }
+  .tag { display: inline-block; padding: .1rem .45rem; border-radius: 3px; font-size: .78rem; font-weight: 600; margin-right: .2rem; }
+  .tag-quant { background: #dbeafe; color: #1e40af; }
+  .tag-hft   { background: #fef3c7; color: #92400e; }
+  .chips { display: flex; flex-wrap: wrap; gap: .2rem; align-items: flex-start; }
+  .chip { display: inline-flex; flex-direction: column; align-items: center;
+           padding: .22rem .55rem; border-radius: 6px; font-size: .78rem;
+           font-weight: 600; min-width: 2.8rem; text-align: center;
+           text-decoration: none; line-height: 1.35; }
+  .chip .mini { font-size: .62rem; font-weight: 400; letter-spacing: .02em; margin-top: .05rem; }
+  .chip-F { background: #fff3e0; color: #bf360c; }
+  .chip-S { background: #e8f5e9; color: #1b5e20; }
+  .chip-M { background: #e3f2fd; color: #0d47a1; }
+  .chip-off { background: #f5f5f5; color: #d1d5db; cursor: default; }
+  .times { font-size: .82rem; line-height: 1.45; }
+  a.chip:hover { opacity: .75; }
+  .no-prereqs { color: #9ca3af; font-size: .85rem; }
+  .prereq-info { position: relative; display: inline-block; }
+  .prereq-info summary { width: 1.35rem; height: 1.35rem; border-radius: 999px;
+                          border: 1px solid #9ca3af; color: #374151; display: inline-flex;
+                          align-items: center; justify-content: center; cursor: pointer;
+                          list-style: none; font-size: .82rem; font-weight: 700; }
+  .prereq-info summary::-webkit-details-marker { display: none; }
+  .prereq-info summary:hover { border-color: #c41230; color: #c41230; background: #fff7f7; }
+  .prereq-popover { position: absolute; z-index: 10; top: 1.7rem; right: 0; width: min(28rem, 70vw);
+                     padding: .65rem .75rem; border: 1px solid #d1d5db; border-radius: 6px;
+                     background: #fff; color: #1f2937; box-shadow: 0 10px 24px rgba(0,0,0,.14);
+                     font-size: .85rem; line-height: 1.45; }
+  .gen-note { font-size: .85rem; color: #6b7280; margin-bottom: 1.5rem; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #121212; color: #e5e5e5; }
+    h1 { color: #e8455a; border-bottom-color: #e8455a; }
+    th { background: #9b0e23; }
+    th:hover { background: #7d0b1c; }
+    td { border-bottom-color: #2d2d2d; }
+    tr:hover td { background: #2a1519; }
+    .tag-quant { background: #1e3a5f; color: #93c5fd; }
+    .tag-hft   { background: #3d2a00; color: #fcd34d; }
+    .chip-F { background: #3d1f0a; color: #fba673; }
+    .chip-S { background: #0d2b12; color: #6fcf82; }
+    .chip-M { background: #0d1e3d; color: #60a5fa; }
+    .chip-off { background: #2a2a2a; color: #4b5563; }
+    .no-prereqs { color: #6b7280; }
+    .prereq-info summary { border-color: #6b7280; color: #d1d5db; }
+    .prereq-info summary:hover { border-color: #e8455a; color: #e8455a; background: #2a1519; }
+    .prereq-popover { background: #1f1f1f; color: #e5e5e5; border-color: #3a3a3a;
+                       box-shadow: 0 10px 24px rgba(0,0,0,.35); }
+    .gen-note { color: #9ca3af; }
+  }
+</style>
+</head>
+<body>
+<h1>CMU Course Report</h1>
+<p class="gen-note">Generated {DATE} &nbsp;·&nbsp; Past {YEARS} academic year(s) &nbsp;·&nbsp; Teaching location: {LOCATION} &nbsp;·&nbsp; Click a column header to sort</p>
+<table id="tbl">
+<thead>
+  <tr>
+    <th data-col="0">Course</th>
+    <th data-col="1">Title</th>
+    <th data-col="2">Units</th>
+    <th data-col="3" title="Rating">★</th>
+    <th data-col="4">Category</th>
+    <th>Prereqs</th>
+    <th>Times</th>
+    <th>Offerings</th>
+  </tr>
+</thead>
+<tbody>
