@@ -2,6 +2,7 @@ import html as html_lib
 
 from ..common.rating import star_rating
 from .models import Course, Meeting, Offering
+from .time import _selected_meetings
 
 def _category_tag_class(category: str) -> str:
     return "tag-quant" if category == "Quant" else "tag-hft"
@@ -30,10 +31,11 @@ def _format_minutes(minutes: int) -> str:
     hour12 = hour24 % 12 or 12
     return f"{hour12}:{minute:02d}{meridiem}"
 
-def _time_label(offering: Offering | None) -> str:
-    if not offering or not offering.meetings:
+def _time_label(offering: Offering | None, meetings: list[Meeting] | None = None) -> str:
+    selected = meetings if meetings is not None else (offering.meetings if offering else [])
+    if not offering or not selected:
         return '<span class="no-prereqs">Unknown</span>'
-    labels = ", ".join(_meeting_label(m) for m in offering.meetings)
+    labels = ", ".join(_meeting_label(m) for m in selected)
     return html_lib.escape(labels)
 
 def _offering_chips(course: Course) -> str:
@@ -87,7 +89,7 @@ def _semester_available_courses_info(courses: list[Course], soc_type: str, semes
                 f'{_course_link(course, soc_type)}'
                 f' <span class="available-title">{html_lib.escape(course.title)}</span>'
                 f'{mini}'
-                f' <span class="available-time">{_time_label(offering)}</span>'
+                f' <span class="available-time">{_time_label(offering, _selected_meetings(course, soc_type))}</span>'
                 '</li>'
             )
         body = f'<ul class="available-list">{"".join(rows)}</ul>'

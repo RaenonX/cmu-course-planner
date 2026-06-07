@@ -8,6 +8,11 @@ from ..common.paths import SNAPSHOT
 from ..common.rating import parse_rating
 from .models import Course, Meeting, Offering
 
+def _optional_mini(value) -> int | None:
+    if value is None or value == "":
+        return None
+    return int(value)
+
 def load_config(path: Path) -> dict:
     with open(path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
@@ -30,7 +35,19 @@ def load_current_time_ranges(cfg: dict) -> list[Meeting]:
             end = entry["end"]
         except KeyError as exc:
             raise ValueError(f"current_time_ranges item {idx} is missing {exc.args[0]!r}.") from exc
-        meetings.append(Meeting(days=str(days), begin=str(begin), end=str(end)))
+        mini = entry.get("mini")
+        if mini is not None:
+            try:
+                mini = int(mini)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"current_time_ranges item {idx} has invalid mini {mini!r}; use an integer 1-6."
+                ) from exc
+            if mini < 1 or mini > 6:
+                raise ValueError(
+                    f"current_time_ranges item {idx} has invalid mini {mini!r}; use an integer 1-6."
+                )
+        meetings.append(Meeting(days=str(days), begin=str(begin), end=str(end), mini=mini))
     return meetings
 
 def load_snapshot(
@@ -76,6 +93,7 @@ def load_snapshot(
                         days=m.get("days") or "",
                         begin=m.get("begin") or "",
                         end=m.get("end") or "",
+                        mini=_optional_mini(m.get("mini")),
                     )
                     for m in (o.get("meetings") or [])
                 ],

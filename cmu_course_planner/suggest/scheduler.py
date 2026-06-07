@@ -1,6 +1,8 @@
+from dataclasses import replace
+
 from ..common.config import USER_TO_SOC
 from .models import Course, Meeting
-from .priority import _placeable, _route_choice_index, _sort_key
+from .priority import _candidate_slots, _route_choice_index, _sort_key
 from .time import _continuity_score
 
 def suggest(
@@ -15,12 +17,10 @@ def suggest(
     """
     Greedy scheduler with per-mini-slot tracking.
 
-    Mini constraint: each mini slot (1-6) may be used at most once per semester.
-    Two courses in the same slot (e.g. both M2) are rejected — only consecutive
-    slots are permitted (e.g. M1 + M2).
-
-    A course with minis=[1,2] can be placed in either slot 1 or slot 2; the first
-    available one is chosen.  A course with minis=[] is full-semester (no slot used).
+    Mini-aware conflict handling:
+    A course with minis=[1,2] can be placed in either slot 1 or slot 2.  A course
+    with minis=[] is full-semester.  Meetings in different mini slots may share
+    the same clock time; meetings in the same mini slot may not overlap.
     """
     assigned: set[str] = set()
     schedule: list[list[Course]] = [[] for _ in semesters]
@@ -36,25 +36,26 @@ def suggest(
         candidates.sort(key=_sort_key(variant, prefer, remaining_soc))
 
         budget = units_max
-        taken_minis: set[int] = set()   # mini slot numbers used in this semester
+        semester_time_ranges = current_time_ranges if idx == 0 else []
 
         while candidates:
+            base_overlap, base_gap = _continuity_score(schedule[idx], soc, semester_time_ranges)
             if variant == "Time Continuity First":
-                semester_time_ranges = current_time_ranges if idx == 0 else []
-                base_overlap, base_gap = _continuity_score(schedule[idx], soc, semester_time_ranges)
                 ranked = []
                 for c in candidates:
-                    chosen_slot = _placeable(c, budget, taken_minis, soc)
-                    if chosen_slot is None:
-                        continue
-                    next_overlap, next_gap = _continuity_score([*schedule[idx], c], soc, semester_time_ranges)
-                    ranked.append((
-                        next_overlap - base_overlap,
-                        next_gap - base_gap,
-                        *_sort_key("Rating First", prefer, remaining_soc)(c),
-                        c,
-                        chosen_slot,
-                    ))
+                    for chosen_slot in _candidate_slots(c, budget, soc):
+                        selected = replace(c, selected_mini=chosen_slot or None)
+                        next_overlap, next_gap = _continuity_score([*schedule[idx], selected], soc, semester_time_ranges)
+                        incremental_overlap = next_overlap - base_overlap
+                        if incremental_overlap:
+                            continue
+                        ranked.append((
+                            incremental_overlap,
+                            next_gap - base_gap,
+                            *_sort_key("Rating First", prefer, remaining_soc)(c),
+                            c,
+                            chosen_slot,
+                        ))
                 if not ranked:
                     break
                 ranked.sort(key=lambda item: item[:-2])
@@ -63,9 +64,11 @@ def suggest(
             else:
                 ranked = []
                 for c in candidates:
-                    chosen_slot = _placeable(c, budget, taken_minis, soc)
-                    if chosen_slot is not None:
-                        ranked.append((c, chosen_slot))
+                    for chosen_slot in _candidate_slots(c, budget, soc):
+                        selected = replace(c, selected_mini=chosen_slot or None)
+                        next_overlap, _ = _continuity_score([*schedule[idx], selected], soc, semester_time_ranges)
+                        if next_overlap == base_overlap:
+                            ranked.append((c, chosen_slot))
                 if not ranked:
                     break
                 choice_idx = _route_choice_index(route_seed, idx, len(schedule[idx]), len(ranked))
@@ -73,11 +76,9 @@ def suggest(
 
             candidates = [candidate for candidate in candidates if candidate.course != c.course]
 
-            schedule[idx].append(c)
+            schedule[idx].append(replace(c, selected_mini=chosen_slot or None))
             assigned.add(c.course)
             budget -= c.units
-            if chosen_slot:
-                taken_minis.add(chosen_slot)
 
             if budget == 0:
                 break

@@ -43,15 +43,19 @@ Category values come from `export_report.py`, which reads them from `plan_config
 
 `prefer_courses` is read as an explicit set of course IDs. It does not filter the snapshot; it marks matching courses as preferred for preference-aware schedule variants.
 
-`current_time_ranges` is optional and is used only by the **Time Continuity** variant. Each item has:
+`current_time_ranges` is optional and is used to reject first-semester schedule conflicts in all variants. The **Time Continuity** variant also uses it to prefer smaller same-day gaps. Each item has:
 
 ```
 days: "M W"
 begin: "11:00AM"
 end: "12:20PM"
+mini: 1  # optional; use 1-6 for mini-semester-only ranges
 ```
 
 Day values may use spaced forms like `M W` / `T Th`, SOC-style compact forms like `MW` / `TR`, or single-day values like `Th` / `F`.
+When `mini` is present, that current range is compared only with full-semester
+meetings and meetings in the same mini slot. Mini numbering follows CMU SOC
+section suffixes: fall uses mini 1/2, spring uses 3/4, and summer uses 5/6.
 
 Prerequisites are read from the SOC course detail page by `export_report.py` and written into `out/course-snapshot.json` as `prerequisites`. HTML reports render this value behind a small clickable `i` control so table rows stay compact until prerequisites are needed.
 

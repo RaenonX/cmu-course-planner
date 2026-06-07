@@ -10,20 +10,17 @@ def _sort_key(variant: str, prefer: list[str], remaining_soc: set[str]):
         return (scarcity, -rating, c.course)
     return key
 
-def _placeable(c: Course, budget: int, taken_minis: set[int], soc_type: str) -> int | None:
+def _candidate_slots(c: Course, budget: int, soc_type: str) -> list[int]:
     if c.units > budget:
-        return None
+        return []
 
     offering = c.offering_for(soc_type)
     offering_minis = offering.minis if offering else []
 
     if offering_minis:
-        available = [m for m in offering_minis if m not in taken_minis]
-        if not available:
-            return None
-        return available[0]
+        return offering_minis
 
-    return 0
+    return [0]
 
 def _route_choice_index(route_seed: int, semester_idx: int, course_idx: int, candidate_count: int) -> int:
     if route_seed == 0 or candidate_count <= 1:

@@ -4,6 +4,7 @@ from .render_common import (
     _badges, _course_link, _mini_label, _offering_chips, _rating_badge,
     _prereq_info, _time_label,
 )
+from .time import _selected_meetings
 
 TABLE_HEAD = (
     "<table>\n<thead><tr>"
@@ -16,12 +17,13 @@ TABLE_HEAD = (
 def _course_row(c: Course, soc: str, prefer: list[str]) -> str:
     offering = c.offering_for(soc)
     minis = offering.minis if offering else []
-    mini_chip = f'<span class="mini-chip">{_mini_label(minis)}</span>' if minis else ""
+    selected_minis = [c.selected_mini] if c.selected_mini else minis
+    mini_chip = f'<span class="mini-chip">{_mini_label(selected_minis)}</span>' if selected_minis else ""
     return (
         f"<tr><td>{_course_link(c, soc)}</td><td>{c.title}{mini_chip}</td>"
         f"<td>{_rating_badge(c, prefer)}</td><td>{_badges(c.category)}</td>"
         f'<td class="units">{c.units}</td><td>{_prereq_info(c.prerequisites)}</td>'
-        f'<td class="times">{_time_label(offering)}</td><td>{_offering_chips(c)}</td></tr>\n'
+        f'<td class="times">{_time_label(offering, _selected_meetings(c, soc))}</td><td>{_offering_chips(c)}</td></tr>\n'
     )
 
 

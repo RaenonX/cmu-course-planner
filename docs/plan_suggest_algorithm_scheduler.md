@@ -37,7 +37,7 @@ Time Continuity:
 
 | Key | Value | Effect |
 |-----|-------|--------|
-| `incremental_overlap` | Added overlapping minutes against current and selected course times | Lower = fewer conflicts = placed earlier |
+| `incremental_overlap` | Added overlapping minutes against current and selected course times in compatible mini slots | Lower = fewer conflicts = placed earlier |
 | `incremental_gap` | Added same-day minutes between current and selected course intervals | Lower = tighter time continuity = placed earlier |
 | `scarcity` | Number of distinct SOC types (among remaining semesters) that offer this course | Lower = rarer = placed earlier |
 | `-course_preference` | `-1` when the course ID is listed in `prefer_courses`, else `0` | Explicit course match = placed earlier |
@@ -48,12 +48,12 @@ Time Continuity:
 
 ### Time continuity
 
-The Time Continuity variant still uses the same greedy placement loop and mini-slot constraint, but it re-ranks candidates after each selected course.
+The Time Continuity variant still uses the same greedy placement loop and mini-aware conflict checks, but it re-ranks candidates after each selected course.
 
-For each semester, the current schedule starts with `current_time_ranges` from `plan_config.yml`. For every candidate, the scheduler computes:
+For the first planned semester, the current schedule starts with `current_time_ranges` from `plan_config.yml`. Later planned semesters start from an empty current-time set. For every candidate, the scheduler computes:
 
 1. How many additional overlapping minutes the candidate introduces.
-2. How many additional same-day gap minutes the candidate introduces between all current and selected intervals.
+2. How many additional same-day gap minutes the candidate introduces between current and selected intervals in compatible mini slots.
 3. The normal Balanced sort key as the tiebreaker.
 
 This means a non-overlapping course that sits directly before or after an existing course is preferred over one that creates a large idle gap. If two candidates have the same continuity score, the Balanced priority rules decide the order.
@@ -63,12 +63,11 @@ This means a non-overlapping course that sits directly before or after an existi
 Iterate sorted candidates and assign the course to this semester when all three hold:
 
 1. `course.units ≤ remaining_budget`
-2. If the course has mini-slot data: at least one of its detected mini slots is still unused in this semester.
+2. The selected section does not introduce overlapping minutes against current ranges or already selected courses in the same semester.
 3. *(implicit)* Course not already assigned
 
 Update state on assignment:
 - `budget -= course.units`
-- Add the chosen mini slot to the semester's `taken_minis` set (if applicable)
 - Add course to `assigned` set
 
 Stop early when `budget == 0`.
@@ -80,7 +79,9 @@ instead of only one greedy result.
 
 ### Mini constraint
 
-Each semester tracks used mini slot numbers. A course with `minis=[1, 2]` may be placed into the first still-open slot from that list. A course is skipped when all of its possible mini slots are already taken. Full-semester courses have `minis=[]` and do not consume a mini slot.
+Each mini course is evaluated per concrete mini section. A course with `minis=[1, 2]` is considered once for mini-1 and once for mini-2. The scheduler records the chosen slot and uses only meeting rows from that slot when computing continuity and rendering the final route. Full-semester courses have `minis=[]` and are compared against all mini slots in that semester.
+
+`current_time_ranges` entries can also provide `mini: 1` through `mini: 6`. Mini-specific current ranges only conflict with full-semester courses or courses in the same mini slot, so a mini-1 course and a mini-2 course may share the same lecture clock time.
 
 ## Step 3 — Unplaced courses
 

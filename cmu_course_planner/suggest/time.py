@@ -2,6 +2,8 @@ import re
 
 from .models import Course, Meeting
 
+SOC_MINIS = {"F": [1, 2], "S": [3, 4], "M": [5, 6]}
+
 def _time_minutes(value: str) -> int | None:
     m = re.search(r'(\d{1,2})(?::(\d{2}))?\s*([AP])\.?M\.?', value, re.IGNORECASE)
     if not m:
@@ -40,9 +42,24 @@ def _meeting_days(value: str) -> list[str]:
             days.append(day)
     return days
 
-def _add_meeting_intervals(
-    intervals_by_day: dict[str, list[tuple[int, int]]],
+def _meeting_buckets(meeting: Meeting, soc_type: str) -> list[int]:
+    if meeting.mini is not None:
+        return [meeting.mini]
+    return SOC_MINIS.get(soc_type, [0])
+
+def _selected_meetings(course: Course, soc_type: str) -> list[Meeting]:
+    offering = course.offering_for(soc_type)
+    if not offering:
+        return []
+    if course.selected_mini is None:
+        return offering.meetings
+    selected = [m for m in offering.meetings if m.mini is None or m.mini == course.selected_mini]
+    return selected or offering.meetings
+
+def _add_meeting_intervals_by_bucket(
+    intervals_by_day: dict[tuple[str, int], list[tuple[int, int]]],
     meetings: list[Meeting],
+    soc_type: str,
 ) -> None:
     for meeting in meetings:
         begin = _time_minutes(meeting.begin)
@@ -50,20 +67,18 @@ def _add_meeting_intervals(
         if begin is None or end is None or end <= begin:
             continue
         for day in _meeting_days(meeting.days):
-            intervals_by_day.setdefault(day, []).append((begin, end))
+            for bucket in _meeting_buckets(meeting, soc_type):
+                intervals_by_day.setdefault((day, bucket), []).append((begin, end))
 
 def _continuity_score(
     courses: list[Course],
     soc_type: str,
     current_time_ranges: list[Meeting],
 ) -> tuple[int, int]:
-    intervals_by_day: dict[str, list[tuple[int, int]]] = {}
-    _add_meeting_intervals(intervals_by_day, current_time_ranges)
+    intervals_by_day: dict[tuple[str, int], list[tuple[int, int]]] = {}
+    _add_meeting_intervals_by_bucket(intervals_by_day, current_time_ranges, soc_type)
     for course in courses:
-        offering = course.offering_for(soc_type)
-        if not offering:
-            continue
-        _add_meeting_intervals(intervals_by_day, offering.meetings)
+        _add_meeting_intervals_by_bucket(intervals_by_day, _selected_meetings(course, soc_type), soc_type)
 
     gap = 0
     overlap = 0

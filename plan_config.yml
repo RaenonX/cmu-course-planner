@@ -35,38 +35,47 @@ current_time_ranges:
   - days: "M W"
     begin: "11:00AM"
     end: "12:20PM"
+    mini: 1
   # FORMAL METHODS / 17614 11
   - days: "M W"
     begin: "09:30AM"
     end: "10:50AM"
+    mini: 1
   # FORMAL METHODS / 17614 B1
   - days: "F"
     begin: "12:30PM"
     end: "01:50PM"
+    mini: 1
   # PROD MGMT ESSEN I / 17619 B1
   - days: "T Th"
     begin: "02:00PM"
     end: "03:20PM"
+    mini: 1
   # AGILE METHODS / 17622 22
   - days: "M W"
     begin: "02:00PM"
     end: "03:20PM"
+    mini: 2
   # AGILE METHODS / 17622 B2
   - days: "F"
     begin: "11:00AM"
     end: "12:20PM"
+    mini: 2
   # QUALITY ASSURANCE / 17623 12
   - days: "M W"
     begin: "11:00AM"
     end: "12:20PM"
+    mini: 2
   # QUALITY ASSURANCE / 17623 A2
   - days: "F"
     begin: "12:30PM"
     end: "01:50PM"
+    mini: 2
   # RQ FOR INFO SYS / 17626 A2
   - days: "T Th"
     begin: "11:00AM"
     end: "12:20PM"
+    mini: 2
 
 # ---------------------------------------------------------
 # Course list
@@ -142,6 +151,20 @@ courses:
       HFT: 4
       FAANG: 5
 
+  # Advanced and Distributed Operating Systems
+  # Deep OS internals: lock-free data structures, memory consistency models,
+  # kernel scheduling, and NUMA-aware programming. Covers user-space I/O
+  # primitives (io_uring) and the OS foundations required to understand kernel
+  # bypass techniques (DPDK, AF_XDP) that appear throughout HFT network stacks.
+  # Strongest systems-depth fit among SCS graduate courses for low-latency
+  # engineering. Prereq: undergrad OS (15-410 or equivalent).
+  - course: "15-712"
+    category: [HFT, FAANG]
+    rating:
+      default: 3
+      HFT: 5
+      FAANG: 4
+
   # Markov Processes (15-853)
   # Full title: "Theory of Markov Processes: Selected Topics with
   # Applications in ML and GenAI". Covers Markov chains, diffusion processes,
@@ -204,6 +227,17 @@ courses:
       default: 2
       Quant: 3
 
+  # Financial Data Science II
+  # Advanced applied data science for finance: time-series modeling, factor
+  # analysis, and ML-driven signal generation using financial datasets.
+  # Complements 46-982 (Market Microstructure) with broader quant modeling
+  # methods. Offered F26.
+  - course: "46-923"
+    category: [Quant]
+    rating:
+      default: 3
+      Quant: 4
+
   # (Hard math prereq - stochastic calculus required)
   # Advanced Derivative Models
   # Pricing exotic derivatives. Math gap (no stochastic calc) makes this a
@@ -219,6 +253,19 @@ courses:
   - course: "46-976"
     category: [Quant]
     rating: 1
+
+  # Convex Optimization
+  # Lagrangian duality, gradient descent variants, ADMM, and interior-point
+  # methods. Foundational math for portfolio construction (mean-variance, CVaR),
+  # factor model calibration, and ML training loops. Serves as a stepping-stone
+  # prereq for 46-976 (Financial Optimization) and deepens ML theory for FAANG
+  # technical interviews. No prereqs beyond linear algebra and calculus.
+  - course: "10-725"
+    category: [Quant, FAANG]
+    rating:
+      default: 3
+      Quant: 4
+      FAANG: 3
 
   # Generative Modeling and Foundation Models
   # Transformers, LLM pretraining/fine-tuning, RLHF, diffusion models, multimodal
@@ -254,6 +301,20 @@ courses:
     rating:
       default: 3
       FAANG: 5
+
+  # Advanced Cloud Computing
+  # Cloud infrastructure internals: Kubernetes scheduling, distributed storage,
+  # serverless, microservice reliability, and multi-region deployment. Covers
+  # the operational and architectural knowledge behind Google, Amazon, and
+  # Microsoft's cloud platforms — directly applicable to FAANG infra engineering
+  # and SRE roles. Complements 15-640 with practical cloud-native depth.
+  # Prereq: distributed systems background.
+  - course: "15-719"
+    category: [FAANG, HFT]
+    rating:
+      default: 3
+      FAANG: 5
+      HFT: 3
 
   # Introduction to Deep Learning
   # Implementation-level rigor (backprop from scratch, attention from scratch in
@@ -302,6 +363,14 @@ courses:
 
   # Negotiations for Software Leaders
   - course: "17-693"
+    rating: 3
+
+  # Designing Human Centered Software
+  # Core HCI methods: user research, task analysis, iterative prototyping, and
+  # usability evaluation. Entry point for HCI as a secondary interest area;
+  # also adds value for product-facing FAANG roles where design intuition is
+  # increasingly expected of senior engineers.
+  - course: "05-391"
     rating: 3
 
   # Marketing for Entrepreneurship

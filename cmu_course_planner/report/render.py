@@ -39,7 +39,8 @@ def _sem_chips(semesters: list[str], offering_map: dict[str, dict | None]) -> st
     return "".join(parts)
 
 def _meeting_label(meeting: dict[str, str]) -> str:
-    return f'{meeting["days"]} {meeting["begin"]}-{meeting["end"]}'
+    mini = f'M{meeting["mini"]} ' if meeting.get("mini") else ""
+    return f'{mini}{meeting["days"]} {meeting["begin"]}-{meeting["end"]}'
 
 def _offering_times(semesters: list[str], offering_map: dict[str, dict | None]) -> str:
     parts = []

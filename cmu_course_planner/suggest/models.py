@@ -5,6 +5,7 @@ class Meeting:
     days: str
     begin: str
     end: str
+    mini: int | None = None
 
 @dataclass
 class Offering:
@@ -23,6 +24,7 @@ class Course:
     rating: int
     rating_by_category: dict[str, int]
     offered_in: list[Offering]   # newest first
+    selected_mini: int | None = None
 
     def offered_soc_types(self) -> set[str]:
         return {o.semester[0] for o in self.offered_in}

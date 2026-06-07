@@ -1,7 +1,7 @@
 import html as html_lib
 from .models import Course, Meeting
 from .render_common import _format_minutes
-from .time import _meeting_days, _time_minutes
+from .time import _meeting_days, _selected_meetings, _time_minutes
 def _timeline_entries(
     sem_courses: list[Course],
     soc_type: str,
@@ -20,17 +20,19 @@ def _timeline_entries(
         if begin is None or end is None or end <= begin:
             continue
         for day in _meeting_days(meeting.days):
-            add_entry(day, begin, end, "Current", "timeline-current")
+            mini = f" M{meeting.mini}" if meeting.mini else ""
+            add_entry(day, begin, end, f"Current{mini}", "timeline-current")
     for course in sem_courses:
         offering = course.offering_for(soc_type)
         if not offering:
             continue
-        for meeting in offering.meetings:
+        for meeting in _selected_meetings(course, soc_type):
             begin = _time_minutes(meeting.begin)
             end = _time_minutes(meeting.end)
             if begin is None or end is None or end <= begin:
                 continue
-            label = f"{course.course} {course.title}"
+            mini = f" M{meeting.mini}" if meeting.mini else ""
+            label = f"{course.course}{mini} {course.title}"
             for day in _meeting_days(meeting.days):
                 add_entry(day, begin, end, label, "timeline-course")
     entries: dict[str, list[tuple[int, int, str, str]]] = {}

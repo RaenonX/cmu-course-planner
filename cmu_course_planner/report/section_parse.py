@@ -1,7 +1,7 @@
 import html as html_lib
 import re
 
-_MINI_RE = re.compile(r'^[A-Za-z]+([1-6])$')
+_MINI_RE = re.compile(r'^.+([1-6])$')
 
 def _clean_cell(value: str) -> str:
     value = re.sub(r'<[^>]+>', ' ', value)
@@ -51,10 +51,16 @@ def _parse_minis(section_rows: list[list[str]]) -> list[int]:
                 found.add(int(m.group(1)))
     return sorted(found)
 
+def _section_mini(section: str, is_mini: bool) -> int | None:
+    if not is_mini:
+        return None
+    m = _MINI_RE.match(section)
+    return int(m.group(1)) if m else None
+
 def _parse_meetings(html: str, teaching_location: str) -> list[dict[str, str]]:
     """Extract unique meeting times from section rows matching teaching_location."""
-    meetings: list[dict[str, str]] = []
-    seen: set[tuple[str, str, str]] = set()
+    meetings: list[dict] = []
+    seen: set[tuple[str, str, str, int | None]] = set()
     tables = re.findall(r'<table[^>]*>(.*?)</table>', html, re.DOTALL | re.IGNORECASE)
     for table in tables:
         header_match = re.search(r'<thead[^>]*>(.*?)</thead>', table, re.DOTALL | re.IGNORECASE)
@@ -77,6 +83,14 @@ def _parse_meetings(html: str, teaching_location: str) -> list[dict[str, str]]:
             end_idx = next(i for i, header in enumerate(headers) if header == "end")
         except StopIteration:
             continue
+        section_idx = next(
+            (
+                i for i, header in enumerate(headers)
+                if header in {"section", "lec/sec", "lec / sec"}
+            ),
+            None,
+        )
+        mini_idx = next((i for i, header in enumerate(headers) if header == "mini"), None)
 
         rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table, re.DOTALL | re.IGNORECASE)
         for row in rows:
@@ -91,9 +105,16 @@ def _parse_meetings(html: str, teaching_location: str) -> list[dict[str, str]]:
             end = cells[end_idx]
             if not days or not begin or not end or "tba" in {days.lower(), begin.lower(), end.lower()}:
                 continue
-            key = (days, begin, end)
+            section = cells[section_idx] if section_idx is not None and section_idx < len(cells) else ""
+            mini_value = cells[mini_idx] if mini_idx is not None and mini_idx < len(cells) else ""
+            is_mini = mini_value.upper() == "Y" or bool(_MINI_RE.match(section))
+            mini = _section_mini(section, is_mini)
+            key = (days, begin, end, mini)
             if key in seen:
                 continue
             seen.add(key)
-            meetings.append({"days": days, "begin": begin, "end": end})
+            meeting = {"days": days, "begin": begin, "end": end}
+            if mini is not None:
+                meeting["mini"] = mini
+            meetings.append(meeting)
     return meetings
