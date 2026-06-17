@@ -1,90 +1,68 @@
-import html as html_lib
 import re
+
+from .html_table import clean_cell, data_rows, header_cells, header_index, tables
+
+
+def _parse_title(html: str) -> str:
+    """Heuristically extract the course title from a course-details page."""
+    match = re.search(r'data-maintitle=(["\'])(.*?)\1', html, re.IGNORECASE | re.DOTALL)
+    if match:
+        main_title = clean_cell(match.group(2))
+        title_match = re.match(r'\d{5}\s+(.+)', main_title)
+        return title_match.group(1).strip() if title_match else main_title
+
+    text = clean_cell(html)
+    for pattern in (
+        r'Title\s*:?\s*([A-Z][^:\n\r]{4,100}?)(?:\s{2,}|Units)',
+        r'\d{2}-\d{3}\s+([A-Z][^:\n\r]{4,100}?)(?:\s{2,}|\n)',
+    ):
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return match.group(1).strip().rstrip(' -|')
+    return "Unknown"
+
+
+def _units_from_tables(html: str) -> int:
+    """Unit count read from the Units column of any course table, or 0."""
+    for table in tables(html):
+        units_idx = header_index(header_cells(table), "units")
+        if units_idx is None:
+            continue
+        for cells in data_rows(table):
+            if units_idx >= len(cells):
+                continue
+            match = re.match(r'^(\d+(?:\.\d+)?)$', cells[units_idx])
+            if match:
+                return int(float(match.group(1)))
+    return 0
+
+
+def _parse_units(html: str) -> int:
+    """Extract the unit count, preferring the table column over inline text."""
+    units = _units_from_tables(html)
+    if units:
+        return units
+    text = clean_cell(html)
+    for pattern in (r'[Uu]nits?\s*:?\s*(\d+(?:\.\d+)?)', r'(\d+(?:\.\d+)?)\s*[Uu]nits'):
+        match = re.search(pattern, text)
+        if match:
+            return int(float(match.group(1)))
+    return 0
+
 
 def _parse_course_info(html: str) -> tuple[str, int]:
     """Heuristically extract title and unit count from a course-details page."""
-    def clean(value: str) -> str:
-        value = re.sub(r'<[^>]+>', ' ', value)
-        value = html_lib.unescape(value)
-        return re.sub(r'\s+', ' ', value).strip()
+    return _parse_title(html), _parse_units(html)
 
-    title = "Unknown"
-    m = re.search(r'data-maintitle=(["\'])(.*?)\1', html, re.IGNORECASE | re.DOTALL)
-    if m:
-        main_title = clean(m.group(2))
-        title_match = re.match(r'\d{5}\s+(.+)', main_title)
-        title = title_match.group(1).strip() if title_match else main_title
-
-    text = clean(html)
-    for pattern in [
-        r'Title\s*:?\s*([A-Z][^:\n\r]{4,100}?)(?:\s{2,}|Units)',
-        r'\d{2}-\d{3}\s+([A-Z][^:\n\r]{4,100}?)(?:\s{2,}|\n)',
-    ]:
-        if title != "Unknown":
-            break
-        m = re.search(pattern, text, re.IGNORECASE)
-        if m:
-            title = m.group(1).strip().rstrip(' -|')
-            break
-
-    units = 0
-    tables = re.findall(r'<table[^>]*>(.*?)</table>', html, re.DOTALL | re.IGNORECASE)
-    for table in tables:
-        header_match = re.search(r'<thead[^>]*>(.*?)</thead>', table, re.DOTALL | re.IGNORECASE)
-        if not header_match:
-            continue
-
-        headers = [
-            clean(cell)
-            for cell in re.findall(r'<th[^>]*>(.*?)</th>', header_match.group(1), re.DOTALL | re.IGNORECASE)
-        ]
-        try:
-            units_idx = next(i for i, header in enumerate(headers) if header.lower() == "units")
-        except StopIteration:
-            continue
-
-        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table, re.DOTALL | re.IGNORECASE)
-        for row in rows:
-            cells = [
-                clean(cell)
-                for cell in re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.IGNORECASE)
-            ]
-            if units_idx >= len(cells):
-                continue
-            m = re.match(r'^(\d+(?:\.\d+)?)$', cells[units_idx])
-            if m:
-                units = int(float(m.group(1)))
-                break
-        if units:
-            break
-
-    for pattern in [
-        r'[Uu]nits?\s*:?\s*(\d+(?:\.\d+)?)',
-        r'(\d+(?:\.\d+)?)\s*[Uu]nits',
-    ]:
-        if units:
-            break
-        m = re.search(pattern, text)
-        if m:
-            units = int(float(m.group(1)))
-            break
-
-    return title, units
 
 def _parse_prerequisites(html: str) -> str:
     """Extract the SOC course-details prerequisite text."""
-    def clean(value: str) -> str:
-        value = re.sub(r'<[^>]+>', ' ', value)
-        value = html_lib.unescape(value)
-        return re.sub(r'\s+', ' ', value).strip()
-
-    m = re.search(
+    match = re.search(
         r'<dt>\s*Prerequisites\s*</dt>\s*<dd>(.*?)</dd>',
         html,
         re.DOTALL | re.IGNORECASE,
     )
-    if not m:
+    if not match:
         return "Unknown"
-
-    prereqs = clean(m.group(1))
+    prereqs = clean_cell(match.group(1))
     return prereqs if prereqs else "None"

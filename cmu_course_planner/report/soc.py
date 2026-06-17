@@ -4,7 +4,7 @@ import urllib.request
 from datetime import datetime
 
 from ..common.config import SUPPORTED_TEACHING_LOCATION
-from .section_parse import _parse_meetings, _parse_minis, _section_rows
+from .section_parse import parse_sections
 
 SOC_SEARCH = "https://enr-apps.as.cmu.edu/open/SOC/SOCServlet/search"
 ENR_BASE = "https://enr-apps.as.cmu.edu/open/SOC/SOCServlet/courseDetails"
@@ -65,12 +65,12 @@ def fetch_offering(course_id: str, sem: str, teaching_location: str) -> dict | N
     status, body = fetch(url)
     if status != 200 or "Days" not in body or "Begin" not in body:
         return None
-    section_rows = _section_rows(body, teaching_location)
-    if not section_rows:
+    sections = parse_sections(body, teaching_location)
+    if sections is None:
         return None
     return {
         "link": url,
-        "minis": _parse_minis(section_rows),
-        "meetings": _parse_meetings(body, teaching_location),
+        "minis": sections["minis"],
+        "meetings": sections["meetings"],
         "html": body,
     }

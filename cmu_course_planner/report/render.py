@@ -1,18 +1,8 @@
 import html as html_lib
 
+from ..common.labels import category_badges, mini_label, prereq_info
 from ..common.paths import REPORT_TEMPLATE_DIR
 from ..common.rating import parse_rating, star_rating
-
-def _cat_badges(cats: list[str]) -> str:
-    parts = []
-    for c in cats:
-        cls = "tag-quant" if c == "Quant" else "tag-hft"
-        parts.append(f'<span class="tag {cls}">{c}</span>')
-    return "".join(parts)
-
-def _mini_label(minis: list[int]) -> str:
-    """Human-readable mini slot label, e.g. 'M1·M2' or 'M3'."""
-    return "·".join(f"M{n}" for n in minis)
 
 def _sem_chips(semesters: list[str], offering_map: dict[str, dict | None]) -> str:
     """
@@ -26,7 +16,7 @@ def _sem_chips(semesters: list[str], offering_map: dict[str, dict | None]) -> st
         label = sem        # e.g. F25
         if info is not None:
             mini_html = (
-                f'<span class="mini">{_mini_label(info["minis"])}</span>'
+                f'<span class="mini">{mini_label(info["minis"])}</span>'
                 if info["minis"] else ""
             )
             parts.append(
@@ -55,18 +45,6 @@ def _offering_times(semesters: list[str], offering_map: dict[str, dict | None]) 
         parts.append(f'<div><strong>{sem}</strong>: {html_lib.escape(labels)}</div>')
     return "".join(parts) if parts else '<span class="no-prereqs">Unknown</span>'
 
-def _prereq_info(prerequisites: str) -> str:
-    text = prerequisites.strip() if prerequisites else "Unknown"
-    if text.lower() == "none":
-        return '<span class="no-prereqs">None</span>'
-    escaped = html_lib.escape(text)
-    return (
-        '<details class="prereq-info">'
-        '<summary aria-label="Show prerequisites" title="Show prerequisites">i</summary>'
-        f'<div class="prereq-popover">{escaped}</div>'
-        '</details>'
-    )
-
 
 def build_report_html(rows_html: list[str], today, years: int, teaching_location: str) -> str:
     head = (REPORT_TEMPLATE_DIR / "report_head.html").read_text(encoding="utf-8")
@@ -93,8 +71,8 @@ def build_report_rows(valid_entries: list[dict], course_info: dict, results: dic
             f"    <td>{title}</td>\n"
             f"    <td>{units}</td>\n"
             f'    <td data-sort="{rating}" title="{rating}/5">{star_rating(rating)}</td>\n'
-            f"    <td>{_cat_badges(cats)}</td>\n"
-            f"    <td>{_prereq_info(prerequisites)}</td>\n"
+            f"    <td>{category_badges(cats)}</td>\n"
+            f"    <td>{prereq_info(prerequisites)}</td>\n"
             f'    <td class="times">{_offering_times(semesters, offering_map)}</td>\n'
             f"    <td>{_sem_chips(semesters, offering_map)}</td>\n"
             f"  </tr>"

@@ -1,120 +1,123 @@
-import html as html_lib
 import re
 
-_MINI_RE = re.compile(r'^.+([1-6])$')
+from .html_table import data_rows, header_cells, header_index, tables
 
-def _clean_cell(value: str) -> str:
-    value = re.sub(r'<[^>]+>', ' ', value)
-    value = html_lib.unescape(value)
-    return re.sub(r'\s+', ' ', value).strip()
+# Trailing digit of a section code identifies its mini slot, e.g. "A4" -> 4.
+_MINI_RE = re.compile(r'([1-6])$')
+# A clock time such as "11:00AM"; used to locate the Begin/End columns in a row.
+_TIME_RE = re.compile(r'\d{1,2}:\d{2}\s*[AP]M', re.IGNORECASE)
 
-def _section_rows(html: str, teaching_location: str) -> list[list[str]]:
+
+def _section_mini(section: str, mini_flag: str) -> int | None:
     """
-    Return section rows matching teaching_location.
+    Mini-slot number for a section, or None for full-semester sections.
 
-    Older or changed SOC pages may not expose a Teaching Location column. In that
-    case, preserve the existing behavior and treat all section rows as matching.
+    The Mini column ("Y") is authoritative: only sections explicitly flagged as
+    minis are treated as such, and the slot number is the trailing digit of the
+    section code (e.g. "A4" -> 4). A full-semester lecture like "Lec 1" has an
+    empty Mini column and is never treated as a mini even though its label ends
+    in a digit — mistaking it for mini 1 hides genuine time conflicts.
     """
-    matching_rows: list[list[str]] = []
-    tables = re.findall(r'<table[^>]*>(.*?)</table>', html, re.DOTALL | re.IGNORECASE)
-    for table in tables:
-        header_match = re.search(r'<thead[^>]*>(.*?)</thead>', table, re.DOTALL | re.IGNORECASE)
-        headers = (
-            [_clean_cell(cell) for cell in re.findall(r'<th[^>]*>(.*?)</th>', header_match.group(1), re.DOTALL | re.IGNORECASE)]
-            if header_match else []
-        )
-        location_idx = next(
-            (
-                i for i, header in enumerate(headers)
-                if "teaching location" in header.lower() or header.lower() == "location"
-            ),
-            None,
-        )
-        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table, re.DOTALL | re.IGNORECASE)
-        for row in rows:
-            cells = [_clean_cell(c) for c in re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.IGNORECASE)]
-            if len(cells) < 7:
-                continue
-            if location_idx is not None and location_idx < len(cells):
-                if cells[location_idx] != teaching_location:
-                    continue
-            matching_rows.append(cells)
-    return matching_rows
-
-def _parse_minis(section_rows: list[list[str]]) -> list[int]:
-    """Scan matching section rows and return sorted mini slot numbers (empty = full semester)."""
-    found: set[int] = set()
-    for row in section_rows:
-        for cell in row:
-            m = _MINI_RE.match(cell)
-            if m:
-                found.add(int(m.group(1)))
-    return sorted(found)
-
-def _section_mini(section: str, is_mini: bool) -> int | None:
-    if not is_mini:
+    if mini_flag.strip().upper() != "Y":
         return None
-    m = _MINI_RE.match(section)
-    return int(m.group(1)) if m else None
+    match = _MINI_RE.search(section)
+    return int(match.group(1)) if match else None
 
-def _parse_meetings(html: str, teaching_location: str) -> list[dict[str, str]]:
-    """Extract unique meeting times from section rows matching teaching_location."""
+
+def _column_offsets(headers: list[str]) -> dict[str, int] | None:
+    """
+    Offset of each known column relative to the Begin column, or None when the
+    table is not a section table (missing Days/Begin/End headers).
+
+    Offsets are anchored on Begin so each row can be aligned by finding its
+    begin-time cell. This tolerates extra leading cells (e.g. the summer
+    "session" column) that shift every column right by the same amount.
+    """
+    begin = header_index(headers, "begin")
+    days = header_index(headers, "days")
+    end = header_index(headers, "end")
+    if begin is None or days is None or end is None:
+        return None
+    offsets = {"days": days - begin, "end": end - begin}
+    section = header_index(headers, "section", "lec/sec", "lec / sec")
+    if section is not None:
+        offsets["section"] = section - begin
+    mini = header_index(headers, "mini")
+    if mini is not None:
+        offsets["mini"] = mini - begin
+    location = header_index(headers, "teaching location", "location", contains=True)
+    if location is not None:
+        offsets["location"] = location - begin
+    return offsets
+
+
+def _cell_at(cells: list[str], begin_idx: int, offsets: dict[str, int], name: str) -> str | None:
+    """Cell for column ``name`` relative to the begin-time cell, or None if absent."""
+    if name not in offsets:
+        return None
+    index = begin_idx + offsets[name]
+    return cells[index] if 0 <= index < len(cells) else None
+
+
+def _section_record(cells: list[str], offsets: dict[str, int], teaching_location: str) -> dict | None:
+    """Structured {section, mini, days, begin, end} for one row, or None to skip it."""
+    time_indices = [i for i, cell in enumerate(cells) if _TIME_RE.fullmatch(cell)]
+    if len(time_indices) < 2:
+        return None
+    begin_idx = time_indices[0]
+    days = _cell_at(cells, begin_idx, offsets, "days")
+    if not days or days.lower() == "tba":
+        return None
+    location = _cell_at(cells, begin_idx, offsets, "location")
+    if location is not None and location != teaching_location:
+        return None
+    section = _cell_at(cells, begin_idx, offsets, "section") or ""
+    mini_flag = _cell_at(cells, begin_idx, offsets, "mini") or ""
+    return {
+        "section": section,
+        "mini": _section_mini(section, mini_flag),
+        "days": days,
+        "begin": cells[time_indices[0]],
+        "end": cells[time_indices[1]],
+    }
+
+
+def _section_records(html: str, teaching_location: str) -> list[dict]:
+    """Structured rows from every section table whose rows match teaching_location."""
+    records: list[dict] = []
+    for table in tables(html):
+        offsets = _column_offsets(header_cells(table))
+        if offsets is None:
+            continue
+        for cells in data_rows(table):
+            record = _section_record(cells, offsets, teaching_location)
+            if record is not None:
+                records.append(record)
+    return records
+
+
+def parse_sections(html: str, teaching_location: str) -> dict | None:
+    """
+    Parse SOC section tables for ``teaching_location``.
+
+    Returns None when the course is not offered there, otherwise
+    {"minis": list[int], "meetings": list[dict]}. ``minis`` is empty for
+    full-semester courses; each meeting carries a "mini" key only when scheduled
+    in a specific mini slot.
+    """
+    records = _section_records(html, teaching_location)
+    if not records:
+        return None
+    minis = sorted({r["mini"] for r in records if r["mini"] is not None})
     meetings: list[dict] = []
     seen: set[tuple[str, str, str, int | None]] = set()
-    tables = re.findall(r'<table[^>]*>(.*?)</table>', html, re.DOTALL | re.IGNORECASE)
-    for table in tables:
-        header_match = re.search(r'<thead[^>]*>(.*?)</thead>', table, re.DOTALL | re.IGNORECASE)
-        if not header_match:
+    for record in records:
+        key = (record["days"], record["begin"], record["end"], record["mini"])
+        if key in seen:
             continue
-        headers = [
-            _clean_cell(cell).lower()
-            for cell in re.findall(r'<th[^>]*>(.*?)</th>', header_match.group(1), re.DOTALL | re.IGNORECASE)
-        ]
-        location_idx = next(
-            (
-                i for i, header in enumerate(headers)
-                if "teaching location" in header or header == "location"
-            ),
-            None,
-        )
-        try:
-            days_idx = next(i for i, header in enumerate(headers) if header == "days")
-            begin_idx = next(i for i, header in enumerate(headers) if header == "begin")
-            end_idx = next(i for i, header in enumerate(headers) if header == "end")
-        except StopIteration:
-            continue
-        section_idx = next(
-            (
-                i for i, header in enumerate(headers)
-                if header in {"section", "lec/sec", "lec / sec"}
-            ),
-            None,
-        )
-        mini_idx = next((i for i, header in enumerate(headers) if header == "mini"), None)
-
-        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table, re.DOTALL | re.IGNORECASE)
-        for row in rows:
-            cells = [_clean_cell(c) for c in re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.IGNORECASE)]
-            if max(days_idx, begin_idx, end_idx) >= len(cells):
-                continue
-            if location_idx is not None and location_idx < len(cells):
-                if cells[location_idx] != teaching_location:
-                    continue
-            days = cells[days_idx]
-            begin = cells[begin_idx]
-            end = cells[end_idx]
-            if not days or not begin or not end or "tba" in {days.lower(), begin.lower(), end.lower()}:
-                continue
-            section = cells[section_idx] if section_idx is not None and section_idx < len(cells) else ""
-            mini_value = cells[mini_idx] if mini_idx is not None and mini_idx < len(cells) else ""
-            is_mini = mini_value.upper() == "Y" or bool(_MINI_RE.match(section))
-            mini = _section_mini(section, is_mini)
-            key = (days, begin, end, mini)
-            if key in seen:
-                continue
-            seen.add(key)
-            meeting = {"days": days, "begin": begin, "end": end}
-            if mini is not None:
-                meeting["mini"] = mini
-            meetings.append(meeting)
-    return meetings
+        seen.add(key)
+        meeting = {"days": record["days"], "begin": record["begin"], "end": record["end"]}
+        if record["mini"] is not None:
+            meeting["mini"] = record["mini"]
+        meetings.append(meeting)
+    return {"minis": minis, "meetings": meetings}

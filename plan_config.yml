@@ -389,3 +389,94 @@ courses:
   # higher-value technical electives.
   - course: "17-695"
     rating: 1
+
+  # ---------------------------------------------------------------------------
+  # Low-latency systems depth — community-validated by HFT practitioners
+  # ---------------------------------------------------------------------------
+
+  # How to Write Fast Code I
+  # SIMD vectorization, cache hierarchy, lock-free data structures, and
+  # memory-level parallelism using linear algebra kernels as worked examples.
+  # HFT interview resources (gankinterview.com, HFT prep GitHub) list cache-line
+  # alignment, false sharing, SIMD, and memory ordering as core interview topics —
+  # 18-645 covers every one of these. Fall-only pattern (Fall 2020–2025 confirmed;
+  # Fall 2026 strongly expected). Prereq: senior ECE/CS undergrad or grad student.
+  - course: "18-645"
+    category: [HFT, FAANG]
+    rating:
+      default: 3
+      HFT: 5
+      FAANG: 4
+
+  # Operating System Design and Implementation  [grad section: 15-605]
+  # "Probably the most famous systems class at CMU" per multiple alumni bloggers
+  # (fanpu.io, abigalekim, bowad.net). A student with Jane Street connections
+  # described it as career-defining. Covers process/thread lifecycle, virtual
+  # memory, synchronization, and OS scheduler internals — precisely the topics
+  # tested in HFT SWE interviews (preemption, page faults, kernel vs. user mode,
+  # memory management). Also the explicit prerequisite for 15-712 (rated HFT: 5).
+  # Graduate students enroll as 15-605. S26 + F26 confirmed.
+  - course: "15-605"
+    category: [HFT, FAANG]
+    rating:
+      default: 4
+      HFT: 5
+      FAANG: 4
+
+  # Compiler Design  [grad section: 15-611]
+  # Sponsored explicitly by Jane Street Capital — a direct practitioner signal.
+  # Jane Street builds performance-critical OCaml compilers internally and
+  # sponsors this course because compiler internals (code generation, register
+  # allocation, SSA-form optimization, instruction selection) are directly
+  # relevant to their systems work. For HFT C++ developers, knowing what
+  # the compiler does lets you write code that generates optimal machine code.
+  # Graduate students enroll as 15-611. S26 confirmed.
+  - course: "15-611"
+    category: [HFT, FAANG]
+    rating:
+      default: 3
+      HFT: 4
+      FAANG: 3
+
+  # Optimizing Compilers for Modern Architectures  [NOT YET IN SOC FOR F26/S26]
+  # LLVM optimization passes, dataflow analysis, loop transformations, and
+  # register allocation — the graduate-level complement to 15-611. Understanding
+  # what the compiler does (auto-vectorization, loop unrolling, inlining,
+  # alias analysis) helps write C++ that compiles to optimal machine code,
+  # directly applicable to HFT. Praised by CMU alumni for rigor and depth.
+  # Confirmed F25; not yet posted for F26/S26 in SOC — re-add when it appears.
+  # - course: "15-745"
+  #   category: [HFT]
+  #   rating:
+  #     default: 3
+  #     HFT: 4
+
+  # ---------------------------------------------------------------------------
+  # Rigorous pricing theory (options/derivatives background bridge)
+  # ---------------------------------------------------------------------------
+
+  # Discrete Time Finance
+  # Binomial-tree option pricing, no-arbitrage theory, risk-neutral measures,
+  # and the fundamental theorem of asset pricing in discrete time. Formalizes
+  # the intuition behind the options/futures pricing the student already trades.
+  # Community note: HFT SWEs don't need stochastic calculus — this is more
+  # valuable for quant research roles (options market-making, derivatives).
+  # Also the required prerequisite for 21-420. F26 confirmed by SOC.
+  - course: "21-370"
+    category: [Quant]
+    rating:
+      default: 2
+      Quant: 4
+
+  # Continuous Time Finance
+  # Black-Scholes PDE, Itô's formula, stochastic differential equations, and
+  # risk-neutral pricing in continuous time — the core mathematical language of
+  # options market-making. Community: HFT infrastructure engineers don't need
+  # this, but quant/market-making roles (Citadel Securities vol desk, Jane Street
+  # options) use it daily. Bridges retail options intuition to rigorous theory.
+  # S26 confirmed. Prereq: 21-370 (Discrete Time Finance).
+  - course: "21-420"
+    category: [Quant]
+    rating:
+      default: 2
+      Quant: 5

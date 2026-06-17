@@ -1,6 +1,7 @@
 from ..common.config import SEM_LABEL, USER_TO_SOC
+from ..common.labels import mini_label
 from ..common.rating import star_rating
-from .render_common import _meeting_label, _mini_label
+from .render_common import _meeting_label
 from .time import _selected_meetings
 
 def print_primary_route(semesters, units_max, prefer, teaching_location, current_time_ranges, results) -> None:
@@ -24,7 +25,7 @@ def print_primary_route(semesters, units_max, prefer, teaching_location, current
             offering = c.offering_for(soc)
             minis = offering.minis if offering else []
             selected_minis = [c.selected_mini] if c.selected_mini else minis
-            mini_str = f"  {_mini_label(selected_minis)}" if selected_minis else ""
+            mini_str = f"  {mini_label(selected_minis)}" if selected_minis else ""
             time_str = ""
             if offering and offering.meetings:
                 time_str = "  " + ", ".join(_meeting_label(m) for m in _selected_meetings(c, soc))

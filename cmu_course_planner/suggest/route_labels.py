@@ -1,9 +1,9 @@
 import html as html_lib
 from collections import Counter
 
+from ..common.labels import category_tag_class
 from ..common.rating import star_rating
 from .models import Course
-from .render_common import _category_tag_class
 
 def _route_count_summary(schedule: list[list[Course]], prefer: list[str]) -> str:
     courses = [course for sem_courses in schedule for course in sem_courses]
@@ -19,7 +19,7 @@ def _route_count_summary(schedule: list[list[Course]], prefer: list[str]) -> str
     ]
     for category, count in sorted(category_counts.items()):
         parts.append(
-            f'<span class="tag {_category_tag_class(category)}">'
+            f'<span class="tag {category_tag_class(category)}">'
             f'{html_lib.escape(category)}: {count}</span>'
         )
     return "".join(parts)

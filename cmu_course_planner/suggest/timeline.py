@@ -1,7 +1,9 @@
 import html as html_lib
 from .models import Course, Meeting
 from .render_common import _format_minutes
-from .time import _meeting_days, _selected_meetings, _time_minutes
+from .time import _meeting_days, _meeting_interval, _selected_meetings
+def _mini_suffix(meeting: Meeting) -> str:
+    return f" M{meeting.mini}" if meeting.mini else ""
 def _timeline_entries(
     sem_courses: list[Course],
     soc_type: str,
@@ -14,27 +16,22 @@ def _timeline_entries(
             return
         labels.append(label)
         classes.add(cls)
-    for meeting in current_time_ranges:
-        begin = _time_minutes(meeting.begin)
-        end = _time_minutes(meeting.end)
-        if begin is None or end is None or end <= begin:
-            continue
+    def add_meeting(meeting: Meeting, label: str, cls: str) -> None:
+        interval = _meeting_interval(meeting)
+        if interval is None:
+            return
+        begin, end = interval
         for day in _meeting_days(meeting.days):
-            mini = f" M{meeting.mini}" if meeting.mini else ""
-            add_entry(day, begin, end, f"Current{mini}", "timeline-current")
+            add_entry(day, begin, end, label, cls)
+    for meeting in current_time_ranges:
+        add_meeting(meeting, f"Current{_mini_suffix(meeting)}", "timeline-current")
     for course in sem_courses:
         offering = course.offering_for(soc_type)
         if not offering:
             continue
         for meeting in _selected_meetings(course, soc_type):
-            begin = _time_minutes(meeting.begin)
-            end = _time_minutes(meeting.end)
-            if begin is None or end is None or end <= begin:
-                continue
-            mini = f" M{meeting.mini}" if meeting.mini else ""
-            label = f"{course.course}{mini} {course.title}"
-            for day in _meeting_days(meeting.days):
-                add_entry(day, begin, end, label, "timeline-course")
+            label = f"{course.course}{_mini_suffix(meeting)} {course.title}"
+            add_meeting(meeting, label, "timeline-course")
     entries: dict[str, list[tuple[int, int, str, str]]] = {}
     for (day, begin, end), (labels, classes) in merged.items():
         cls = "timeline-overlap" if len(classes) > 1 else next(iter(classes))

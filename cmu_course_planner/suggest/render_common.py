@@ -1,25 +1,13 @@
 import html as html_lib
 
+from ..common.labels import mini_label, prereq_info
 from ..common.rating import star_rating
 from .models import Course, Meeting, Offering
 from .time import _selected_meetings
 
-def _category_tag_class(category: str) -> str:
-    return "tag-quant" if category == "Quant" else "tag-hft"
-
-def _badges(cats: list[str]) -> str:
-    out = []
-    for c in cats:
-        cls = _category_tag_class(c)
-        out.append(f'<span class="tag {cls}">{c}</span>')
-    return "".join(out)
-
 def _rating_badge(course: Course, prefer: list[str]) -> str:
     rating = course.effective_rating(prefer)
     return f'<span class="tag tag-rating" title="{rating}/5" aria-label="{rating} out of 5">{star_rating(rating)}</span>'
-
-def _mini_label(minis: list[int]) -> str:
-    return "·".join(f"M{n}" for n in minis)
 
 def _meeting_label(meeting: Meeting) -> str:
     return f"{meeting.days} {meeting.begin}-{meeting.end}"
@@ -45,7 +33,7 @@ def _offering_chips(course: Course) -> str:
     parts = ['<div class="chips">']
     for o in reversed(course.offered_in):
         sem_type = o.semester[0]
-        mini_html = f'<span class="mini">{_mini_label(o.minis)}</span>' if o.minis else ""
+        mini_html = f'<span class="mini">{mini_label(o.minis)}</span>' if o.minis else ""
         parts.append(
             f'<a class="chip chip-{sem_type}" href="{o.link}" target="_blank">'
             f'{o.semester}{mini_html}</a>'
@@ -53,23 +41,13 @@ def _offering_chips(course: Course) -> str:
     parts.append("</div>")
     return "".join(parts)
 
-def _course_link(c: Course, soc_type: str) -> str:
-    href = c.last_link_for(soc_type) or c.last_link()
+def _course_cell(course: Course, href: str | None) -> str:
     if href:
-        return f'<a class="course-link" href="{href}" target="_blank">{c.course}</a>'
-    return f'<span class="course-plain">{c.course}</span>'
+        return f'<a class="course-link" href="{href}" target="_blank">{course.course}</a>'
+    return f'<span class="course-plain">{course.course}</span>'
 
-def _prereq_info(prerequisites: str) -> str:
-    text = prerequisites.strip() if prerequisites else "Unknown"
-    if text.lower() == "none":
-        return '<span class="no-prereqs">None</span>'
-    escaped = html_lib.escape(text)
-    return (
-        '<details class="prereq-info">'
-        '<summary aria-label="Show prerequisites" title="Show prerequisites">i</summary>'
-        f'<div class="prereq-popover">{escaped}</div>'
-        '</details>'
-    )
+def _course_link(c: Course, soc_type: str) -> str:
+    return _course_cell(c, c.last_link_for(soc_type) or c.last_link())
 
 def _semester_available_courses_info(courses: list[Course], soc_type: str, semester_label: str) -> str:
     available = sorted(
@@ -83,7 +61,7 @@ def _semester_available_courses_info(courses: list[Course], soc_type: str, semes
         for course in available:
             offering = course.offering_for(soc_type)
             assert offering is not None
-            mini = f' <span class="mini-chip">{_mini_label(offering.minis)}</span>' if offering.minis else ""
+            mini = f' <span class="mini-chip">{mini_label(offering.minis)}</span>' if offering.minis else ""
             rows.append(
                 '<li>'
                 f'{_course_link(course, soc_type)}'

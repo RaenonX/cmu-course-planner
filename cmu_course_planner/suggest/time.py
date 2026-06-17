@@ -4,8 +4,17 @@ from .models import Course, Meeting
 
 SOC_MINIS = {"F": [1, 2], "S": [3, 4], "M": [5, 6]}
 
+_TIME_RE = re.compile(r'(\d{1,2})(?::(\d{2}))?\s*([AP])\.?M\.?', re.IGNORECASE)
+_DAY_TOKEN_RE = re.compile(r'Th|Thu|Tu|Tue|Su|Sun|[MTWRFSU]', re.IGNORECASE)
+# Day tokens that do not map to their own first letter (e.g. "Th"/"Thu" -> "R").
+_DAY_ALIASES = {
+    "TH": "R", "THU": "R", "R": "R",
+    "TU": "T", "TUE": "T", "T": "T",
+    "SU": "U", "SUN": "U", "U": "U",
+}
+
 def _time_minutes(value: str) -> int | None:
-    m = re.search(r'(\d{1,2})(?::(\d{2}))?\s*([AP])\.?M\.?', value, re.IGNORECASE)
+    m = _TIME_RE.search(value)
     if not m:
         return None
     hour = int(m.group(1))
@@ -18,29 +27,20 @@ def _time_minutes(value: str) -> int | None:
     return hour * 60 + minute
 
 def _meeting_days(value: str) -> list[str]:
-    normalized = value.strip()
-    if not normalized:
-        return []
-
-    if " " in normalized:
-        source = re.findall(r'Th|Thu|Tu|Tue|Su|Sun|[MTWRFSU]', normalized, re.IGNORECASE)
-    else:
-        source = re.findall(r'Th|Thu|Tu|Tue|Su|Sun|[MTWRFSU]', normalized, re.IGNORECASE)
-
-    days = []
-    for token in source:
-        token_upper = token.upper()
-        if token_upper in {"TH", "THU", "R"}:
-            day = "R"
-        elif token_upper in {"TU", "TUE", "T"}:
-            day = "T"
-        elif token_upper in {"SU", "SUN", "U"}:
-            day = "U"
-        else:
-            day = token_upper[0]
+    days: list[str] = []
+    for token in _DAY_TOKEN_RE.findall(value):
+        day = _DAY_ALIASES.get(token.upper(), token[0].upper())
         if day not in days:
             days.append(day)
     return days
+
+def _meeting_interval(meeting: Meeting) -> tuple[int, int] | None:
+    """(begin, end) in minutes, or None when unparseable or non-positive length."""
+    begin = _time_minutes(meeting.begin)
+    end = _time_minutes(meeting.end)
+    if begin is None or end is None or end <= begin:
+        return None
+    return begin, end
 
 def _meeting_buckets(meeting: Meeting, soc_type: str) -> list[int]:
     if meeting.mini is not None:
@@ -62,13 +62,12 @@ def _add_meeting_intervals_by_bucket(
     soc_type: str,
 ) -> None:
     for meeting in meetings:
-        begin = _time_minutes(meeting.begin)
-        end = _time_minutes(meeting.end)
-        if begin is None or end is None or end <= begin:
+        interval = _meeting_interval(meeting)
+        if interval is None:
             continue
         for day in _meeting_days(meeting.days):
             for bucket in _meeting_buckets(meeting, soc_type):
-                intervals_by_day.setdefault((day, bucket), []).append((begin, end))
+                intervals_by_day.setdefault((day, bucket), []).append(interval)
 
 def _continuity_score(
     courses: list[Course],
