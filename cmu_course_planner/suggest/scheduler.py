@@ -2,7 +2,7 @@ from dataclasses import replace
 
 from ..common.config import USER_TO_SOC
 from .models import Course, Meeting
-from .priority import _candidate_slots, _route_choice_index, _sort_key
+from .priority import _candidate_slots, _occupied_mini_slots, _route_choice_index, _sort_key
 from .time import _continuity_score
 
 def suggest(
@@ -40,10 +40,11 @@ def suggest(
 
         while candidates:
             base_overlap, base_gap = _continuity_score(schedule[idx], soc, semester_time_ranges)
+            occupied_minis = _occupied_mini_slots(schedule[idx])
             if variant == "Time Continuity First":
                 ranked = []
                 for c in candidates:
-                    for chosen_slot in _candidate_slots(c, budget, soc):
+                    for chosen_slot in _candidate_slots(c, budget, soc, occupied_minis):
                         selected = replace(c, selected_mini=chosen_slot or None)
                         next_overlap, next_gap = _continuity_score([*schedule[idx], selected], soc, semester_time_ranges)
                         incremental_overlap = next_overlap - base_overlap
@@ -64,7 +65,7 @@ def suggest(
             else:
                 ranked = []
                 for c in candidates:
-                    for chosen_slot in _candidate_slots(c, budget, soc):
+                    for chosen_slot in _candidate_slots(c, budget, soc, occupied_minis):
                         selected = replace(c, selected_mini=chosen_slot or None)
                         next_overlap, _ = _continuity_score([*schedule[idx], selected], soc, semester_time_ranges)
                         if next_overlap == base_overlap:
