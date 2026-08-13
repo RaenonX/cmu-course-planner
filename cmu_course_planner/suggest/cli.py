@@ -1,4 +1,5 @@
 import argparse
+import sys
 from pathlib import Path
 
 from ..common.paths import DEFAULT_CONFIG, OUT_DIR, SUGGEST_OUTPUT
@@ -9,6 +10,8 @@ from .routes import suggest_routes
 from .variants import ROUTES_PER_VARIANT, VARIANTS
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="Generate suggested CMU course schedules.")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG, metavar="FILE",
                         help=f"config file (default: {DEFAULT_CONFIG.name})")

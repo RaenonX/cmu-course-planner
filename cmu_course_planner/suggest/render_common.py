@@ -1,9 +1,8 @@
 import html as html_lib
 
-from ..common.labels import mini_label, prereq_info
+from ..common.labels import mini_label, unresolved_time_badge
 from ..common.rating import star_rating
-from .models import Course, Meeting, Offering
-from .time import _selected_meetings
+from .models import Course, Meeting, Offering, SectionOption
 
 def _rating_badge(course: Course, prefer: list[str]) -> str:
     rating = course.effective_rating(prefer)
@@ -19,12 +18,21 @@ def _format_minutes(minutes: int) -> str:
     hour12 = hour24 % 12 or 12
     return f"{hour12}:{minute:02d}{meridiem}"
 
-def _time_label(offering: Offering | None, meetings: list[Meeting] | None = None) -> str:
-    selected = meetings if meetings is not None else (offering.meetings if offering else [])
-    if not offering or not selected:
+def _section_option_label(option: SectionOption) -> str:
+    labels = ", ".join(_meeting_label(meeting) for meeting in option.meetings)
+    time_html = html_lib.escape(labels) if labels else '<span class="no-prereqs">Unknown</span>'
+    if option.has_unresolved_time:
+        time_html += f" {unresolved_time_badge()}"
+    mini = f"M{option.mini} " if option.mini else ""
+    return f'<span class="section-label">{mini}{html_lib.escape(option.label)}</span>: {time_html}'
+
+
+def _time_label(offering: Offering | None, option: SectionOption | None = None) -> str:
+    if not offering:
         return '<span class="no-prereqs">Unknown</span>'
-    labels = ", ".join(_meeting_label(m) for m in selected)
-    return html_lib.escape(labels)
+    if option is not None:
+        return _section_option_label(option)
+    return "<br>".join(_section_option_label(item) for item in offering.section_options)
 
 def _offering_chips(course: Course) -> str:
     """Compact chip row for all detected past offerings, oldest → newest."""
@@ -67,7 +75,7 @@ def _semester_available_courses_info(courses: list[Course], soc_type: str, semes
                 f'{_course_link(course, soc_type)}'
                 f' <span class="available-title">{html_lib.escape(course.title)}</span>'
                 f'{mini}'
-                f' <span class="available-time">{_time_label(offering, _selected_meetings(course, soc_type))}</span>'
+                f' <span class="available-time">{_time_label(offering)}</span>'
                 '</li>'
             )
         body = f'<ul class="available-list">{"".join(rows)}</ul>'

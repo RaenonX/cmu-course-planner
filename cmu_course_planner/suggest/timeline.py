@@ -30,7 +30,8 @@ def _timeline_entries(
         if not offering:
             continue
         for meeting in _selected_meetings(course, soc_type):
-            label = f"{course.course}{_mini_suffix(meeting)} {course.title}"
+            section = f" [{course.selected_section}]" if course.selected_section else ""
+            label = f"{course.course}{_mini_suffix(meeting)}{section} {course.title}"
             add_meeting(meeting, label, "timeline-course")
     entries: dict[str, list[tuple[int, int, str, str]]] = {}
     for (day, begin, end), (labels, classes) in merged.items():

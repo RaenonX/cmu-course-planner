@@ -57,7 +57,24 @@ When `mini` is present, that current range is compared only with full-semester
 meetings and meetings in the same mini slot. Mini numbering follows CMU SOC
 section suffixes: fall uses mini 1/2, spring uses 3/4, and summer uses 5/6.
 
-Prerequisites are read from the SOC course detail page by `export_report.py` and written into `out/course-snapshot.json` as `prerequisites`. HTML reports render this value behind a small clickable `i` control so table rows stay compact until prerequisites are needed.
+Prerequisites are read from the SOC course detail page by `export_report.py` and written into `out/course-snapshot.json` as `prerequisites`. HTML reports render the status as a compact clickable badge and show the source expression in its popover.
+Because completed-course history is not configured, every non-empty prerequisite
+is marked **Unsatisfied** as an advisory status. It does not block scheduling.
+
+An offering with a TBA meeting row is retained and marked **TBA / incomplete** in
+the exported and suggested reports. Known meeting times still participate in
+conflict checks; the warning identifies the remaining uncertainty.
+
+SOC rows are stored as selectable `section_options`, not as one flattened list
+of meetings. Courses without a `Lec ...` row treat each section as an
+alternative. Courses with a lecture combine that lecture with each alternative
+section. Repeated rows carrying the same section label remain required parts of
+that option, while identical-time rows are deduplicated so an option cannot
+conflict with itself. The scheduler records and reports the option it selected.
+
+Planned semesters intentionally use seasonal offering history: every configured
+`F`, `S`, or `Su` term uses the latest detected Fall, Spring, or Summer offering.
+The planner does not claim that a future year-specific offering is confirmed.
 
 
 Scheduler details continue in [plan_suggest_algorithm_scheduler.md](plan_suggest_algorithm_scheduler.md).

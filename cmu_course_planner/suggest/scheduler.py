@@ -2,8 +2,10 @@ from dataclasses import replace
 
 from ..common.config import USER_TO_SOC
 from .models import Course, Meeting
-from .priority import _candidate_slots, _occupied_mini_slots, _route_choice_index, _sort_key
+from .priority import _route_choice_index, _sort_key
+from .sections import section_choices
 from .time import _continuity_score
+from .units import candidate_slots, semester_unit_loads
 
 def suggest(
     courses: list[Course],
@@ -35,17 +37,21 @@ def suggest(
         ]
         candidates.sort(key=_sort_key(variant, prefer, remaining_soc))
 
-        budget = units_max
         semester_time_ranges = current_time_ranges if idx == 0 else []
 
         while candidates:
             base_overlap, base_gap = _continuity_score(schedule[idx], soc, semester_time_ranges)
-            occupied_minis = _occupied_mini_slots(schedule[idx])
+            unit_loads = semester_unit_loads(schedule[idx], soc)
             if variant == "Time Continuity First":
                 ranked = []
                 for c in candidates:
-                    for chosen_slot in _candidate_slots(c, budget, soc, occupied_minis):
-                        selected = replace(c, selected_mini=chosen_slot or None)
+                    slots = candidate_slots(c, units_max, soc, unit_loads)
+                    for chosen_slot, option in section_choices(c, soc, slots):
+                        selected = replace(
+                            c,
+                            selected_mini=chosen_slot or None,
+                            selected_section=option.label,
+                        )
                         next_overlap, next_gap = _continuity_score([*schedule[idx], selected], soc, semester_time_ranges)
                         incremental_overlap = next_overlap - base_overlap
                         if incremental_overlap:
@@ -56,33 +62,39 @@ def suggest(
                             *_sort_key("Rating First", prefer, remaining_soc)(c),
                             c,
                             chosen_slot,
+                            option.label,
                         ))
                 if not ranked:
                     break
-                ranked.sort(key=lambda item: item[:-2])
+                ranked.sort(key=lambda item: item[:-3])
                 choice_idx = _route_choice_index(route_seed, idx, len(schedule[idx]), len(ranked))
-                *_, c, chosen_slot = ranked[choice_idx]
+                *_, c, chosen_slot, chosen_section = ranked[choice_idx]
             else:
                 ranked = []
                 for c in candidates:
-                    for chosen_slot in _candidate_slots(c, budget, soc, occupied_minis):
-                        selected = replace(c, selected_mini=chosen_slot or None)
+                    slots = candidate_slots(c, units_max, soc, unit_loads)
+                    for chosen_slot, option in section_choices(c, soc, slots):
+                        selected = replace(
+                            c,
+                            selected_mini=chosen_slot or None,
+                            selected_section=option.label,
+                        )
                         next_overlap, _ = _continuity_score([*schedule[idx], selected], soc, semester_time_ranges)
                         if next_overlap == base_overlap:
-                            ranked.append((c, chosen_slot))
+                            ranked.append((c, chosen_slot, option.label))
                 if not ranked:
                     break
                 choice_idx = _route_choice_index(route_seed, idx, len(schedule[idx]), len(ranked))
-                c, chosen_slot = ranked[choice_idx]
+                c, chosen_slot, chosen_section = ranked[choice_idx]
 
             candidates = [candidate for candidate in candidates if candidate.course != c.course]
 
-            schedule[idx].append(replace(c, selected_mini=chosen_slot or None))
+            schedule[idx].append(replace(
+                c,
+                selected_mini=chosen_slot or None,
+                selected_section=chosen_section,
+            ))
             assigned.add(c.course)
-            budget -= c.units
-
-            if budget == 0:
-                break
 
     unplaced = [c for c in courses if c.course not in assigned]
     return schedule, unplaced

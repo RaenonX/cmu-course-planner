@@ -1,11 +1,11 @@
 import re
 
-from .models import Course, Meeting
+from .models import Course, Meeting, SectionOption
 
 SOC_MINIS = {"F": [1, 2], "S": [3, 4], "M": [5, 6]}
 
 _TIME_RE = re.compile(r'(\d{1,2})(?::(\d{2}))?\s*([AP])\.?M\.?', re.IGNORECASE)
-_DAY_TOKEN_RE = re.compile(r'Th|Thu|Tu|Tue|Su|Sun|[MTWRFSU]', re.IGNORECASE)
+_DAY_TOKEN_RE = re.compile(r'Thu|Th|Tue|Tu|Sun|Su|[MTWRFSU]', re.IGNORECASE)
 # Day tokens that do not map to their own first letter (e.g. "Th"/"Thu" -> "R").
 _DAY_ALIASES = {
     "TH": "R", "THU": "R", "R": "R",
@@ -47,14 +47,29 @@ def _meeting_buckets(meeting: Meeting, soc_type: str) -> list[int]:
         return [meeting.mini]
     return SOC_MINIS.get(soc_type, [0])
 
-def _selected_meetings(course: Course, soc_type: str) -> list[Meeting]:
+def _selected_section_option(course: Course, soc_type: str) -> SectionOption | None:
     offering = course.offering_for(soc_type)
     if not offering:
-        return []
-    if course.selected_mini is None:
-        return offering.meetings
-    selected = [m for m in offering.meetings if m.mini is None or m.mini == course.selected_mini]
-    return selected or offering.meetings
+        return None
+    if course.selected_section is not None:
+        return next(
+            (
+                option for option in offering.section_options
+                if option.label == course.selected_section
+                and (course.selected_mini is None or option.mini == course.selected_mini)
+            ),
+            None,
+        )
+    eligible = [
+        option for option in offering.section_options
+        if course.selected_mini is None or option.mini == course.selected_mini
+    ]
+    return eligible[0] if len(eligible) == 1 else None
+
+
+def _selected_meetings(course: Course, soc_type: str) -> list[Meeting]:
+    option = _selected_section_option(course, soc_type)
+    return option.meetings if option else []
 
 def _add_meeting_intervals_by_bucket(
     intervals_by_day: dict[tuple[str, int], list[tuple[int, int]]],

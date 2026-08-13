@@ -8,10 +8,17 @@ class Meeting:
     mini: int | None = None
 
 @dataclass
+class SectionOption:
+    label: str
+    meetings: list[Meeting]
+    mini: int | None = None
+    has_unresolved_time: bool = False
+
+@dataclass
 class Offering:
     semester: str
-    minis: list[int]   # empty = full semester; [2] = mini-2 only; [1,2] = either slot
-    meetings: list[Meeting]
+    minis: list[int]
+    section_options: list[SectionOption]
     link: str
 
 @dataclass
@@ -25,6 +32,7 @@ class Course:
     rating_by_category: dict[str, int]
     offered_in: list[Offering]   # newest first
     selected_mini: int | None = None
+    selected_section: str | None = None
 
     def offered_soc_types(self) -> set[str]:
         return {o.semester[0] for o in self.offered_in}

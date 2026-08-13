@@ -65,7 +65,7 @@ def build_snapshot(today, semesters: list[str], teaching_location: str, entries:
             "rating": rating,
             "rating_by_category": rating_by_category,
             "offered_in": [{"semester": sem, "minis": results[(e["course"], sem)]["minis"],
-                "meetings": results[(e["course"], sem)]["meetings"],
+                "section_options": results[(e["course"], sem)]["section_options"],
                 "link": results[(e["course"], sem)]["link"]}
                 for sem in semesters if results.get((e["course"], sem)) is not None],
         }

@@ -1,6 +1,7 @@
 import re
 
 from .html_table import data_rows, header_cells, header_index, tables
+from .section_options import build_section_options
 
 # Trailing digit of a section code identifies its mini slot, e.g. "A4" -> 4.
 _MINI_RE = re.compile(r'([1-6])$')
@@ -60,26 +61,37 @@ def _cell_at(cells: list[str], begin_idx: int, offsets: dict[str, int], name: st
 
 
 def _section_record(cells: list[str], offsets: dict[str, int], teaching_location: str) -> dict | None:
-    """Structured {section, mini, days, begin, end} for one row, or None to skip it."""
-    time_indices = [i for i, cell in enumerate(cells) if _TIME_RE.fullmatch(cell)]
-    if len(time_indices) < 2:
-        return None
-    begin_idx = time_indices[0]
-    days = _cell_at(cells, begin_idx, offsets, "days")
-    if not days or days.lower() == "tba":
-        return None
-    location = _cell_at(cells, begin_idx, offsets, "location")
-    if location is not None and location != teaching_location:
-        return None
-    section = _cell_at(cells, begin_idx, offsets, "section") or ""
-    mini_flag = _cell_at(cells, begin_idx, offsets, "mini") or ""
-    return {
-        "section": section,
-        "mini": _section_mini(section, mini_flag),
-        "days": days,
-        "begin": cells[time_indices[0]],
-        "end": cells[time_indices[1]],
-    }
+    """One target-location SOC section row, including unresolved TBA rows."""
+    time_indices = [
+        index for index, cell in enumerate(cells)
+        if _TIME_RE.fullmatch(cell) or cell.strip().upper() == "TBA"
+    ]
+    for begin_idx in time_indices:
+        days = _cell_at(cells, begin_idx, offsets, "days")
+        end = _cell_at(cells, begin_idx, offsets, "end")
+        if not days or not end or not (_TIME_RE.fullmatch(end) or end.upper() == "TBA"):
+            continue
+        location = _cell_at(cells, begin_idx, offsets, "location")
+        if location is not None and location != teaching_location:
+            continue
+        section = _cell_at(cells, begin_idx, offsets, "section") or ""
+        mini_flag = _cell_at(cells, begin_idx, offsets, "mini") or ""
+        unresolved = any(value.strip().upper() == "TBA" for value in (days, cells[begin_idx], end))
+        meeting = None if unresolved else {
+            "days": days,
+            "begin": cells[begin_idx],
+            "end": end,
+        }
+        mini = _section_mini(section, mini_flag)
+        if meeting is not None and mini is not None:
+            meeting["mini"] = mini
+        return {
+            "section": section,
+            "mini": mini,
+            "meeting": meeting,
+            "has_unresolved_time": unresolved,
+        }
+    return None
 
 
 def _section_records(html: str, teaching_location: str) -> list[dict]:
@@ -100,24 +112,15 @@ def parse_sections(html: str, teaching_location: str) -> dict | None:
     """
     Parse SOC section tables for ``teaching_location``.
 
-    Returns None when the course is not offered there, otherwise
-    {"minis": list[int], "meetings": list[dict]}. ``minis`` is empty for
-    full-semester courses; each meeting carries a "mini" key only when scheduled
-    in a specific mini slot.
+    Returns None when the course is not offered there. Otherwise, ``minis``
+    identifies its available mini slots and ``section_options`` preserves each
+    selectable section schedule instead of flattening alternatives together.
     """
     records = _section_records(html, teaching_location)
     if not records:
         return None
-    minis = sorted({r["mini"] for r in records if r["mini"] is not None})
-    meetings: list[dict] = []
-    seen: set[tuple[str, str, str, int | None]] = set()
-    for record in records:
-        key = (record["days"], record["begin"], record["end"], record["mini"])
-        if key in seen:
-            continue
-        seen.add(key)
-        meeting = {"days": record["days"], "begin": record["begin"], "end": record["end"]}
-        if record["mini"] is not None:
-            meeting["mini"] = record["mini"]
-        meetings.append(meeting)
-    return {"minis": minis, "meetings": meetings}
+    section_options = build_section_options(records)
+    return {
+        "minis": sorted({record["mini"] for record in records if record["mini"] is not None}),
+        "section_options": section_options,
+    }

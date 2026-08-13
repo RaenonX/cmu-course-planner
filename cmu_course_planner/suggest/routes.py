@@ -4,7 +4,10 @@ from .variants import ROUTE_ATTEMPTS, ROUTES_PER_VARIANT
 
 def _schedule_signature(schedule: list[list[Course]], unplaced: list[Course]) -> tuple:
     return (
-        tuple(tuple(c.course for c in sem_courses) for sem_courses in schedule),
+        tuple(
+            tuple((c.course, c.selected_mini, c.selected_section) for c in sem_courses)
+            for sem_courses in schedule
+        ),
         tuple(c.course for c in unplaced),
     )
 

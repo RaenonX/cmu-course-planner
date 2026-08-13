@@ -1,6 +1,6 @@
 import html as html_lib
 
-from ..common.labels import category_badges, mini_label, prereq_info
+from ..common.labels import category_badges, mini_label, prereq_info, unresolved_time_badge
 from ..common.paths import REPORT_TEMPLATE_DIR
 from ..common.rating import parse_rating, star_rating
 
@@ -28,9 +28,18 @@ def _sem_chips(semesters: list[str], offering_map: dict[str, dict | None]) -> st
     parts.append("</div>")
     return "".join(parts)
 
-def _meeting_label(meeting: dict[str, str]) -> str:
-    mini = f'M{meeting["mini"]} ' if meeting.get("mini") else ""
-    return f'{mini}{meeting["days"]} {meeting["begin"]}-{meeting["end"]}'
+def _meeting_label(meeting: dict) -> str:
+    return f'{meeting["days"]} {meeting["begin"]}-{meeting["end"]}'
+
+
+def _section_option_label(option: dict) -> str:
+    meetings = option.get("meetings") or []
+    labels = ", ".join(_meeting_label(meeting) for meeting in meetings)
+    time_html = html_lib.escape(labels) if labels else '<span class="no-prereqs">Unknown</span>'
+    if option.get("has_unresolved_time"):
+        time_html += f" {unresolved_time_badge()}"
+    mini = f'M{option["mini"]} ' if option.get("mini") else ""
+    return f'<span class="section-label">{mini}{html_lib.escape(option["label"])}</span>: {time_html}'
 
 def _offering_times(semesters: list[str], offering_map: dict[str, dict | None]) -> str:
     parts = []
@@ -38,11 +47,8 @@ def _offering_times(semesters: list[str], offering_map: dict[str, dict | None]) 
         info = offering_map.get(sem)
         if not info:
             continue
-        meetings = info.get("meetings") or []
-        if not meetings:
-            continue
-        labels = ", ".join(_meeting_label(m) for m in meetings)
-        parts.append(f'<div><strong>{sem}</strong>: {html_lib.escape(labels)}</div>')
+        options = "<br>".join(_section_option_label(option) for option in info["section_options"])
+        parts.append(f'<div><strong>{sem}</strong>: {options}</div>')
     return "".join(parts) if parts else '<span class="no-prereqs">Unknown</span>'
 
 

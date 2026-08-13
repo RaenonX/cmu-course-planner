@@ -16,7 +16,10 @@
     .chip-S { background: #0d2b12; color: #6fcf82; }
     .chip-M { background: #0d1e3d; color: #60a5fa; }
     .no-prereqs { color: #6b7280; }
-    .prereq-info summary, .semester-offerings-info summary { border-color: #6b7280; color: #d1d5db; }
+    .status-warning { background: #3d2a00; color: #fcd34d; }
+    .status-unknown { background: #2d2d2d; color: #9ca3af; }
+    .prereq-info summary { color: #d1d5db; }
+    .semester-offerings-info summary { border-color: #6b7280; color: #d1d5db; }
     .prereq-info summary:hover, .semester-offerings-info summary:hover { border-color: #e8455a; color: #e8455a; background: #2a1519; }
     .prereq-popover { background: #1f1f1f; color: #e5e5e5; border-color: #3a3a3a;
                       box-shadow: 0 10px 24px rgba(0,0,0,.35); }

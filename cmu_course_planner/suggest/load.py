@@ -6,7 +6,7 @@ import yaml
 from ..common.config import SUPPORTED_TEACHING_LOCATION, USER_TO_SOC
 from ..common.paths import SNAPSHOT
 from ..common.rating import parse_rating
-from .models import Course, Meeting, Offering
+from .models import Course, Meeting, Offering, SectionOption
 
 def _optional_mini(value) -> int | None:
     if value is None or value == "":
@@ -88,14 +88,22 @@ def load_snapshot(
             Offering(
                 semester=o["semester"],
                 minis=o.get("minis") or [],
-                meetings=[
-                    Meeting(
-                        days=m.get("days") or "",
-                        begin=m.get("begin") or "",
-                        end=m.get("end") or "",
-                        mini=_optional_mini(m.get("mini")),
+                section_options=[
+                    SectionOption(
+                        label=option["label"],
+                        mini=_optional_mini(option.get("mini")),
+                        has_unresolved_time=bool(option.get("has_unresolved_time")),
+                        meetings=[
+                            Meeting(
+                                days=meeting.get("days") or "",
+                                begin=meeting.get("begin") or "",
+                                end=meeting.get("end") or "",
+                                mini=_optional_mini(meeting.get("mini")),
+                            )
+                            for meeting in option.get("meetings") or []
+                        ],
                     )
-                    for m in (o.get("meetings") or [])
+                    for option in o["section_options"]
                 ],
                 link=o["link"],
             )

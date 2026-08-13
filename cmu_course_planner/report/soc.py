@@ -58,7 +58,7 @@ def enr_link(course_id: str, sem: str) -> str:
 def fetch_offering(course_id: str, sem: str, teaching_location: str) -> dict | None:
     """
     Return None if not offered this semester.
-    Return {"link": str, "minis": list[int], "meetings": list[dict], "html": str} if offered.
+    Return offering details including whether any time is unresolved when offered.
     minis is empty for full-semester courses. html is used to extract title/units.
     """
     url = enr_link(course_id, sem)
@@ -71,6 +71,6 @@ def fetch_offering(course_id: str, sem: str, teaching_location: str) -> dict | N
     return {
         "link": url,
         "minis": sections["minis"],
-        "meetings": sections["meetings"],
+        "section_options": sections["section_options"],
         "html": body,
     }

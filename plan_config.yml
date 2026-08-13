@@ -2,7 +2,7 @@
 # Auto plan suggester configuration
 # ---------------------------------------------------------
 
-# Maximum units to take in a single semester
+# Remaining suggested-course capacity in each mini slot.
 units_per_semester: 12
 
 # Your planned semesters in order.

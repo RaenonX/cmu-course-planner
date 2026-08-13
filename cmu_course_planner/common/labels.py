@@ -24,14 +24,25 @@ def mini_label(minis: list[int]) -> str:
 
 
 def prereq_info(prerequisites: str) -> str:
-    """Collapsible prerequisite popover, or a plain label for None/Unknown."""
+    """Prerequisite status plus collapsible source text."""
     text = prerequisites.strip() if prerequisites else "Unknown"
     if text.lower() == "none":
         return '<span class="no-prereqs">None</span>'
+    if text.lower() == "unknown":
+        return '<span class="status-badge status-unknown">Unknown</span>'
     escaped = html_lib.escape(text)
     return (
         '<details class="prereq-info">'
-        '<summary aria-label="Show prerequisites" title="Show prerequisites">i</summary>'
+        '<summary aria-label="Show unsatisfied prerequisites" '
+        'title="No satisfaction evidence is configured">'
+        '<span class="status-badge status-warning">Unsatisfied</span></summary>'
         f'<div class="prereq-popover">{escaped}</div>'
         '</details>'
+    )
+
+
+def unresolved_time_badge() -> str:
+    return (
+        '<span class="status-badge status-warning" '
+        'title="One or more section meeting times are TBA">TBA / incomplete</span>'
     )

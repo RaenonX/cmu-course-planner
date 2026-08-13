@@ -3,7 +3,7 @@ from .models import Course
 from .render_common import (
     _course_cell, _course_link, _offering_chips, _rating_badge, _time_label,
 )
-from .time import _selected_meetings
+from .time import _selected_section_option
 
 TABLE_HEAD = (
     "<table>\n<thead><tr>"
@@ -22,7 +22,7 @@ def _course_row(c: Course, soc: str, prefer: list[str]) -> str:
         f"<tr><td>{_course_link(c, soc)}</td><td>{c.title}{mini_chip}</td>"
         f"<td>{_rating_badge(c, prefer)}</td><td>{category_badges(c.category)}</td>"
         f'<td class="units">{c.units}</td><td>{prereq_info(c.prerequisites)}</td>'
-        f'<td class="times">{_time_label(offering, _selected_meetings(c, soc))}</td><td>{_offering_chips(c)}</td></tr>\n'
+        f'<td class="times">{_time_label(offering, _selected_section_option(c, soc))}</td><td>{_offering_chips(c)}</td></tr>\n'
     )
 
 

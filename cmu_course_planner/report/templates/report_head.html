@@ -35,11 +35,14 @@
   .times { font-size: .82rem; line-height: 1.45; }
   a.chip:hover { opacity: .75; }
   .no-prereqs { color: #9ca3af; font-size: .85rem; }
+  .status-badge { display: inline-block; padding: .12rem .42rem; border-radius: 999px;
+                  font-size: .72rem; font-weight: 700; white-space: nowrap; }
+  .status-warning { background: #fef3c7; color: #92400e; }
+  .status-unknown { background: #f3f4f6; color: #6b7280; }
   .prereq-info { position: relative; display: inline-block; }
-  .prereq-info summary { width: 1.35rem; height: 1.35rem; border-radius: 999px;
-                          border: 1px solid #9ca3af; color: #374151; display: inline-flex;
+  .prereq-info summary { border-radius: 999px; color: #374151; display: inline-flex;
                           align-items: center; justify-content: center; cursor: pointer;
-                          list-style: none; font-size: .82rem; font-weight: 700; }
+                          list-style: none; }
   .prereq-info summary::-webkit-details-marker { display: none; }
   .prereq-info summary:hover { border-color: #c41230; color: #c41230; background: #fff7f7; }
   .prereq-popover { position: absolute; z-index: 10; top: 1.7rem; right: 0; width: min(28rem, 70vw);
@@ -61,7 +64,9 @@
     .chip-M { background: #0d1e3d; color: #60a5fa; }
     .chip-off { background: #2a2a2a; color: #4b5563; }
     .no-prereqs { color: #6b7280; }
-    .prereq-info summary { border-color: #6b7280; color: #d1d5db; }
+    .status-warning { background: #3d2a00; color: #fcd34d; }
+    .status-unknown { background: #2d2d2d; color: #9ca3af; }
+    .prereq-info summary { color: #d1d5db; }
     .prereq-info summary:hover { border-color: #e8455a; color: #e8455a; background: #2a1519; }
     .prereq-popover { background: #1f1f1f; color: #e5e5e5; border-color: #3a3a3a;
                        box-shadow: 0 10px 24px rgba(0,0,0,.35); }
