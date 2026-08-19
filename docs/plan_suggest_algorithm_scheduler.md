@@ -68,16 +68,16 @@ section label on the scheduled course.
 
 Iterate sorted course/section choices and assign the course to this semester when all three hold:
 
-1. Adding the course stays within `units_per_semester` in every mini slot it occupies.
+1. Adding the course stays within the semester's total `units_per_semester` budget.
 2. The selected section does not introduce overlapping minutes against current ranges or already selected courses in the same semester.
 3. *(implicit)* Course not already assigned
 
 Update state on assignment:
-- Full-semester courses consume their units in both mini slots.
-- Mini courses consume units only in their selected mini slot.
+- Every course consumes its listed units once. For example, stacked 6-unit Mini-1
+  and Mini-2 courses consume 12 units in total.
 - Add course to `assigned` set
 
-Stop when no remaining course fits the per-mini capacity and time constraints.
+Stop when no remaining course fits the total unit budget, mini-slot, and time constraints.
 
 Route 1 uses the top-ranked placeable course at each decision point. Later routes
 choose from the top few placeable candidates using a deterministic seed. This keeps
@@ -88,12 +88,10 @@ instead of only one greedy result.
 
 Each mini course is evaluated per concrete mini section. A course with `minis=[1, 2]` is considered once for mini-1 and once for mini-2. The scheduler records the chosen slot and uses only meeting rows from that slot when computing continuity and rendering the final route. Full-semester courses have `minis=[]` and are compared against all mini slots in that semester.
 
-Multiple courses may occupy the same mini when their combined units remain within
-the configured capacity and their times do not conflict. Loads are reported per
-mini when unbalanced: for example, two 6-unit M1 courses with no M2 course display
-as `M1 12/12 · M2 0/12`. Two 6-unit courses in each mini display as `12/12 units`
-because both consecutive mini loads are full. `current_time_ranges` reserve time
-only; their units are intentionally outside the suggested-course capacity.
+At most one course may occupy each mini slot in a semester. A 6-unit Mini-1 course
+and a 6-unit Mini-2 course form a valid 12-unit stack; two Mini-1 courses with no
+Mini-2 course remain invalid. `current_time_ranges` reserve time only; their units
+are intentionally outside the suggested-course capacity.
 
 `current_time_ranges` entries can also provide `mini: 1` through `mini: 6`. Mini-specific current ranges only conflict with full-semester courses or courses in the same mini slot, so a mini-1 course and a mini-2 course may share the same lecture clock time.
 

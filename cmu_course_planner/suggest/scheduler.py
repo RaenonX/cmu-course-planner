@@ -5,7 +5,7 @@ from .models import Course, Meeting
 from .priority import _route_choice_index, _sort_key
 from .sections import section_choices
 from .time import _continuity_score
-from .units import candidate_slots, semester_unit_loads
+from .units import candidate_slots
 
 def suggest(
     courses: list[Course],
@@ -17,7 +17,7 @@ def suggest(
     route_seed: int = 0,
 ) -> tuple[list[list[Course]], list[Course]]:
     """
-    Greedy scheduler with per-mini-slot tracking.
+    Greedy scheduler with a semester unit budget and one course per mini slot.
 
     Mini-aware conflict handling:
     A course with minis=[1,2] can be placed in either slot 1 or slot 2.  A course
@@ -41,11 +41,10 @@ def suggest(
 
         while candidates:
             base_overlap, base_gap = _continuity_score(schedule[idx], soc, semester_time_ranges)
-            unit_loads = semester_unit_loads(schedule[idx], soc)
             if variant == "Time Continuity First":
                 ranked = []
                 for c in candidates:
-                    slots = candidate_slots(c, units_max, soc, unit_loads)
+                    slots = candidate_slots(c, units_max, soc, schedule[idx])
                     for chosen_slot, option in section_choices(c, soc, slots):
                         selected = replace(
                             c,
@@ -72,7 +71,7 @@ def suggest(
             else:
                 ranked = []
                 for c in candidates:
-                    slots = candidate_slots(c, units_max, soc, unit_loads)
+                    slots = candidate_slots(c, units_max, soc, schedule[idx])
                     for chosen_slot, option in section_choices(c, soc, slots):
                         selected = replace(
                             c,

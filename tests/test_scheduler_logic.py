@@ -9,7 +9,7 @@ from cmu_course_planner.suggest.render_panel import _semester_heading
 from cmu_course_planner.suggest.routes import _schedule_signature
 from cmu_course_planner.suggest.scheduler import suggest
 from cmu_course_planner.suggest.time import _meeting_days
-from cmu_course_planner.suggest.units import candidate_slots, semester_unit_loads
+from cmu_course_planner.suggest.units import candidate_slots, semester_unit_total
 
 
 def course(course_id: str, units: int, minis: list[int], hour: int | None = None) -> Course:
@@ -42,46 +42,43 @@ class DayParsingTests(unittest.TestCase):
 
 
 class MiniUnitTests(unittest.TestCase):
-    def test_two_courses_in_each_mini_fill_a_twelve_unit_capacity(self) -> None:
+    def test_one_course_in_each_mini_adds_to_twelve_units(self) -> None:
         selected = [
             replace(course("m1-a", 6, [1]), selected_mini=1),
-            replace(course("m1-b", 6, [1]), selected_mini=1),
             replace(course("m2-a", 6, [2]), selected_mini=2),
-            replace(course("m2-b", 6, [2]), selected_mini=2),
         ]
-        self.assertEqual(semester_unit_loads(selected, "F"), {1: 12, 2: 12})
+        self.assertEqual(semester_unit_total(selected), 12)
 
-    def test_same_mini_is_allowed_until_that_slot_reaches_capacity(self) -> None:
+    def test_same_mini_cannot_be_used_twice(self) -> None:
         selected = replace(course("m1-a", 6, [1]), selected_mini=1)
-        loads = semester_unit_loads([selected], "F")
-        self.assertEqual(candidate_slots(course("m1-b", 6, [1]), 12, "F", loads), [1])
-        self.assertEqual(candidate_slots(course("m1-c", 7, [1]), 12, "F", loads), [])
+        self.assertEqual(candidate_slots(course("m1-b", 6, [1]), 12, "F", [selected]), [])
+        self.assertEqual(candidate_slots(course("m2-a", 6, [2]), 12, "F", [selected]), [2])
 
-    def test_full_semester_course_consumes_capacity_in_both_minis(self) -> None:
+    def test_full_semester_course_counts_its_units_once(self) -> None:
         full = course("full", 6, [])
-        self.assertEqual(semester_unit_loads([full], "F"), {1: 6, 2: 6})
+        self.assertEqual(semester_unit_total([full]), 6)
 
     def test_fifteen_unit_course_requires_a_fifteen_unit_cap(self) -> None:
         fifteen = course("15-unit", 15, [])
-        self.assertEqual(candidate_slots(fifteen, 12, "F", {1: 0, 2: 0}), [])
-        self.assertEqual(candidate_slots(fifteen, 15, "F", {1: 0, 2: 0}), [0])
+        self.assertEqual(candidate_slots(fifteen, 12, "F", []), [])
+        self.assertEqual(candidate_slots(fifteen, 15, "F", []), [0])
 
-    def test_scheduler_can_place_two_courses_in_each_mini(self) -> None:
+    def test_scheduler_stacks_one_course_from_each_mini(self) -> None:
         courses = [
             course("m1-a", 6, [1]), course("m1-b", 6, [1], hour=10),
-            course("m2-a", 6, [2]), course("m2-b", 6, [2], hour=11),
+            course("m2-a", 6, [2]),
         ]
         schedule, unplaced = suggest(courses, ["F"], 12, [], [])
-        self.assertEqual({c.course for c in schedule[0]}, {c.course for c in courses})
-        self.assertEqual(unplaced, [])
+        self.assertEqual({c.course for c in schedule[0]}, {"m1-a", "m2-a"})
+        self.assertEqual([c.course for c in unplaced], ["m1-b"])
 
-    def test_unbalanced_minis_are_reported_separately(self) -> None:
+    def test_stacked_minis_are_reported_as_twelve_units(self) -> None:
         selected = [
             replace(course("m1-a", 6, [1]), selected_mini=1),
-            replace(course("m1-b", 6, [1]), selected_mini=1),
+            replace(course("m2-a", 6, [2]), selected_mini=2),
         ]
-        heading = _semester_heading(0, "F", semester_unit_loads(selected, "F"), 12, selected)
-        self.assertIn("M1 12/12 · M2 0/12", heading)
+        heading = _semester_heading(0, "F", semester_unit_total(selected), 12, selected)
+        self.assertIn("12/12 units", heading)
 
 
 class WarningTests(unittest.TestCase):

@@ -6,23 +6,19 @@ from .render_common import _semester_available_courses_info
 from .route_labels import _route_tab_label
 from .tables import course_table, unplaced_table
 from .timeline import _semester_timeline
-from .units import semester_unit_loads
+from .units import semester_unit_total
 
 
-def _semester_heading(idx: int, sem: str, loads: dict[int, int], units_max: int, courses: list[Course]) -> str:
+def _semester_heading(idx: int, sem: str, total: int, units_max: int, courses: list[Course]) -> str:
     soc = USER_TO_SOC[sem]
-    underfilled = any(load != units_max for load in loads.values())
+    underfilled = total != units_max
     heading_cls = " semester-heading-underfilled" if underfilled else ""
     unit_cls = " semester-unit-warning" if underfilled else ""
     semester_label = SEM_LABEL[sem]
-    if len(set(loads.values())) == 1:
-        load_label = f"{next(iter(loads.values()))}/{units_max} units"
-    else:
-        load_label = " · ".join(f"M{mini} {load}/{units_max}" for mini, load in loads.items())
     return (
         f'<h3 class="semester-heading{heading_cls}">'
         f"Semester {idx + 1} - {semester_label}"
-        f' <span class="semester-units{unit_cls}">({load_label})</span>'
+        f' <span class="semester-units{unit_cls}">({total}/{units_max} units)</span>'
         f'{_semester_available_courses_info(courses, soc, semester_label)}'
         "</h3>\n"
     )
@@ -44,8 +40,8 @@ def _route_tabs(tab_idx: int, routes: list[tuple[list[list[Course]], list[Course
 
 def _semester_section(idx: int, sem: str, sem_courses: list[Course], units_max: int, courses: list[Course], current_time_ranges: list[Meeting], prefer: list[str]) -> str:
     soc = USER_TO_SOC[sem]
-    loads = semester_unit_loads(sem_courses, soc)
-    parts = [_semester_heading(idx, sem, loads, units_max, courses)]
+    total = semester_unit_total(sem_courses)
+    parts = [_semester_heading(idx, sem, total, units_max, courses)]
     if idx == 0:
         parts.append(_semester_timeline(sem_courses, soc, current_time_ranges))
     if not sem_courses:

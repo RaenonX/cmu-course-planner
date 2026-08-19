@@ -3,7 +3,7 @@ from ..common.labels import mini_label
 from ..common.rating import star_rating
 from .render_common import _meeting_label
 from .time import _selected_section_option
-from .units import semester_unit_loads
+from .units import semester_unit_total
 
 def print_primary_route(semesters, units_max, prefer, teaching_location, current_time_ranges, results) -> None:
     primary_name, _, primary_routes = results[0]
@@ -18,12 +18,8 @@ def print_primary_route(semesters, units_max, prefer, teaching_location, current
     for idx, sem in enumerate(semesters):
         soc = USER_TO_SOC[sem]
         sem_courses = primary_sched[idx]
-        loads = semester_unit_loads(sem_courses, soc)
-        if len(set(loads.values())) == 1:
-            load_label = f"{next(iter(loads.values()))}/{units_max} units"
-        else:
-            load_label = " · ".join(f"M{mini} {load}/{units_max}" for mini, load in loads.items())
-        print(f"Semester {idx + 1} — {SEM_LABEL[sem]}  ({load_label})")
+        total = semester_unit_total(sem_courses)
+        print(f"Semester {idx + 1} — {SEM_LABEL[sem]}  ({total}/{units_max} units)")
         for c in sem_courses:
             cats = f"  [{', '.join(c.category)}]" if c.category else ""
             rating = f"  [{star_rating(c.effective_rating(prefer))}]"
