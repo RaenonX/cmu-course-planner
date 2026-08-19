@@ -18,8 +18,9 @@ teaching_location: "Pittsburgh, Pennsylvania"
 # do not block a course from being scheduled.
 completed_courses: ["15-213"]
 
-# Active planning focus. The scalar ratings below already encode the HFT
-# software-engineering priority; this value documents that focus.
+# Active planning focus. The scalar ratings below encode the HFT
+# software-engineering priority plus the personal preference for practical
+# probability, simulation, and stochastic modeling courses.
 # Available values: Quant, HFT, FAANG
 prefer_categories: [HFT]
 
@@ -87,9 +88,10 @@ current_time_ranges:
 # Title, units, prerequisites, and offerings are fetched from
 # course pages at runtime and stored in out/course-snapshot.json.
 #
-# Each course has a practical HFT software-engineering priority from 1 to 5:
+# Each course has a practical current-goal priority from 1 to 5:
 #   5 = direct low-latency systems preparation
-#   4 = strong systems or trading-domain support
+#       or the strongest practical probability foundation
+#   4 = strong systems, trading, simulation, or modeling support
 #   3 = useful infrastructure or adjacent technical depth
 #   2 = peripheral value or strong relevance behind a known access barrier
 #   1 = little direct value or a substantial prerequisite mismatch
@@ -97,6 +99,64 @@ current_time_ranges:
 # ---------------------------------------------------------
 
 courses:
+  # ---------------------------------------------------------------------------
+  # Practical probability, simulation, and stochastic modeling
+  # ---------------------------------------------------------------------------
+
+  # Probability and Computing
+  # Best general-purpose foundation for the user's existing probability work:
+  # conditional probability, random variables, expectations, tail bounds,
+  # Poisson processes, simulation, MLE/MAP, Bayesian estimation, and confidence
+  # intervals, with applications to algorithms and systems performance.
+  # F26: T/Th 2:00-3:20 plus Friday recitation; choose 9:00 or 2:00 and avoid
+  # the 1:00 recitations that overlap the recorded core Friday meetings.
+  # Requires moving 17-619 from B1 to A1 as recorded above. External graduate
+  # elective credit still requires MSE Graduate Academic Advisor approval.
+  - course: "15-559"
+    category: [HFT, Quant]
+    rating: 5
+
+  # Monte Carlo Methods and Applications
+  # Most implementation-oriented follow-up: random sampling, Markov chains,
+  # Monte Carlo integration, stochastic processes, Python coding assignments,
+  # and an applied final project. Requires basic probability and multivariable
+  # calculus. As a 300-level undergraduate course, it would use the MSE policy's
+  # single permitted undergraduate elective and requires advisor approval.
+  # Last verified offering was F24; it is absent from the current F25-F26/S26
+  # SOC window. Re-enable it when a new offering appears.
+  # - course: "15-327"
+  #   category: [Quant]
+  #   rating: 4
+
+  # Introduction to Probability Modeling
+  # Stateful/time-dependent modeling follow-up covering Markov chains, Poisson
+  # processes, MDPs, MCMC, martingales, Brownian motion, and hidden Markov models.
+  # SOC does not list 15-559 among its formal prerequisites, so equivalency or
+  # instructor permission would still be needed after 15-559. As a 400-level
+  # undergraduate course, it would use the single permitted undergraduate
+  # elective and needs advisor approval.
+  - course: "36-410"
+    category: [Quant]
+    rating: 4
+
+  # Probability and Mathematical Statistics
+  # Best complement for inference from real observations: estimation,
+  # confidence intervals, hypothesis tests, bootstrap/permutation methods,
+  # regression, Bayesian inference, MCMC, and model selection. Graduate course;
+  # external elective credit requires MSE advisor approval.
+  - course: "36-700"
+    category: [Quant]
+    rating: 4
+
+  # Probability & Computing: Randomized Algorithms and Markov Chains
+  # Valuable continuation for randomized algorithms, concentration bounds,
+  # Markov chains, and queueing, but F26 requires B or better in 15-559. Keep it
+  # inactive until 15-559 is completed because planner prerequisites are only
+  # advisory and would otherwise allow an invalid same-semester suggestion.
+  # - course: "15-659"
+  #   category: [HFT, Quant]
+  #   rating: 4
+
   # Advanced Database Systems
   # Andy Pavlo's course. Content covers OLAP / data-warehouse systems
   # (Snowflake, DuckDB, Iceberg): storage engines, query execution, and
