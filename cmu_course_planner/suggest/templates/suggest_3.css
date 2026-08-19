@@ -30,5 +30,14 @@
     .available-time { color: #9ca3af; }
     .unplaced { background: #2a1515; border-color: #7f1d1d; }
     .unplaced h2 { border-left-color: #ef4444; color: #ef4444; }
+    .what-if-open { background: #1f1f1f; border-color: #e8455a; color: #fda4af; }
+    .what-if-open:hover { background: #9b0e23; color: #fff; }
+    .what-if { border-top-color: #7f1d1d; }
+    .what-if-heading h4 { color: #fca5a5; }
+    .what-if-heading p, .what-if-controls label { color: #9ca3af; }
+    .what-if-controls select { background: #1f1f1f; border-color: #4b5563; color: #e5e5e5; }
+    .what-if-works { background: #12351f; border-color: #166534; color: #86efac; }
+    .what-if-rejected { background: #1f1f1f; border-color: #7f1d1d; color: #fca5a5; }
+    .what-if-warning { color: #fcd34d; }
     .empty { color: #6b7280; }
   }

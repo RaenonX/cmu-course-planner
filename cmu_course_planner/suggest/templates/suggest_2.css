@@ -53,9 +53,26 @@
   .unplaced { background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;
               padding: .7rem 1rem; margin-top: 1.5rem; }
   .unplaced h2 { border-left-color: #ef4444; color: #ef4444; }
+  .what-if-open { border: 1px solid #c41230; border-radius: 5px; padding: .28rem .55rem;
+                  background: #fff; color: #c41230; cursor: pointer; font-weight: 700; white-space: nowrap; }
+  .what-if-open:hover { background: #c41230; color: #fff; }
+  .what-if { border-top: 1px solid #fecaca; padding-top: .8rem; }
+  .what-if-heading h4 { margin: 0; color: #991b1b; }
+  .what-if-heading p { margin: .2rem 0 .75rem; color: #6b7280; font-size: .82rem; }
+  .what-if-controls { display: grid; grid-template-columns: 1.35fr 1fr 1.5fr; gap: .6rem; }
+  .what-if-controls label { color: #4b5563; font-size: .72rem; font-weight: 700; }
+  .what-if-controls select { display: block; width: 100%; margin-top: .18rem; padding: .42rem .5rem;
+                             border: 1px solid #d1d5db; border-radius: 5px; background: #fff; color: #111827; }
+  .what-if-result { display: grid; grid-template-columns: auto 1fr; gap: .2rem .6rem;
+                    margin-top: .7rem; padding: .65rem .75rem; border-radius: 6px; font-size: .84rem; }
+  .what-if-result p { grid-column: 1 / -1; margin: .15rem 0 0; }
+  .what-if-works { background: #ecfdf5; border: 1px solid #86efac; color: #166534; }
+  .what-if-rejected { background: #fff; border: 1px solid #fca5a5; color: #991b1b; }
+  .what-if-warning { color: #92400e; }
   .empty { color: #9ca3af; font-style: italic; }
   @media (max-width: 760px) {
     .route-tab-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .what-if-controls { grid-template-columns: 1fr; }
   }
   @media (max-width: 520px) {
     .route-tab-summary { grid-template-columns: 1fr; }

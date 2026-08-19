@@ -47,12 +47,15 @@ Category values come from `export_report.py`, which reads them from `plan_config
 `current_time_ranges` is optional and is used to reject first-semester schedule conflicts in all variants. The **Time Continuity** variant also uses it to prefer smaller same-day gaps. Each item has:
 
 ```
+label: "17-622 Agile Methods (Section B2)"
 days: "M W"
 begin: "11:00AM"
 end: "12:20PM"
 mini: 1  # optional; use 1-6 for mini-semester-only ranges
 ```
 
+`label` is required and should identify the course plus the relevant section or
+lecture. It is shown on the timeline and in What-if time-conflict explanations.
 Day values may use spaced forms like `M W` / `T Th`, SOC-style compact forms like `MW` / `TR`, or single-day values like `Th` / `F`.
 When `mini` is present, that current range is compared only with full-semester
 meetings and meetings in the same mini slot. Mini numbering follows CMU SOC

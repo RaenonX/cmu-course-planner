@@ -34,51 +34,61 @@ require_categories: false
 # same-day gaps around them. Multiple ranges are allowed.
 current_time_ranges:
   # COM FOR SW LEADER I / 17603 E
-  - days: "Th"
+  - label: "17-603 Communication for Software Leaders I (Section E)"
+    days: "Th"
     begin: "12:30PM"
     end: "01:50PM"
   # STATS FOR DEC MAKING / 17611 A1
-  - days: "M W"
+  - label: "17-611 Statistics for Decision Making (Section A1)"
+    days: "M W"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 1
   # FORMAL METHODS / 17614 11
-  - days: "M W"
+  - label: "17-614 Formal Methods (Lecture 11)"
+    days: "M W"
     begin: "09:30AM"
     end: "10:50AM"
     mini: 1
   # FORMAL METHODS / 17614 B1
-  - days: "F"
+  - label: "17-614 Formal Methods (Section B1)"
+    days: "F"
     begin: "12:30PM"
     end: "01:50PM"
     mini: 1
   # PROD MGMT ESSEN I / 17619 B1
-  - days: "T Th"
+  - label: "17-619 Product Management Essentials I (Section B1)"
+    days: "T Th"
     begin: "02:00PM"
     end: "03:20PM"
     mini: 1
   # AGILE METHODS / 17622 22
-  - days: "M W"
+  - label: "17-622 Agile Methods (Lecture 22)"
+    days: "M W"
     begin: "02:00PM"
     end: "03:20PM"
     mini: 2
   # AGILE METHODS / 17622 B2
-  - days: "F"
+  - label: "17-622 Agile Methods (Section B2)"
+    days: "F"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 2
   # QUALITY ASSURANCE / 17623 12
-  - days: "M W"
+  - label: "17-623 Quality Assurance (Lecture 12)"
+    days: "M W"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 2
   # QUALITY ASSURANCE / 17623 A2
-  - days: "F"
+  - label: "17-623 Quality Assurance (Section A2)"
+    days: "F"
     begin: "12:30PM"
     end: "01:50PM"
     mini: 2
   # RQ FOR INFO SYS / 17626 A2
-  - days: "T Th"
+  - label: "17-626 Requirements for Information Systems (Section A2)"
+    days: "T Th"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 2

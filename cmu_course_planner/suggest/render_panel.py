@@ -73,7 +73,16 @@ def _build_schedule_panel(
         for idx, sem in enumerate(semesters):
             parts.append(_semester_section(idx, sem, schedule[idx], units_max, courses, current_time_ranges, prefer))
         if unplaced:
-            parts.append(unplaced_table(unplaced, prefer))
+            panel_id = f"what-if-{tab_idx}-{route_idx}"
+            parts.append(unplaced_table(
+                unplaced,
+                prefer,
+                panel_id,
+                semesters,
+                schedule,
+                units_max,
+                current_time_ranges,
+            ))
         parts.append("</section>\n")
     parts.append("</div>\n")
     return "".join(parts)

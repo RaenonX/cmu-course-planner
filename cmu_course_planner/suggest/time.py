@@ -107,3 +107,43 @@ def _continuity_score(
                     overlap += previous_end - begin
             previous_end = max(previous_end or end, end)
     return overlap, gap
+
+
+def course_time_conflicts(
+    course: Course,
+    soc_type: str,
+    selected_courses: list[Course],
+    current_time_ranges: list[Meeting],
+) -> list[str]:
+    """Describe meetings that overlap the course's selected section."""
+    conflicts: list[str] = []
+    candidate_meetings = _selected_meetings(course, soc_type)
+    existing = [
+        (meeting.label or "Current commitment", meeting)
+        for meeting in current_time_ranges
+    ]
+    for selected in selected_courses:
+        existing.extend(
+            (selected.course, meeting)
+            for meeting in _selected_meetings(selected, soc_type)
+        )
+
+    for candidate in candidate_meetings:
+        candidate_interval = _meeting_interval(candidate)
+        if candidate_interval is None:
+            continue
+        candidate_days = set(_meeting_days(candidate.days))
+        candidate_buckets = set(_meeting_buckets(candidate, soc_type))
+        for label, meeting in existing:
+            interval = _meeting_interval(meeting)
+            if interval is None:
+                continue
+            if not candidate_days.intersection(_meeting_days(meeting.days)):
+                continue
+            if not candidate_buckets.intersection(_meeting_buckets(meeting, soc_type)):
+                continue
+            if candidate_interval[0] < interval[1] and interval[0] < candidate_interval[1]:
+                conflict = f"{label} ({meeting.days} {meeting.begin}–{meeting.end})"
+                if conflict not in conflicts:
+                    conflicts.append(conflict)
+    return conflicts

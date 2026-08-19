@@ -99,6 +99,14 @@ are intentionally outside the suggested-course capacity.
 
 Any course not in `assigned` after all semesters are processed is collected into `unplaced`. These appear in the console output and in the "Not placed" section of the HTML report, with all detected offering semesters shown as clickable chips.
 
+The HTML report also provides a route-specific **What if?** analyzer. Select an
+unplaced course, a planned semester, and either keep the scheduled courses or
+remove one course. Each option is evaluated against the same offering, unit,
+mini-slot, section, current-time, and course-time constraints used by the
+scheduler. A rejected option names the blocking constraint and, for time
+conflicts, the conflicting course or current commitment. Prerequisite status
+remains advisory and appears as a warning on otherwise valid swaps.
+
 ## Output
 
 - **Console** — semester-by-semester listing for route 1 of the primary strategy, with units, mini labels, and enr-apps links.

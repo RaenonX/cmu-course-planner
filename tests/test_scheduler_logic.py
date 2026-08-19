@@ -6,6 +6,7 @@ from cmu_course_planner.common.prerequisites import prerequisite_status
 from cmu_course_planner.report.render import _offering_times
 from cmu_course_planner.report.section_parse import parse_sections
 from cmu_course_planner.suggest.models import Course, Meeting, Offering, SectionOption
+from cmu_course_planner.suggest.load import load_current_time_ranges
 from cmu_course_planner.suggest.render_panel import _semester_heading
 from cmu_course_planner.suggest.routes import _schedule_signature
 from cmu_course_planner.suggest.scheduler import suggest
@@ -40,6 +41,31 @@ class DayParsingTests(unittest.TestCase):
     def test_thursday_long_name_does_not_add_sunday(self) -> None:
         self.assertEqual(_meeting_days("Thu"), ["R"])
         self.assertEqual(_meeting_days("T Thu"), ["T", "R"])
+
+
+class CurrentCommitmentTests(unittest.TestCase):
+    def test_current_time_range_requires_a_course_label(self) -> None:
+        with self.assertRaisesRegex(ValueError, "missing 'label'"):
+            load_current_time_ranges({
+                "current_time_ranges": [{
+                    "days": "M",
+                    "begin": "9:00AM",
+                    "end": "9:50AM",
+                }],
+            })
+
+    def test_current_time_range_retains_its_course_label(self) -> None:
+        meetings = load_current_time_ranges({
+            "current_time_ranges": [{
+                "label": "17-622 Agile Methods (Lecture 22)",
+                "days": "M W",
+                "begin": "2:00PM",
+                "end": "3:20PM",
+                "mini": 2,
+            }],
+        })
+
+        self.assertEqual(meetings[0].label, "17-622 Agile Methods (Lecture 22)")
 
 
 class MiniUnitTests(unittest.TestCase):

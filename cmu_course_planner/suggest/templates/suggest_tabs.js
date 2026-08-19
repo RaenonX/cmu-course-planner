@@ -35,4 +35,86 @@ document.addEventListener('keydown', event => {
     details.removeAttribute('open');
   });
 });
+
+function setOptions(select, options, value, label) {
+  select.replaceChildren(...options.map(option => {
+    const element = document.createElement('option');
+    element.value = String(option[value]);
+    element.textContent = option[label];
+    return element;
+  }));
+}
+
+function setSwapOptions(select, swaps) {
+  select.replaceChildren(...swaps.map(swap => {
+    const element = document.createElement('option');
+    element.value = swap.remove;
+    element.textContent = (swap.status === 'works' ? '✓ Works · ' : '✕ Rejected · ') + swap.removeLabel;
+    return element;
+  }));
+}
+
+function renderWhatIfResult(root, result) {
+  const output = root.querySelector('.what-if-result');
+  const works = result.status === 'works';
+  output.className = 'what-if-result ' + (works ? 'what-if-works' : 'what-if-rejected');
+  output.replaceChildren();
+
+  const heading = document.createElement('strong');
+  heading.textContent = works ? '✓ Works' : '✕ Rejected';
+  const summary = document.createElement('span');
+  summary.textContent = result.summary;
+  output.append(heading, summary);
+
+  result.reasons.forEach(message => {
+    const detail = document.createElement('p');
+    detail.textContent = message;
+    output.append(detail);
+  });
+  result.warnings.forEach(message => {
+    const warning = document.createElement('p');
+    warning.className = 'what-if-warning';
+    warning.textContent = message;
+    output.append(warning);
+  });
+}
+
+function refreshWhatIf(root, level) {
+  const data = root.whatIfData;
+  const courseSelect = root.querySelector('.what-if-course');
+  const semesterSelect = root.querySelector('.what-if-semester');
+  const swapSelect = root.querySelector('.what-if-swap');
+  const course = data.courses.find(item => item.id === courseSelect.value) || data.courses[0];
+  if (!course) return;
+
+  if (level === 'course') {
+    setOptions(semesterSelect, course.semesters, 'index', 'label');
+    const firstOffered = course.semesters.find(item => item.offered);
+    if (firstOffered) semesterSelect.value = String(firstOffered.index);
+  }
+  const semester = course.semesters.find(item => String(item.index) === semesterSelect.value) || course.semesters[0];
+  if (level !== 'swap') {
+    setSwapOptions(swapSelect, semester.swaps);
+  }
+  const result = semester.swaps.find(item => item.remove === swapSelect.value) || semester.swaps[0];
+  renderWhatIfResult(root, result);
+}
+
+document.querySelectorAll('.what-if').forEach(root => {
+  root.whatIfData = JSON.parse(root.querySelector('.what-if-data').textContent);
+  root.querySelector('.what-if-course').addEventListener('change', () => refreshWhatIf(root, 'course'));
+  root.querySelector('.what-if-semester').addEventListener('change', () => refreshWhatIf(root, 'semester'));
+  root.querySelector('.what-if-swap').addEventListener('change', () => refreshWhatIf(root, 'swap'));
+  refreshWhatIf(root, 'course');
+});
+
+document.querySelectorAll('.what-if-open').forEach(button => {
+  button.addEventListener('click', () => {
+    const root = document.getElementById(button.dataset.whatIfTarget);
+    root.querySelector('.what-if-course').value = button.dataset.course;
+    refreshWhatIf(root, 'course');
+    root.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    root.querySelector('.what-if-semester').focus({ preventScroll: true });
+  });
+});
 </script>

@@ -24,7 +24,8 @@ def _timeline_entries(
         for day in _meeting_days(meeting.days):
             add_entry(day, begin, end, label, cls)
     for meeting in current_time_ranges:
-        add_meeting(meeting, f"Current{_mini_suffix(meeting)}", "timeline-current")
+        label = meeting.label or "Current commitment"
+        add_meeting(meeting, f"{label}{_mini_suffix(meeting)}", "timeline-current")
     for course in sem_courses:
         offering = course.offering_for(soc_type)
         if not offering:

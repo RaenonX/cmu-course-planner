@@ -8,6 +8,7 @@ class Meeting:
     begin: str
     end: str
     mini: int | None = None
+    label: str | None = None
 
 @dataclass
 class SectionOption:

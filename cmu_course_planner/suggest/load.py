@@ -31,6 +31,7 @@ def load_current_time_ranges(cfg: dict) -> list[Meeting]:
     meetings = []
     for idx, entry in enumerate(cfg.get("current_time_ranges") or [], start=1):
         try:
+            label = entry["label"]
             days = entry["days"]
             begin = entry["begin"]
             end = entry["end"]
@@ -48,7 +49,15 @@ def load_current_time_ranges(cfg: dict) -> list[Meeting]:
                 raise ValueError(
                     f"current_time_ranges item {idx} has invalid mini {mini!r}; use an integer 1-6."
                 )
-        meetings.append(Meeting(days=str(days), begin=str(begin), end=str(end), mini=mini))
+        if not isinstance(label, str) or not label.strip():
+            raise ValueError(f"current_time_ranges item {idx} has an invalid label; use a non-empty course name.")
+        meetings.append(Meeting(
+            days=str(days),
+            begin=str(begin),
+            end=str(end),
+            mini=mini,
+            label=label.strip(),
+        ))
     return meetings
 
 def load_snapshot(

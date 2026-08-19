@@ -1,9 +1,10 @@
 from ..common.labels import category_badges, mini_label, prereq_info
-from .models import Course
+from .models import Course, Meeting
 from .render_common import (
     _course_cell, _course_link, _offering_chips, _rating_badge, _time_label,
 )
 from .time import _selected_section_option
+from .what_if_render import what_if_panel
 
 TABLE_HEAD = (
     "<table>\n<thead><tr>"
@@ -26,13 +27,15 @@ def _course_row(c: Course, soc: str, prefer: list[str]) -> str:
     )
 
 
-def _unplaced_row(c: Course, prefer: list[str]) -> str:
+def _unplaced_row(c: Course, prefer: list[str], panel_id: str) -> str:
     return (
         f"<tr><td>{_course_cell(c, c.last_link())}</td><td>{c.title}</td>"
         f"<td>{_rating_badge(c, prefer)}</td><td>{category_badges(c.category)}</td>"
         f'<td class="units">{c.units}</td><td>{prereq_info(c.prerequisites, c.prerequisite_status)}</td>'
         f'<td class="times">{_time_label(c.offered_in[0] if c.offered_in else None)}</td>'
-        f"<td>{_offering_chips(c)}</td></tr>\n"
+        f"<td>{_offering_chips(c)}</td>"
+        f'<td><button class="what-if-open" data-what-if-target="{panel_id}" '
+        f'data-course="{c.course}">Try swap</button></td></tr>\n'
     )
 
 
@@ -40,6 +43,21 @@ def course_table(sem_courses: list[Course], soc: str, prefer: list[str]) -> str:
     return TABLE_HEAD + "".join(_course_row(c, soc, prefer) for c in sem_courses) + "</tbody></table>\n"
 
 
-def unplaced_table(unplaced: list[Course], prefer: list[str]) -> str:
-    rows = "".join(_unplaced_row(c, prefer) for c in unplaced)
-    return '<div class="unplaced">\n<h3>Not placed</h3>\n' + TABLE_HEAD + rows + "</tbody></table>\n</div>\n"
+def unplaced_table(
+    unplaced: list[Course],
+    prefer: list[str],
+    panel_id: str,
+    semesters: list[str],
+    schedule: list[list[Course]],
+    units_max: int,
+    current_time_ranges: list[Meeting],
+) -> str:
+    rows = "".join(_unplaced_row(c, prefer, panel_id) for c in unplaced)
+    head = TABLE_HEAD.replace("</tr>", "<th>What if?</th></tr>")
+    panel = what_if_panel(
+        panel_id, semesters, schedule, unplaced, units_max, current_time_ranges
+    )
+    return (
+        '<div class="unplaced">\n<h3>Not placed</h3>\n'
+        + head + rows + "</tbody></table>\n" + panel + "</div>\n"
+    )
