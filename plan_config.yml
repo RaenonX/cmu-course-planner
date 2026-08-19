@@ -2,7 +2,7 @@
 # Auto plan suggester configuration
 # ---------------------------------------------------------
 
-# Remaining suggested-course capacity in each mini slot.
+# Total suggested-course capacity in each semester.
 units_per_semester: 12
 
 # Your planned semesters in order.
@@ -13,9 +13,9 @@ semesters: [F, S, Su, F]
 # Only Pittsburgh, Pennsylvania is supported for now.
 teaching_location: "Pittsburgh, Pennsylvania"
 
-# Categories to use for category-specific course ratings.
+# Active planning focus. The scalar ratings below already encode the HFT
+# software-engineering priority; this value documents that focus.
 # Available values: Quant, HFT, FAANG
-# Leave empty ([]) to use each course's default rating.
 prefer_categories: [HFT]
 
 # If true, only include courses that match at least one prefer_category.
@@ -82,14 +82,13 @@ current_time_ranges:
 # Title, units, prerequisites, and offerings are fetched from
 # course pages at runtime and stored in out/course-snapshot.json.
 #
-# Each course must have a star score from 1 to 5.
-# Use either:
-#   rating: 3
-# or category-specific overrides with a default:
-#   rating:
-#     default: 3
-#     HFT: 4
-# When prefer_categories includes HFT, the HFT score is used for HFT courses.
+# Each course has a practical HFT software-engineering priority from 1 to 5:
+#   5 = direct low-latency systems preparation
+#   4 = strong systems or trading-domain support
+#   3 = useful infrastructure or adjacent technical depth
+#   2 = peripheral value or strong relevance behind a known access barrier
+#   1 = little direct value or a substantial prerequisite mismatch
+# The ratings assume 15-213 has been completed. Categories remain informational.
 # ---------------------------------------------------------
 
 courses:
@@ -100,9 +99,7 @@ courses:
   # No prereqs. S26 confirmed.
   - course: "15-721"
     category: [FAANG]
-    rating:
-      default: 3
-      FAANG: 4
+    rating: 3
 
   # ---------------------------------------------------------------------------
   # HFT / Low-Latency Systems
@@ -113,12 +110,11 @@ courses:
   # Also directly relevant for Quant Researchers working on execution algorithms
   # and market impact modeling (used at Two Sigma, Citadel). Uses kdb+ and Python
   # with real intraday data.
-  - course: "46-982"
-    category: [HFT, Quant]
-    rating:
-      default: 3
-      HFT: 5
-      Quant: 4
+  # The known 15-213 credit does not satisfy its MSCF prerequisite chain, so its
+  # practical scheduling priority stays below the accessible systems courses.
+#  - course: "46-982"
+#    category: [HFT, Quant]
+#    rating: 2
 
   # Parallel Computer Architecture and Programming
   # SIMD, cache hierarchy, lock-free programming, memory consistency — core skills
@@ -127,9 +123,7 @@ courses:
   # performance-critical systems.
   - course: "15-618"
     category: [HFT]
-    rating:
-      default: 3
-      HFT: 5
+    rating: 5
 
   # Networking and the Internet
   # Standard TCP/IP stack design, routing, congestion control. Covers networking
@@ -137,7 +131,7 @@ courses:
   # tools used in ultra-low-latency network paths.
   - course: "15-641"
     category: [HFT, FAANG]
-    rating: 3
+    rating: 5
 
   # Distributed Systems
   # Replication, consistency, fault tolerance. Core FAANG SWE competency.
@@ -146,10 +140,7 @@ courses:
   # hot path is single-machine.
   - course: "15-640"
     category: [HFT, FAANG]
-    rating:
-      default: 3
-      HFT: 4
-      FAANG: 5
+    rating: 4
 
   # Advanced and Distributed Operating Systems
   # Deep OS internals: lock-free data structures, memory consistency models,
@@ -160,10 +151,7 @@ courses:
   # engineering. Prereq: undergrad OS (15-410 or equivalent).
   - course: "15-712"
     category: [HFT, FAANG]
-    rating:
-      default: 3
-      HFT: 5
-      FAANG: 4
+    rating: 5
 
   # Markov Processes (15-853)
   # Full title: "Theory of Markov Processes: Selected Topics with
@@ -172,9 +160,7 @@ courses:
   # modeling, RL strategies). No prereqs. S26 confirmed.
   - course: "15-853"
     category: [Quant]
-    rating:
-      default: 3
-      Quant: 5
+    rating: 2
 
   # Deep Reinforcement Learning & Control
   # RL-based portfolio rebalancing, execution optimization, and market-making
@@ -182,9 +168,7 @@ courses:
   # systems/infra work. Prereq: 10-601. F26 confirmed.
   - course: "10-703"
     category: [Quant]
-    rating:
-      default: 3
-      Quant: 4
+    rating: 1
 
   # Probabilistic Graphical Models
   # Bayesian networks, MCMC, variational inference, deep generative models (VAEs,
@@ -194,17 +178,13 @@ courses:
   # Prereq: 10-601. S26 confirmed.
   - course: "10-708"
     category: [Quant, FAANG]
-    rating:
-      default: 2
-      Quant: 4
-      FAANG: 3
+    rating: 1
 
   # Accounting and Finance Analytics
   # Financial-statement analysis with ML; bridges accounting data and
-  # quantitative signals. Among the most directly goal-aligned courses
-  # available to MSE students.
+  # quantitative signals, but does not build low-latency systems depth.
   - course: "95-719"
-    rating: 5
+    rating: 2
 
   # Introduction to Machine Learning
   # Foundational prereq for 10-703, 10-708, and other Quant-track courses.
@@ -212,9 +192,7 @@ courses:
   # low-latency systems engineering.
   - course: "10-601"
     category: [Quant]
-    rating:
-      default: 3
-      Quant: 4
+    rating: 2
 
   # Advanced Topics in Machine Learning and Game Theory
   # Game theory concepts (MARL, mechanism design, strategic equilibria) are
@@ -223,9 +201,7 @@ courses:
   # markets. Requires transferring concepts to quant finance independently.
   - course: "17-759"
     category: [Quant]
-    rating:
-      default: 2
-      Quant: 3
+    rating: 1
 
   # Financial Data Science II
   # Advanced applied data science for finance: time-series modeling, factor
@@ -234,9 +210,7 @@ courses:
   # methods. Offered F26.
   - course: "46-923"
     category: [Quant]
-    rating:
-      default: 3
-      Quant: 4
+    rating: 1
 
   # (Hard math prereq - stochastic calculus required)
   # Advanced Derivative Models
@@ -262,10 +236,7 @@ courses:
   # technical interviews. No prereqs beyond linear algebra and calculus.
   - course: "10-725"
     category: [Quant, FAANG]
-    rating:
-      default: 3
-      Quant: 4
-      FAANG: 3
+    rating: 2
 
   # Generative Modeling and Foundation Models
   # Transformers, LLM pretraining/fine-tuning, RLHF, diffusion models, multimodal
@@ -275,10 +246,7 @@ courses:
   # Prereq: 10-601. F26 + S26 confirmed.
   - course: "10-423"
     category: [FAANG, Quant]
-    rating:
-      default: 3
-      FAANG: 5
-      Quant: 2
+    rating: 1
 
   # Software System Design
   # Software architecture, design principles, STRIDE threat modeling, and design
@@ -287,9 +255,7 @@ courses:
   # and trade-off analysis.
   - course: "17-723"
     category: [FAANG]
-    rating:
-      default: 3
-      FAANG: 4
+    rating: 3
 
   # Machine Learning in Production
   # Full ML system lifecycle: Docker, Kubernetes, Kafka, MLFlow, Prometheus,
@@ -298,9 +264,7 @@ courses:
   # daily. One of the most directly job-ready FAANG ML engineering courses.
   - course: "17-745"
     category: [FAANG]
-    rating:
-      default: 3
-      FAANG: 5
+    rating: 2
 
   # Advanced Cloud Computing
   # Cloud infrastructure internals: Kubernetes scheduling, distributed storage,
@@ -311,10 +275,7 @@ courses:
   # Prereq: distributed systems background.
   - course: "15-719"
     category: [FAANG, HFT]
-    rating:
-      default: 3
-      FAANG: 5
-      HFT: 3
+    rating: 3
 
   # Introduction to Deep Learning
   # Implementation-level rigor (backprop from scratch, attention from scratch in
@@ -322,27 +283,21 @@ courses:
   # interviews test both conceptual understanding and implementation ability.
   - course: "11-685"
     category: [FAANG]
-    rating:
-      default: 2
-      FAANG: 4
+    rating: 1
 
   # Natural Language Processing
   # LLM/NLP engineering is increasingly core at FAANG; relevant for AI-product
   # roles.
   - course: "11-611"
     category: [FAANG]
-    rating:
-      default: 2
-      FAANG: 3
+    rating: 1
 
   # Search Engines
   # Information retrieval, ranking, and indexing; relevant for search-focused
   # FAANG roles (Google, Amazon). Moderate fit.
   - course: "11-642"
     category: [FAANG]
-    rating:
-      default: 2
-      FAANG: 3
+    rating: 1
 
   # Engineering Data Intensive Scalable Systems
   # Design and operation of large-scale data pipelines: Kafka, deployment,
@@ -350,20 +305,17 @@ courses:
   # infrastructure and backtesting pipelines; also strong for FAANG backend/infra.
   - course: "17-647"
     category: [HFT, FAANG]
-    rating:
-      default: 2
-      HFT: 3
-      FAANG: 3
+    rating: 3
 
   # Foundations of Computational Data Science
   # Broad intro course (stats, ML basics, data wrangling). Less goal-specific
   # given the other targeted courses; useful as a fallback.
   - course: "11-637"
-    rating: 2
+    rating: 1
 
   # Negotiations for Software Leaders
   - course: "17-693"
-    rating: 3
+    rating: 1
 
   # Designing Human Centered Software
   # Core HCI methods: user research, task analysis, iterative prototyping, and
@@ -371,18 +323,18 @@ courses:
   # also adds value for product-facing FAANG roles where design intuition is
   # increasingly expected of senior engineers.
   - course: "05-391"
-    rating: 3
+    rating: 1
 
   # Marketing for Entrepreneurship
   # No alignment with HFT/Quant/FAANG goals. Low-priority elective for
   # filling schedule gaps.
   - course: "45-908"
-    rating: 2
+    rating: 1
 
   # Corporate Startup Lab
   # No alignment with technical goals. Low-priority option.
   - course: "45-996"
-    rating: 2
+    rating: 1
 
   # Design Patterns
   # Foundational but too basic given existing SWE background; crowded out by
@@ -403,10 +355,7 @@ courses:
   # Fall 2026 strongly expected). Prereq: senior ECE/CS undergrad or grad student.
   - course: "18-645"
     category: [HFT, FAANG]
-    rating:
-      default: 3
-      HFT: 5
-      FAANG: 4
+    rating: 5
 
   # Operating System Design and Implementation  [grad section: 15-605]
   # "Probably the most famous systems class at CMU" per multiple alumni bloggers
@@ -416,12 +365,11 @@ courses:
   # tested in HFT SWE interviews (preemption, page faults, kernel vs. user mode,
   # memory management). Also the explicit prerequisite for 15-712 (rated HFT: 5).
   # Graduate students enroll as 15-605. S26 + F26 confirmed.
+  # 15-213 is completed, satisfying the listed prerequisite; advisor concurrence
+  # or recommendation may still be required for graduate enrollment.
   - course: "15-605"
     category: [HFT, FAANG]
-    rating:
-      default: 4
-      HFT: 5
-      FAANG: 4
+    rating: 5
 
   # Compiler Design  [grad section: 15-611]
   # Sponsored explicitly by Jane Street Capital — a direct practitioner signal.
@@ -431,12 +379,10 @@ courses:
   # relevant to their systems work. For HFT C++ developers, knowing what
   # the compiler does lets you write code that generates optimal machine code.
   # Graduate students enroll as 15-611. S26 confirmed.
+  # 15-213 is completed and is one of the accepted prerequisites.
   - course: "15-611"
     category: [HFT, FAANG]
-    rating:
-      default: 3
-      HFT: 4
-      FAANG: 3
+    rating: 4
 
   # Optimizing Compilers for Modern Architectures  [NOT YET IN SOC FOR F26/S26]
   # LLVM optimization passes, dataflow analysis, loop transformations, and
@@ -464,9 +410,7 @@ courses:
   # Also the required prerequisite for 21-420. F26 confirmed by SOC.
   - course: "21-370"
     category: [Quant]
-    rating:
-      default: 2
-      Quant: 4
+    rating: 2
 
   # Continuous Time Finance
   # Black-Scholes PDE, Itô's formula, stochastic differential equations, and
@@ -477,6 +421,4 @@ courses:
   # S26 confirmed. Prereq: 21-370 (Discrete Time Finance).
   - course: "21-420"
     category: [Quant]
-    rating:
-      default: 2
-      Quant: 5
+    rating: 2
