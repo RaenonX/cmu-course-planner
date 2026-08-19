@@ -3,6 +3,7 @@ import html as html_lib
 from ..common.labels import category_badges, mini_label, prereq_info, unresolved_time_badge
 from ..common.paths import REPORT_TEMPLATE_DIR
 from ..common.rating import parse_rating, star_rating
+from ..common.prerequisites import prerequisite_status
 
 def _sem_chips(semesters: list[str], offering_map: dict[str, dict | None]) -> str:
     """
@@ -63,7 +64,13 @@ def build_report_html(rows_html: list[str], today, years: int, teaching_location
     return head + "\n".join(rows_html) + "\n" + tail
 
 
-def build_report_rows(valid_entries: list[dict], course_info: dict, results: dict, semesters: list[str]) -> list[str]:
+def build_report_rows(
+    valid_entries: list[dict],
+    course_info: dict,
+    results: dict,
+    semesters: list[str],
+    completed_courses: list[str],
+) -> list[str]:
     rows_html: list[str] = []
     for entry in valid_entries:
         cid = entry["course"]
@@ -78,7 +85,7 @@ def build_report_rows(valid_entries: list[dict], course_info: dict, results: dic
             f"    <td>{units}</td>\n"
             f'    <td data-sort="{rating}" title="{rating}/5">{star_rating(rating)}</td>\n'
             f"    <td>{category_badges(cats)}</td>\n"
-            f"    <td>{prereq_info(prerequisites)}</td>\n"
+            f"    <td>{prereq_info(prerequisites, prerequisite_status(prerequisites, completed_courses))}</td>\n"
             f'    <td class="times">{_offering_times(semesters, offering_map)}</td>\n'
             f"    <td>{_sem_chips(semesters, offering_map)}</td>\n"
             f"  </tr>"

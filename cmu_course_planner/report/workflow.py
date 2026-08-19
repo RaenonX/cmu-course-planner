@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import yaml
 
-from ..common.config import validate_teaching_location
+from ..common.config import completed_courses_from_config, validate_teaching_location
 from ..common.paths import OUT_DIR, PLAN_CONFIG, REPORT_OUTPUT, SNAPSHOT
 from ..common.rating import parse_rating
 from .course_parse import _parse_course_info, _parse_prerequisites
@@ -88,11 +88,13 @@ def export_report(today, years: int) -> bool:
     with open(PLAN_CONFIG, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
     teaching_location = validate_teaching_location(cfg.get("teaching_location"))
+    completed_courses = completed_courses_from_config(cfg)
     entries = sorted(cfg["courses"], key=lambda e: e["course"])
     results = probe_offerings(entries, semesters, teaching_location)
     course_info = resolve_course_info(entries, semesters, results)
     valid_entries = [entry for entry in entries if entry["course"] in course_info]
-    html = build_report_html(build_report_rows(valid_entries, course_info, results, semesters), today, years, teaching_location)
+    rows = build_report_rows(valid_entries, course_info, results, semesters, completed_courses)
+    html = build_report_html(rows, today, years, teaching_location)
     OUT_DIR.mkdir(exist_ok=True)
     REPORT_OUTPUT.write_text(html, encoding="utf-8")
     print(f"Report written  -> {REPORT_OUTPUT}")

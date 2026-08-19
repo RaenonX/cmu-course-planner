@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from ..common.paths import DEFAULT_CONFIG, OUT_DIR, SUGGEST_OUTPUT
+from ..common.config import completed_courses_from_config
 from .console import print_primary_route
 from .load import load_config, load_current_time_ranges, load_snapshot
 from .render import build_html
@@ -25,12 +26,14 @@ def main() -> None:
     teaching_location: str = cfg["teaching_location"]
     current_time_ranges = load_current_time_ranges(cfg)
     config_courses: list[dict] = cfg.get("courses", [])
+    completed_courses = completed_courses_from_config(cfg)
 
     courses, snapshot_date = load_snapshot(
         config_courses,
         prefer,
         require,
         teaching_location,
+        completed_courses,
     )
 
     results = []

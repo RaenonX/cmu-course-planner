@@ -6,6 +6,7 @@ import yaml
 from ..common.config import SUPPORTED_TEACHING_LOCATION, USER_TO_SOC
 from ..common.paths import SNAPSHOT
 from ..common.rating import parse_rating
+from ..common.prerequisites import prerequisite_status
 from .models import Course, Meeting, Offering, SectionOption
 
 def _optional_mini(value) -> int | None:
@@ -55,6 +56,7 @@ def load_snapshot(
     prefer: list[str],
     require: bool,
     teaching_location: str,
+    completed_courses: list[str],
 ) -> tuple[list[Course], str]:
     with open(SNAPSHOT, encoding="utf-8") as f:
         data = json.load(f)
@@ -109,14 +111,16 @@ def load_snapshot(
             )
             for o in (entry.get("offered_in") or [])
         ]
+        prerequisites = entry.get("prerequisites") or "Unknown"
         courses.append(Course(
             course=entry["course"],
             title=entry["title"],
             units=entry["units"],
-            prerequisites=entry.get("prerequisites") or "Unknown",
+            prerequisites=prerequisites,
             category=cats,
             rating=rating,
             rating_by_category=rating_by_category,
             offered_in=offerings,
+            prerequisite_status=prerequisite_status(prerequisites, completed_courses),
         ))
     return courses, snapshot_date

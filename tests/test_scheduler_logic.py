@@ -2,6 +2,7 @@ import unittest
 from dataclasses import replace
 
 from cmu_course_planner.common.labels import prereq_info, unresolved_time_badge
+from cmu_course_planner.common.prerequisites import prerequisite_status
 from cmu_course_planner.report.render import _offering_times
 from cmu_course_planner.report.section_parse import parse_sections
 from cmu_course_planner.suggest.models import Course, Meeting, Offering, SectionOption
@@ -85,6 +86,25 @@ class WarningTests(unittest.TestCase):
     def test_prerequisite_is_marked_unsatisfied(self) -> None:
         self.assertIn("Unsatisfied", prereq_info("21-370"))
         self.assertNotIn("Unsatisfied", prereq_info("None"))
+
+    def test_completed_course_satisfies_an_or_prerequisite(self) -> None:
+        status = prerequisite_status("14513 or 15213 or 15513", ["15-213"])
+        self.assertEqual(status, "satisfied")
+        self.assertIn("Satisfied", prereq_info("14513 or 15213 or 15513", status))
+
+    def test_all_and_groups_must_be_satisfied(self) -> None:
+        expression = "(15213 or 15513) and (21240 or 21241)"
+        self.assertEqual(prerequisite_status(expression, ["15-213"]), "unsatisfied")
+        self.assertEqual(
+            prerequisite_status(expression, ["15-213", "21-240"]),
+            "satisfied",
+        )
+
+    def test_unstructured_prerequisite_is_unknown(self) -> None:
+        self.assertEqual(
+            prerequisite_status("Permission of instructor", []),
+            "unknown",
+        )
 
     def test_tba_section_is_retained_as_an_unresolved_offering(self) -> None:
         html = """

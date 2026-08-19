@@ -11,3 +11,10 @@ def validate_teaching_location(value: str | None) -> str:
             f"Only {SUPPORTED_TEACHING_LOCATION!r} is supported for now."
         )
     return value
+
+
+def completed_courses_from_config(cfg: dict) -> list[str]:
+    courses = cfg.get("completed_courses") or []
+    if not isinstance(courses, list) or not all(isinstance(course, str) for course in courses):
+        raise ValueError("completed_courses must be a list of course IDs.")
+    return courses

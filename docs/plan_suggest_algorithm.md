@@ -4,7 +4,7 @@
 
 | Source | Fields used |
 |--------|-------------|
-| `plan_config.yml` | `semesters`, `units_per_semester`, `teaching_location`, `prefer_categories`, `prefer_courses`, `require_categories`, `current_time_ranges`, course list (IDs + categories) |
+| `plan_config.yml` | `semesters`, `units_per_semester`, `teaching_location`, `completed_courses`, `prefer_categories`, `prefer_courses`, `require_categories`, `current_time_ranges`, course list (IDs + categories) |
 | `out/course-snapshot.json` | `teaching_location`, `title`, `units`, `prerequisites`, `offered_in` per course |
 
 ## Pipeline
@@ -20,6 +20,7 @@ load_snapshot ──► courses[]   (built from config_course_ids;
                                from the snapshot;
                                matching snapshot teaching_location;
                                category and prerequisites from snapshot,
+                               prerequisite status from completed_courses,
                                populated by export_report)
 
 suggest_routes ─► route[] = (schedule[][], unplaced[])
@@ -57,9 +58,7 @@ When `mini` is present, that current range is compared only with full-semester
 meetings and meetings in the same mini slot. Mini numbering follows CMU SOC
 section suffixes: fall uses mini 1/2, spring uses 3/4, and summer uses 5/6.
 
-Prerequisites are read from the SOC course detail page by `export_report.py` and written into `out/course-snapshot.json` as `prerequisites`. HTML reports render the status as a compact clickable badge and show the source expression in its popover.
-Because completed-course history is not configured, every non-empty prerequisite
-is marked **Unsatisfied** as an advisory status. It does not block scheduling.
+Prerequisites are read from the SOC course detail page by `export_report.py` and written into `out/course-snapshot.json` as `prerequisites`. The `completed_courses` list in `plan_config.yml` supplies completed course IDs, such as `"15-213"`. The planner evaluates SOC `and`/`or` expressions (including parentheses) against that list. HTML reports render **Satisfied**, **Unsatisfied**, or **Unknown** as a compact clickable badge and show the source expression in its popover. Prerequisite status remains advisory and does not block scheduling.
 
 An offering with a TBA meeting row is retained and marked **TBA / incomplete** in
 the exported and suggested reports. Known meeting times still participate in

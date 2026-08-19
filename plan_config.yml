@@ -13,6 +13,11 @@ semesters: [F, S, Su, F]
 # Only Pittsburgh, Pennsylvania is supported for now.
 teaching_location: "Pittsburgh, Pennsylvania"
 
+# Courses already completed, used to evaluate SOC prerequisite expressions.
+# Course IDs may include or omit the hyphen. Prerequisites remain advisory and
+# do not block a course from being scheduled.
+completed_courses: ["15-213"]
+
 # Active planning focus. The scalar ratings below already encode the HFT
 # software-engineering priority; this value documents that focus.
 # Available values: Quant, HFT, FAANG

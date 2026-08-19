@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from ..common.prerequisites import PrerequisiteStatus
+
 @dataclass
 class Meeting:
     days: str
@@ -31,6 +33,7 @@ class Course:
     rating: int
     rating_by_category: dict[str, int]
     offered_in: list[Offering]   # newest first
+    prerequisite_status: PrerequisiteStatus = "unknown"
     selected_mini: int | None = None
     selected_section: str | None = None
 

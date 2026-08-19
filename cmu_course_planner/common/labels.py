@@ -2,6 +2,8 @@
 
 import html as html_lib
 
+from .prerequisites import PrerequisiteStatus
+
 _CATEGORY_TAG_CLASSES = {"Quant": "tag-quant"}
 
 
@@ -23,19 +25,33 @@ def mini_label(minis: list[int]) -> str:
     return "·".join(f"M{n}" for n in minis)
 
 
-def prereq_info(prerequisites: str) -> str:
+def prereq_info(
+    prerequisites: str,
+    status: PrerequisiteStatus | None = None,
+) -> str:
     """Prerequisite status plus collapsible source text."""
     text = prerequisites.strip() if prerequisites else "Unknown"
     if text.lower() == "none":
         return '<span class="no-prereqs">None</span>'
     if text.lower() == "unknown":
         return '<span class="status-badge status-unknown">Unknown</span>'
+    if status == "satisfied":
+        label = "Satisfied"
+        status_class = "status-success"
+        title = "Completed courses satisfy this prerequisite expression"
+    elif status == "unknown":
+        label = "Unknown"
+        status_class = "status-unknown"
+        title = "This prerequisite expression could not be evaluated"
+    else:
+        label = "Unsatisfied"
+        status_class = "status-warning"
+        title = "Configured completed courses do not satisfy this prerequisite expression"
     escaped = html_lib.escape(text)
     return (
         '<details class="prereq-info">'
-        '<summary aria-label="Show unsatisfied prerequisites" '
-        'title="No satisfaction evidence is configured">'
-        '<span class="status-badge status-warning">Unsatisfied</span></summary>'
+        f'<summary aria-label="Show {label.lower()} prerequisites" title="{title}">'
+        f'<span class="status-badge {status_class}">{label}</span></summary>'
         f'<div class="prereq-popover">{escaped}</div>'
         '</details>'
     )

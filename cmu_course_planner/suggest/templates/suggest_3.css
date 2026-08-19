@@ -17,6 +17,7 @@
     .chip-M { background: #0d1e3d; color: #60a5fa; }
     .no-prereqs { color: #6b7280; }
     .status-warning { background: #3d2a00; color: #fcd34d; }
+    .status-success { background: #143621; color: #86efac; }
     .status-unknown { background: #2d2d2d; color: #9ca3af; }
     .prereq-info summary { color: #d1d5db; }
     .semester-offerings-info summary { border-color: #6b7280; color: #d1d5db; }

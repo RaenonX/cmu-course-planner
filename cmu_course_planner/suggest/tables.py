@@ -21,7 +21,7 @@ def _course_row(c: Course, soc: str, prefer: list[str]) -> str:
     return (
         f"<tr><td>{_course_link(c, soc)}</td><td>{c.title}{mini_chip}</td>"
         f"<td>{_rating_badge(c, prefer)}</td><td>{category_badges(c.category)}</td>"
-        f'<td class="units">{c.units}</td><td>{prereq_info(c.prerequisites)}</td>'
+        f'<td class="units">{c.units}</td><td>{prereq_info(c.prerequisites, c.prerequisite_status)}</td>'
         f'<td class="times">{_time_label(offering, _selected_section_option(c, soc))}</td><td>{_offering_chips(c)}</td></tr>\n'
     )
 
@@ -30,7 +30,7 @@ def _unplaced_row(c: Course, prefer: list[str]) -> str:
     return (
         f"<tr><td>{_course_cell(c, c.last_link())}</td><td>{c.title}</td>"
         f"<td>{_rating_badge(c, prefer)}</td><td>{category_badges(c.category)}</td>"
-        f'<td class="units">{c.units}</td><td>{prereq_info(c.prerequisites)}</td>'
+        f'<td class="units">{c.units}</td><td>{prereq_info(c.prerequisites, c.prerequisite_status)}</td>'
         f'<td class="times">{_time_label(c.offered_in[0] if c.offered_in else None)}</td>'
         f"<td>{_offering_chips(c)}</td></tr>\n"
     )
