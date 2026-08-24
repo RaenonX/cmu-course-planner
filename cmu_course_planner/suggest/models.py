@@ -38,6 +38,7 @@ class Course:
     rating_by_category: dict[str, int]
     offered_in: list[Offering]   # newest first
     prerequisite_status: PrerequisiteStatus = "unknown"
+    fixed_semester: int | None = None
     selected_mini: int | None = None
     selected_section: str | None = None
 

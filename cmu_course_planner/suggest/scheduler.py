@@ -7,6 +7,64 @@ from .sections import section_choices
 from .time import _continuity_score
 from .units import candidate_slots
 
+
+def _place_fixed_courses(
+    courses: list[Course],
+    semesters: list[str],
+    schedule: list[list[Course]],
+    units_max: int,
+    current_time_ranges: list[Meeting],
+    route_seed: int,
+) -> set[str]:
+    fixed = [course for course in courses if course.fixed_semester is not None]
+    for semester_idx in range(len(semesters)):
+        semester_fixed = [
+            course for course in fixed if course.fixed_semester == semester_idx + 1
+        ]
+        if not semester_fixed:
+            continue
+        soc = USER_TO_SOC[semesters[semester_idx]]
+        current = current_time_ranges if semester_idx == 0 else []
+        def place(course_idx: int, selected_courses: list[Course]) -> list[Course] | None:
+            if course_idx == len(semester_fixed):
+                return selected_courses
+            course = semester_fixed[course_idx]
+            slots = candidate_slots(course, units_max, soc, selected_courses)
+            base_overlap, _ = _continuity_score(selected_courses, soc, current)
+            choices = []
+            for chosen_slot, option in section_choices(course, soc, slots):
+                selected = replace(
+                    course,
+                    selected_mini=chosen_slot or None,
+                    selected_section=option.label,
+                )
+                next_overlap, next_gap = _continuity_score(
+                    [*selected_courses, selected], soc, current
+                )
+                if next_overlap == base_overlap:
+                    choices.append((next_gap, selected))
+            choices.sort(key=lambda item: (item[0], item[1].selected_section or ""))
+            if choices:
+                choice_idx = _route_choice_index(
+                    route_seed, semester_idx, course_idx, len(choices)
+                )
+                choices = choices[choice_idx:] + choices[:choice_idx]
+            for _, selected in choices:
+                result = place(course_idx + 1, [*selected_courses, selected])
+                if result is not None:
+                    return result
+            return None
+
+        selected = place(0, [])
+        if selected is None:
+            course_ids = ", ".join(course.course for course in semester_fixed)
+            raise ValueError(
+                f"Fixed course {course_ids} cannot be placed in semester "
+                f"{semester_idx + 1}; check its offering, unit cap, mini slot, and time conflicts."
+            )
+        schedule[semester_idx] = selected
+    return {course.course for course in fixed}
+
 def suggest(
     courses: list[Course],
     semesters: list[str],
@@ -24,8 +82,15 @@ def suggest(
     with minis=[] is full-semester.  Meetings in different mini slots may share
     the same clock time; meetings in the same mini slot may not overlap.
     """
-    assigned: set[str] = set()
     schedule: list[list[Course]] = [[] for _ in semesters]
+    assigned = _place_fixed_courses(
+        courses,
+        semesters,
+        schedule,
+        units_max,
+        current_time_ranges,
+        route_seed,
+    )
 
     for idx, sem in enumerate(semesters):
         soc = USER_TO_SOC[sem]

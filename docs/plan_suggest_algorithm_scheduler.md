@@ -4,7 +4,12 @@
 
 `suggest(courses, semesters, units_max, prefer)` assigns courses to semesters in order.
 `suggest_routes(...)` repeats that scheduler with deterministic route seeds and keeps
-unique schedule/unplaced combinations, up to 10 routes per strategy.
+every unique schedule/unplaced combination found across 200 route seeds.
+
+Before the greedy loop, courses with `fixed_semester` are assigned to their
+required one-based semester. They consume the normal semester unit budget and
+must have a compatible detected section schedule. They cannot be displaced by
+planned courses.
 
 ### Candidate selection
 
@@ -101,7 +106,7 @@ Any course not in `assigned` after all semesters are processed is collected into
 
 The HTML report also provides a route-specific **What if?** analyzer. Select an
 unplaced course, a planned semester, and either keep the scheduled courses or
-remove one course. Each option is evaluated against the same offering, unit,
+remove one non-fixed course. Each option is evaluated against the same offering, unit,
 mini-slot, section, current-time, and course-time constraints used by the
 scheduler. A rejected option names the blocking constraint and, for time
 conflicts, the conflicting course or current commitment. Prerequisite status
@@ -110,4 +115,8 @@ remains advisory and appears as a warning on otherwise valid swaps.
 ## Output
 
 - **Console** — semester-by-semester listing for route 1 of the primary strategy, with units, mini labels, and enr-apps links.
-- **`out/suggested-schedule.html`** — each strategy tab contains up to 10 distinct routes, rendered as styled HTML tables with clickable course links.
+- **`out/suggested-schedule.html`** — each strategy tab lists every distinct
+  generated route in a semester-by-semester course-set tree. Exact section
+  routes are the leaves. Route bodies are individually compressed in the static
+  file and expanded into the page only when selected, keeping the DOM responsive
+  as the route list grows.

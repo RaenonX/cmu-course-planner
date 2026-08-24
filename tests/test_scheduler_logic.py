@@ -7,7 +7,7 @@ from cmu_course_planner.report.render import _offering_times
 from cmu_course_planner.report.section_parse import parse_sections
 from cmu_course_planner.suggest.models import Course, Meeting, Offering, SectionOption
 from cmu_course_planner.suggest.load import load_current_time_ranges
-from cmu_course_planner.suggest.render_panel import _semester_heading
+from cmu_course_planner.suggest.semester_render import _semester_heading
 from cmu_course_planner.suggest.routes import _schedule_signature
 from cmu_course_planner.suggest.scheduler import suggest
 from cmu_course_planner.suggest.time import _meeting_days
@@ -106,6 +106,51 @@ class MiniUnitTests(unittest.TestCase):
         ]
         heading = _semester_heading(0, "F", semester_unit_total(selected), 12, selected)
         self.assertIn("12/12 units", heading)
+
+
+class FixedCourseTests(unittest.TestCase):
+    def test_fixed_courses_are_placed_before_planned_courses(self) -> None:
+        fixed_a = replace(course("fixed-a", 12, []), fixed_semester=1, rating=1)
+        fixed_b = replace(course("fixed-b", 12, []), fixed_semester=1, rating=1)
+        planned = replace(course("planned", 12, []), rating=5)
+
+        schedule, unplaced = suggest(
+            [planned, fixed_a, fixed_b], ["F", "F"], 24, [], []
+        )
+
+        self.assertEqual([item.course for item in schedule[0]], ["fixed-a", "fixed-b"])
+        self.assertEqual([item.course for item in schedule[1]], ["planned"])
+        self.assertEqual(unplaced, [])
+
+    def test_fixed_course_sections_backtrack_to_a_compatible_bundle(self) -> None:
+        first = replace(
+            course("first", 12, []),
+            fixed_semester=1,
+            offered_in=[Offering("F26", [], [
+                SectionOption("A", [Meeting("M", "9:00AM", "9:50AM")]),
+                SectionOption("B", [Meeting("M", "10:00AM", "10:50AM")]),
+            ], "https://example.test")],
+        )
+        second = replace(
+            course("second", 12, []),
+            fixed_semester=1,
+            offered_in=[Offering("F26", [], [
+                SectionOption("A", [Meeting("M", "9:00AM", "9:50AM")]),
+            ], "https://example.test")],
+        )
+
+        schedule, _ = suggest([first, second], ["F"], 24, [], [])
+
+        self.assertEqual(
+            [(item.course, item.selected_section) for item in schedule[0]],
+            [("first", "B"), ("second", "A")],
+        )
+
+    def test_impossible_fixed_course_fails_generation(self) -> None:
+        fixed = replace(course("fixed", 12, []), fixed_semester=1)
+
+        with self.assertRaisesRegex(ValueError, "Fixed course fixed cannot be placed"):
+            suggest([fixed], ["F"], 6, [], [])
 
 
 class WarningTests(unittest.TestCase):

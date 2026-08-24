@@ -24,26 +24,32 @@ def _route_count_summary(schedule: list[list[Course]], prefer: list[str]) -> str
         )
     return "".join(parts)
 
-def _route_semester_titles(sem_courses: list[Course]) -> str:
+def _route_semester_label(sem_courses: list[Course]) -> str:
     if not sem_courses:
-        return '<span class="route-course-title">No courses</span>'
-    return "".join(
-        f'<span class="route-course-title">{html_lib.escape(f"{course.course} {course.title}")}</span>'
-        for course in sem_courses
+        return "No courses"
+    return " + ".join(course.course for course in sorted(sem_courses, key=lambda item: item.course))
+
+
+def _route_section_label(schedule: list[list[Course]]) -> str:
+    selected = [course for semester in schedule for course in semester]
+    if not selected:
+        return "No selected sections"
+    return " · ".join(
+        html_lib.escape(
+            f"{course.course} {course.selected_section or 'Section unknown'}"
+            f"{' M' + str(course.selected_mini) if course.selected_mini else ''}"
+        )
+        for course in selected
     )
 
-def _route_tab_label(schedule: list[list[Course]], prefer: list[str]) -> str:
-    semester_count = len(schedule)
-    parts = [
-        f'<span class="route-tab-summary" style="--semester-count:{semester_count}">'
-    ]
-    for idx, sem_courses in enumerate(schedule):
-        cls = "route-sem-dark" if idx % 2 == 0 else "route-sem-gray"
-        parts.append(
-            f'<span class="route-sem {cls}">{_route_semester_titles(sem_courses)}</span>'
-        )
-    parts.append(
+
+def _route_leaf_label(
+    route_idx: int,
+    schedule: list[list[Course]],
+    prefer: list[str],
+) -> str:
+    return (
+        f'<span class="route-tree-route">Route {route_idx + 1}</span>'
+        f'<span class="route-section-choice">{_route_section_label(schedule)}</span>'
         f'<span class="route-count-summary">{_route_count_summary(schedule, prefer)}</span>'
     )
-    parts.append("</span>")
-    return "".join(parts)

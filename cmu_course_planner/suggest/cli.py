@@ -8,7 +8,7 @@ from .console import print_primary_route
 from .load import load_config, load_current_time_ranges, load_snapshot
 from .render import build_html
 from .routes import suggest_routes
-from .variants import ROUTES_PER_VARIANT, VARIANTS
+from .variants import ROUTE_ATTEMPTS, VARIANTS
 
 def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
@@ -53,7 +53,10 @@ def main() -> None:
         teaching_location, current_time_ranges, results,
     )
 
-    print(f"Generating {len(VARIANTS)} schedule tabs with up to {ROUTES_PER_VARIANT} routes each…")
+    print(
+        f"Generating {len(VARIANTS)} schedule tabs with every unique route "
+        f"found across {ROUTE_ATTEMPTS} search seeds…"
+    )
 
     html = build_html(
         semesters,

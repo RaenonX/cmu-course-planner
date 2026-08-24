@@ -1,5 +1,5 @@
 # Maximum suggested-course units assigned to each semester.
-units_per_semester: 12
+units_per_semester: 24
 
 # Semesters to plan, in order. Supported values: F, S, and Su.
 semesters: [F, S, Su, F]
@@ -107,207 +107,67 @@ current_time_ranges:
 # rating is the planning priority from 1 (lowest) to 5 (highest).
 # category enables category-specific ratings and filtering.
 courses:
-  # Introduction to Probability Modeling
-  # Covers Markov chains, Poisson processes, MDPs, MCMC, martingales, Brownian motion, and hidden Markov models.
-  - course: "36-410"
-    category: [Quant]
-    rating: 4
-
-  # Probability and Mathematical Statistics
-  # Covers estimation, hypothesis testing, regression, Bayesian inference, MCMC, and model selection.
-  - course: "36-700"
-    category: [Quant]
-    rating: 4
-
-  # Advanced Database Systems
-  # Covers analytical database storage engines, query execution, and throughput optimization.
-  - course: "15-721"
-    category: [FAANG]
-    rating: 3
-
-  # Parallel Computer Architecture and Programming
-  # Covers SIMD, cache hierarchy, lock-free programming, and memory consistency.
-  - course: "15-618"
-    category: [HFT]
-    rating: 5
-
   # Networking and the Internet
-  # Covers network-stack design, routing, and congestion control.
   - course: "15-641"
     category: [HFT, FAANG]
     rating: 5
 
-  # Distributed Systems
-  # Covers replication, consistency, fault tolerance, and distributed coordination.
-  - course: "15-640"
-    category: [HFT, FAANG]
-    rating: 4
-
-  # Advanced and Distributed Operating Systems
-  # Covers OS internals, lock-free structures, memory consistency, scheduling, and NUMA-aware programming.
-  - course: "15-712"
+  # Parallel Computer Architecture and Programming
+  - course: "15-618"
     category: [HFT, FAANG]
     rating: 5
 
-  # Theory of Markov Processes: Selected Topics with Applications in ML and GenAI
-  # Covers Markov chains, diffusion processes, Bellman equations, and Q-learning.
-  - course: "15-853"
-    category: [Quant]
-    rating: 2
+  # Machine Learning Systems
+  - course: "15-642"
+    category: [HFT, FAANG]
+    rating: 4
 
-  # Deep Reinforcement Learning & Control
-  # Covers reinforcement-learning methods for sequential decision and control problems.
-  - course: "10-703"
+  # Deep Learning Systems: Algorithms and Implementation
+  - course: "10-714"
+    category: [FAANG]
+    rating: 3
+
+  # Probability Theory for Computer Scientists
+  - course: "36-218"
     category: [Quant]
-    rating: 1
+    rating: 4
 
   # Probabilistic Graphical Models
-  # Covers Bayesian networks, MCMC, variational inference, and deep generative models.
   - course: "10-708"
     category: [Quant, FAANG]
-    rating: 1
-
-  # Accounting and Finance Analytics
-  # Applies machine learning and analytics to financial-statement data.
-  - course: "95-719"
-    rating: 2
-
-  # Introduction to Machine Learning
-  # Introduces foundational machine-learning methods and concepts.
-  - course: "10-601"
-    category: [Quant]
-    rating: 2
-
-  # Advanced Topics in Machine Learning and Game Theory
-  # Covers multi-agent learning, mechanism design, and strategic equilibria.
-  - course: "17-759"
-    category: [Quant]
-    rating: 1
-
-  # Financial Data Science II
-  # Covers time-series modeling, factor analysis, and machine learning with financial data.
-  - course: "46-923"
-    category: [Quant]
-    rating: 1
-
-  # Advanced Derivative Models
-  # Covers models for pricing exotic derivatives.
-  - course: "46-915"
-    category: [Quant]
-    rating: 1
-
-  # Financial Optimization
-  # Covers optimization methods for portfolio construction and financial decisions.
-  - course: "46-976"
-    category: [Quant]
-    rating: 1
-
-  # Convex Optimization
-  # Covers duality, gradient methods, ADMM, and interior-point methods.
-  - course: "10-725"
-    category: [Quant, FAANG]
-    rating: 2
-
-  # Generative Modeling and Foundation Models
-  # Covers transformers, language-model training, diffusion models, multimodal systems, and scaling laws.
-  - course: "10-423"
-    category: [FAANG, Quant]
-    rating: 1
-
-  # Software System Design
-  # Covers software architecture, design principles, threat modeling, and design tradeoffs.
-  - course: "17-723"
-    category: [FAANG]
-    rating: 3
-
-  # Machine Learning in Production
-  # Covers deployment, monitoring, CI/CD, concept drift, experimentation, and responsible AI.
-  - course: "17-745"
-    category: [FAANG]
-    rating: 2
-
-  # Advanced Cloud Computing
-  # Covers cloud infrastructure, distributed storage, serverless systems, reliability, and multi-region deployment.
-  - course: "15-719"
-    category: [FAANG, HFT]
-    rating: 3
-
-  # Introduction to Deep Learning
-  # Covers implementation-level deep-learning foundations, backpropagation, and attention.
-  - course: "11-685"
-    category: [FAANG]
-    rating: 1
-
-  # Natural Language Processing
-  # Covers methods for building and evaluating natural-language systems.
-  - course: "11-611"
-    category: [FAANG]
-    rating: 1
-
-  # Search Engines
-  # Covers information retrieval, ranking, and indexing.
-  - course: "11-642"
-    category: [FAANG]
-    rating: 1
-
-  # Engineering Data Intensive Scalable Systems
-  # Covers scalable data pipelines, deployment, monitoring, reliability, and operations.
-  - course: "17-647"
-    category: [HFT, FAANG]
-    rating: 3
-
-  # Foundations of Computational Data Science
-  # Covers statistics, machine-learning fundamentals, and data wrangling.
-  - course: "11-637"
     rating: 1
 
   # Negotiations for Software Leaders
   - course: "17-693"
     rating: 1
 
-  # Designing Human Centered Software
-  # Covers user research, task analysis, iterative prototyping, and usability evaluation.
-  - course: "05-391"
-    rating: 1
+  # Accounting and Finance Analytics
+  - course: "95-719"
+    rating: 2
 
-  # Marketing for Entrepreneurship
-  - course: "45-908"
-    rating: 1
-
-  # Corporate Startup Lab
-  - course: "45-996"
-    rating: 1
-
-  # Design Patterns
-  - course: "17-695"
-    rating: 1
-
-  # How to Write Fast Code I
-  # Covers SIMD vectorization, cache behavior, lock-free structures, and memory-level parallelism.
-  - course: "18-645"
-    category: [HFT, FAANG]
-    rating: 5
-
-  # Operating System Design and Implementation
-  # Covers processes, threads, virtual memory, synchronization, and scheduler internals.
-  - course: "15-605"
-    category: [HFT, FAANG]
-    rating: 5
-
-  # Compiler Design
-  # Covers code generation, register allocation, SSA optimization, and instruction selection.
-  - course: "15-611"
+  # Distributed Systems
+  - course: "15-640"
     category: [HFT, FAANG]
     rating: 4
 
-  # Discrete Time Finance
-  # Covers binomial option pricing, no-arbitrage theory, and risk-neutral measures.
-  - course: "21-370"
-    category: [Quant]
+  # Introduction to Deep Learning
+  - course: "11-785"
+    category: [FAANG]
+    rating: 3
+    fixed_semester: 1
+
+  # Introduction to Machine Learning
+  - course: "10-601"
+    category: [Quant, FAANG]
     rating: 2
 
-  # Continuous Time Finance
-  # Covers Black-Scholes, Ito's formula, stochastic differential equations, and continuous-time pricing.
-  - course: "21-420"
+  # Optimization
+  - course: "18-660"
     category: [Quant]
-    rating: 2
+    rating: 4
+
+  # How to Write Fast Code I
+  - course: "18-645"
+    category: [HFT, FAANG]
+    rating: 5
+    fixed_semester: 1

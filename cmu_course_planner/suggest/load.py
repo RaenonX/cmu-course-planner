@@ -20,6 +20,16 @@ def load_config(path: Path) -> dict:
     for s in cfg.get("semesters", []):
         if s not in USER_TO_SOC:
             raise ValueError(f"Unknown semester '{s}' in config. Use F, S, or Su.")
+    semester_count = len(cfg.get("semesters", []))
+    for entry in cfg.get("courses", []):
+        fixed_semester = entry.get("fixed_semester")
+        if fixed_semester is None:
+            continue
+        if not isinstance(fixed_semester, int) or not 1 <= fixed_semester <= semester_count:
+            raise ValueError(
+                f"{entry.get('course', 'Configured course')} fixed_semester must be "
+                f"an integer from 1 to {semester_count}."
+            )
     if cfg.get("teaching_location") != SUPPORTED_TEACHING_LOCATION:
         raise ValueError(
             f"Unsupported teaching_location {cfg.get('teaching_location')!r}. "
@@ -134,5 +144,6 @@ def load_snapshot(
             rating_by_category=rating_by_category,
             offered_in=offerings,
             prerequisite_status=prerequisite_status(prerequisites, completed_courses),
+            fixed_semester=config_entry.get("fixed_semester"),
         ))
     return courses, snapshot_date

@@ -4,7 +4,7 @@
 
 | Source | Fields used |
 |--------|-------------|
-| `plan_config.yml` | `semesters`, `units_per_semester`, `teaching_location`, `completed_courses`, `prefer_categories`, `prefer_courses`, `require_categories`, `current_time_ranges`, course list (IDs + categories) |
+| `plan_config.yml` | `semesters`, `units_per_semester`, `teaching_location`, `completed_courses`, `prefer_categories`, `require_categories`, `current_time_ranges`, course list (IDs + categories + optional `fixed_semester`) |
 | `out/course-snapshot.json` | `teaching_location`, `title`, `units`, `prerequisites`, `offered_in` per course |
 
 ## Pipeline
@@ -37,6 +37,12 @@ Configured courses are kept only when:
 
 1. Its course ID exists in the snapshot.
 2. *(if `require_categories: true`)* At least one of its categories matches a `prefer_categories` entry.
+
+A course entry may set `fixed_semester` to a one-based planned-semester number.
+Fixed courses are placed before ordinary candidates and must pass the same
+offering, unit, mini-slot, section-time, and current-commitment checks. Schedule
+generation fails clearly when all fixed courses cannot coexist in their required
+semester.
 
 Category values come from `export_report.py`, which reads them from `plan_config.yml` and writes them into the snapshot.
 

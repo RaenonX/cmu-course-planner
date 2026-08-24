@@ -70,12 +70,10 @@
   .what-if-rejected { background: #fff; border: 1px solid #fca5a5; color: #991b1b; }
   .what-if-warning { color: #92400e; }
   .empty { color: #9ca3af; font-style: italic; }
-  @media (max-width: 760px) {
-    .route-tab-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 900px) {
+    .route-layout { grid-template-columns: 1fr; }
+    .route-browser { position: static; max-height: 55vh; }
     .what-if-controls { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 520px) {
-    .route-tab-summary { grid-template-columns: 1fr; }
   }
   @media (prefers-color-scheme: dark) {
     body { background: #121212; color: #e5e5e5; }
@@ -89,12 +87,16 @@
     .tab-btn:hover { border-color: #e8455a; color: #e8455a; }
     .tab-btn.active { background: #9b0e23; border-color: #9b0e23; color: #fff; }
     .variant-desc { color: #9ca3af; }
-    .route-tab-btn { background: #1e1e1e; border-color: #3a3a3a; }
-    .route-tab-btn:hover { border-color: #e8455a; }
-    .route-tab-btn.active { border-color: #e8455a; box-shadow: 0 0 0 2px rgba(232,69,90,.18); }
-    .route-count-summary { background: #171717; }
-    .route-sem-dark { background: #050505; }
-    .route-sem-gray { background: #4b5563; }
+    .route-browser { border-color: #3a3a3a; background: #171717; }
+    .route-browser h2 { border-bottom-color: #3a3a3a; background: #1e1e1e; }
+    .route-tree summary { border-color: #3a3a3a; background: #1e1e1e; }
+    .route-tree summary:hover { border-color: #e8455a; background: #2a1519; }
+    .route-tree-count, .route-section-choice { color: #9ca3af; }
+    .route-tree-children { border-left-color: #3a3a3a; }
+    .route-tree-leaf { background: #1e1e1e; }
+    .route-tree-leaf:hover, .route-tree-leaf.is-selected { border-color: #4b5563; background: #292929; }
+    .route-tree-leaf.is-selected { box-shadow: inset 3px 0 #e8455a; }
+    .route-tree-leaf:focus-visible { outline-color: #e8455a; }
     th { background: #9b0e23; }
     td { border-bottom-color: #2d2d2d; }
     tr:hover td { background: #2a1519; }

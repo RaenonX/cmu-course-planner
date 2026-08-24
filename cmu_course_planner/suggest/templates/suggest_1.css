@@ -1,5 +1,5 @@
   html { font-family: "Open Sans", sans-serif; }
-  body { font-family: inherit; max-width: 980px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+  body { font-family: inherit; max-width: 1500px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
   button, input, select, textarea, summary { font-family: inherit; }
   h1 { border-bottom: 2px solid #c41230; padding-bottom: .4rem; color: #c41230; }
   h2 { margin: 1.6rem 0 .4rem; font-size: 1.05rem; color: #374151;
@@ -22,23 +22,32 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
   .variant-desc { font-size: .82rem; color: #6b7280; margin-bottom: 1rem; font-style: italic; }
-  .route-tab-bar { display: grid; gap: .35rem; margin: 0 0 1.2rem; }
-  .route-tab-btn { border: 1px solid #d1d5db; border-radius: 6px; padding: 0; background: #fff;
-                   cursor: pointer; overflow: hidden; text-align: left; transition: border-color .15s, box-shadow .15s; }
-  .route-tab-btn:hover { border-color: #c41230; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-  .route-tab-btn.active { border-color: #c41230; box-shadow: 0 0 0 2px rgba(196,18,48,.18); }
-  .route-tab-summary { display: grid; grid-template-columns: repeat(var(--semester-count), minmax(0, 1fr));
-                       align-items: start; width: 100%; }
-  .route-sem { display: flex; flex-direction: column; gap: .15rem; min-height: 2.2rem;
-               padding: .4rem .55rem; color: #fff; font-size: .72rem; line-height: 1.28;
-               overflow-wrap: anywhere; }
-  .route-course-title { display: block; }
-  .route-count-summary { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .25rem;
-                         padding: .35rem .5rem; background: #f9fafb; }
-  .route-sem-dark { background: #111827; }
-  .route-sem-gray { background: #6b7280; }
-  .route-panel { display: none; }
-  .route-panel.active { display: block; }
+  .route-layout { display: grid; grid-template-columns: minmax(330px, 440px) minmax(0, 1fr);
+                  gap: 1.5rem; align-items: start; }
+  .route-browser { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto;
+                   padding: 0 .7rem .7rem; border: 1px solid #d1d5db; border-radius: 6px;
+                   background: #fff; scrollbar-gutter: stable; }
+  .route-browser h2 { margin: 0 -.7rem .7rem; padding: .65rem .7rem; border: 0;
+                      border-bottom: 1px solid #e5e7eb; background: #f9fafb; }
+  .route-browser .meta { margin: 0 0 .7rem; }
+  .route-tree details + details { margin-top: .35rem; }
+  .route-tree summary { display: flex; justify-content: space-between; gap: .5rem; cursor: pointer;
+                        padding: .48rem .55rem; border: 1px solid #d1d5db; border-radius: 5px;
+                        background: #f9fafb; font-size: .78rem; line-height: 1.3; }
+  .route-tree summary:hover { border-color: #c41230; background: #fff7f7; }
+  .route-tree-count { flex: none; color: #6b7280; font-size: .7rem; }
+  .route-tree-children { display: grid; gap: .28rem; margin: .28rem 0 .28rem .65rem;
+                         padding-left: .55rem; border-left: 1px solid #d1d5db; }
+  .route-tree-leaf { display: grid; gap: .28rem; width: 100%; padding: .5rem .55rem;
+                     border: 1px solid transparent; border-radius: 4px; background: #f9fafb;
+                     color: inherit; cursor: pointer; text-align: left; }
+  .route-tree-leaf:hover, .route-tree-leaf.is-selected { border-color: #9ca3af; background: #f3f4f6; }
+  .route-tree-leaf.is-selected { box-shadow: inset 3px 0 #c41230; }
+  .route-tree-leaf:focus-visible { outline: 2px solid #c41230; outline-offset: 1px; }
+  .route-tree-route { font-size: .78rem; font-weight: 700; }
+  .route-section-choice { color: #6b7280; font-size: .68rem; line-height: 1.35; overflow-wrap: anywhere; }
+  .route-count-summary { display: flex; flex-wrap: wrap; gap: .2rem; }
+  .route-panel { min-width: 0; min-height: 8rem; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }

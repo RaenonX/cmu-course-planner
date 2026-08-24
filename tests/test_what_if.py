@@ -99,6 +99,25 @@ class WhatIfAnalysisTests(unittest.TestCase):
         self.assertEqual([swap["remove"] for swap in semesters[0]["swaps"]], ["", "scheduled"])
         self.assertEqual(semesters[1]["swaps"][0]["summary"], "No detected offering")
 
+    def test_fixed_course_is_not_offered_as_a_removal(self) -> None:
+        fixed = replace(
+            course("fixed"),
+            selected_section="A",
+            fixed_semester=1,
+        )
+        planned = replace(course("planned"), selected_section="A")
+
+        data = build_what_if_data(
+            ["F"],
+            [[fixed, planned]],
+            [course("candidate")],
+            24,
+            [],
+        )
+
+        swaps = data["courses"][0]["semesters"][0]["swaps"]
+        self.assertEqual([swap["remove"] for swap in swaps], ["", "planned"])
+
 
 if __name__ == "__main__":
     unittest.main()

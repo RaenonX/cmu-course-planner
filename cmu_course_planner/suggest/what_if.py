@@ -123,6 +123,7 @@ def build_what_if_data(
             swaps.extend(
                 analyze_swap(course, USER_TO_SOC[sem], semester_courses, units_max, current, removed)
                 for removed in semester_courses
+                if removed.fixed_semester is None
             )
             semester_results.append({
                 "index": index,

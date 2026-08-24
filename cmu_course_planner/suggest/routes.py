@@ -1,6 +1,6 @@
 from .models import Course, Meeting
 from .scheduler import suggest
-from .variants import ROUTE_ATTEMPTS, ROUTES_PER_VARIANT
+from .variants import ROUTE_ATTEMPTS
 
 def _schedule_signature(schedule: list[list[Course]], unplaced: list[Course]) -> tuple:
     return (
@@ -18,7 +18,6 @@ def suggest_routes(
     prefer: list[str],
     current_time_ranges: list[Meeting],
     variant: str,
-    route_count: int = ROUTES_PER_VARIANT,
 ) -> list[tuple[list[list[Course]], list[Course]]]:
     routes: list[tuple[list[list[Course]], list[Course]]] = []
     seen: set[tuple] = set()
@@ -38,7 +37,4 @@ def suggest_routes(
             continue
         routes.append((schedule, unplaced))
         seen.add(signature)
-        if len(routes) >= route_count:
-            break
-
     return routes
