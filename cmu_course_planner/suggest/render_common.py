@@ -24,7 +24,8 @@ def _section_option_label(option: SectionOption) -> str:
     if option.has_unresolved_time:
         time_html += f" {unresolved_time_badge()}"
     mini = f"M{option.mini} " if option.mini else ""
-    return f'<span class="section-label">{mini}{html_lib.escape(option.label)}</span>: {time_html}'
+    modality = ' <span class="tag">Online</span>' if option.modality == "online" else ""
+    return f'<span class="section-label">{mini}{html_lib.escape(option.label)}</span>{modality}: {time_html}'
 
 
 def _time_label(offering: Offering | None, option: SectionOption | None = None) -> str:

@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import yaml
 
-from ..common.config import completed_courses_from_config, validate_teaching_location
+from ..common.config import completed_courses_from_config, feasible_course_ids, validate_teaching_location
 from ..common.paths import OUT_DIR, PLAN_CONFIG, REPORT_OUTPUT, SNAPSHOT
 from ..common.rating import parse_rating
 from .course_parse import _parse_course_info, _parse_prerequisites
@@ -72,6 +72,7 @@ def build_snapshot(today, semesters: list[str], teaching_location: str, entries:
 
     return {
         "generated": today.isoformat(timespec="seconds"),
+        "section_policy_version": 1,
         "semesters_checked": semesters,
         "teaching_location": teaching_location,
         "courses": [course_entry(e) for e in entries],
@@ -89,11 +90,16 @@ def export_report(today, years: int) -> bool:
         cfg = yaml.safe_load(f)
     teaching_location = validate_teaching_location(cfg.get("teaching_location"))
     completed_courses = completed_courses_from_config(cfg)
-    entries = sorted(cfg["courses"], key=lambda e: e["course"])
+    catalog_entries = sorted(cfg["courses"], key=lambda e: e["course"])
+    entries_by_course = {entry["course"]: entry for entry in catalog_entries}
+    for course_id in feasible_course_ids(cfg):
+        entries_by_course.setdefault(course_id, {"course": course_id, "rating": 1})
+    entries = sorted(entries_by_course.values(), key=lambda e: e["course"])
     results = probe_offerings(entries, semesters, teaching_location)
     course_info = resolve_course_info(entries, semesters, results)
     valid_entries = [entry for entry in entries if entry["course"] in course_info]
-    rows = build_report_rows(valid_entries, course_info, results, semesters, completed_courses)
+    report_entries = [entry for entry in catalog_entries if entry["course"] in course_info]
+    rows = build_report_rows(report_entries, course_info, results, semesters, completed_courses)
     html = build_report_html(rows, today, years, teaching_location)
     OUT_DIR.mkdir(exist_ok=True)
     REPORT_OUTPUT.write_text(html, encoding="utf-8")

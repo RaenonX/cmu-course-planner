@@ -17,6 +17,7 @@ def _meeting_key(meeting: dict) -> tuple:
         meeting["begin"],
         meeting["end"],
         meeting.get("mini"),
+        meeting.get("section"),
     )
 
 
@@ -36,6 +37,7 @@ def _merge_meetings(meetings: list[dict]) -> list[dict]:
             meeting["begin"],
             meeting["end"],
             meeting.get("mini"),
+            meeting.get("section"),
             None if days else meeting["days"],
         )
         if key not in merged:
@@ -43,21 +45,6 @@ def _merge_meetings(meetings: list[dict]) -> list[dict]:
             continue
         all_days = _meeting_days(merged[key]["days"]) | days
         merged[key]["days"] = "".join(day for day in _DAY_ORDER if day in all_days)
-    return list(merged.values())
-
-
-def _merge_equivalent_groups(groups: list[dict]) -> list[dict]:
-    merged: dict[tuple, dict] = {}
-    for group in groups:
-        key = (
-            group["mini"],
-            tuple(_meeting_key(meeting) for meeting in group["meetings"]),
-            group["has_unresolved_time"],
-        )
-        if key in merged:
-            merged[key]["label"] += f' / {group["label"]}'
-        else:
-            merged[key] = group
     return list(merged.values())
 
 
@@ -78,6 +65,8 @@ def _section_groups(records: list[dict]) -> list[dict]:
             "mini": mini,
             "meetings": meetings,
             "has_unresolved_time": any(record["has_unresolved_time"] for record in section_records),
+            "components": [label],
+            "modality": "in_person",
         })
     return groups
 
@@ -88,23 +77,54 @@ def _combine(lecture: dict, section: dict) -> dict:
         "mini": lecture["mini"],
         "meetings": _merge_meetings([*lecture["meetings"], *section["meetings"]]),
         "has_unresolved_time": lecture["has_unresolved_time"] or section["has_unresolved_time"],
+        "components": [lecture["label"], section["label"]],
+        "modality": "in_person",
     }
 
 
-def build_section_options(records: list[dict]) -> list[dict]:
+def _policy_options(groups: list[dict], bundles: list[dict]) -> list[dict]:
+    by_label = {group["label"]: group for group in groups}
+    options = []
+    for bundle in bundles:
+        labels = bundle["components"]
+        missing = [label for label in labels if label not in by_label]
+        if missing:
+            raise ValueError(f"Section policy references missing component(s): {', '.join(missing)}")
+        selected = [by_label[label] for label in labels]
+        minis = {group["mini"] for group in selected}
+        if len(minis) != 1:
+            raise ValueError(f"Section policy mixes mini slots: {' + '.join(labels)}")
+        options.append({
+            "label": " + ".join(labels),
+            "mini": next(iter(minis)),
+            "meetings": _merge_meetings([
+                meeting for group in selected for meeting in group["meetings"]
+            ]),
+            "has_unresolved_time": any(group["has_unresolved_time"] for group in selected),
+            "components": labels,
+            "modality": bundle["modality"],
+        })
+    return options
+
+
+def build_section_options(records: list[dict], bundles: list[dict] | None = None) -> list[dict]:
     """Build valid selectable schedules from SOC lecture/section rows."""
+    groups = _section_groups(records)
+    if bundles is not None:
+        return _policy_options(groups, bundles)
+
     groups_by_mini: dict[int | None, list[dict]] = defaultdict(list)
-    for group in _section_groups(records):
+    for group in groups:
         groups_by_mini[group["mini"]].append(group)
 
     options = []
     for groups in groups_by_mini.values():
-        lectures = _merge_equivalent_groups([
+        lectures = [
             group for group in groups if group["label"].lower().startswith("lec")
-        ])
-        sections = _merge_equivalent_groups([
+        ]
+        sections = [
             group for group in groups if not group["label"].lower().startswith("lec")
-        ])
+        ]
         if lectures and sections:
             options.extend(_combine(lecture, section) for lecture in lectures for section in sections)
         else:

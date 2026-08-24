@@ -40,7 +40,8 @@ def _section_option_label(option: dict) -> str:
     if option.get("has_unresolved_time"):
         time_html += f" {unresolved_time_badge()}"
     mini = f'M{option["mini"]} ' if option.get("mini") else ""
-    return f'<span class="section-label">{mini}{html_lib.escape(option["label"])}</span>: {time_html}'
+    modality = ' <span class="tag">Online</span>' if option.get("modality") == "online" else ""
+    return f'<span class="section-label">{mini}{html_lib.escape(option["label"])}</span>{modality}: {time_html}'
 
 def _offering_times(semesters: list[str], offering_map: dict[str, dict | None]) -> str:
     parts = []

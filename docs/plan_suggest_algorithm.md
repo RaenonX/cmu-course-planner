@@ -80,3 +80,6 @@ The planner does not claim that a future year-specific offering is confirmed.
 
 
 Scheduler details continue in [plan_suggest_algorithm_scheduler.md](plan_suggest_algorithm_scheduler.md).
+
+Exact-term exhaustive enumeration is documented separately in
+[feasible_schedules.md](feasible_schedules.md).

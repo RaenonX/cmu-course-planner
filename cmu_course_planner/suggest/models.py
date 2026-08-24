@@ -9,6 +9,7 @@ class Meeting:
     end: str
     mini: int | None = None
     label: str | None = None
+    section: str | None = None
 
 @dataclass
 class SectionOption:
@@ -16,6 +17,8 @@ class SectionOption:
     meetings: list[Meeting]
     mini: int | None = None
     has_unresolved_time: bool = False
+    components: tuple[str, ...] = ()
+    modality: str = "in_person"
 
 @dataclass
 class Offering:
@@ -51,6 +54,9 @@ class Course:
 
     def offering_for(self, soc_type: str) -> Offering | None:
         return next((o for o in self.offered_in if o.semester[0] == soc_type), None)
+
+    def offering_for_semester(self, semester: str) -> Offering | None:
+        return next((o for o in self.offered_in if o.semester == semester), None)
 
     def last_link_for(self, soc_type: str) -> str | None:
         o = self.offering_for(soc_type)

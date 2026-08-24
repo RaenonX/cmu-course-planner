@@ -1,390 +1,263 @@
-# ---------------------------------------------------------
-# Auto plan suggester configuration
-# ---------------------------------------------------------
-
-# Total suggested-course capacity in each semester.
+# Maximum suggested-course units assigned to each semester.
 units_per_semester: 12
 
-# Your planned semesters in order.
-# Use: F (Fall)  S (Spring)  Su (Summer)
+# Semesters to plan, in order. Supported values: F, S, and Su.
 semesters: [F, S, Su, F]
 
-# Teaching location to include when detecting course offerings.
-# Only Pittsburgh, Pennsylvania is supported for now.
+# Teaching location used to select course offerings.
 teaching_location: "Pittsburgh, Pennsylvania"
 
-# Courses already completed, used to evaluate SOC prerequisite expressions.
-# Course IDs may include or omit the hyphen. Prerequisites remain advisory and
-# do not block a course from being scheduled.
+# Inputs for exhaustive schedule enumeration in one semester.
+feasible_schedule:
+  # Semester to enumerate.
+  semester: F26
+  # Courses required in every schedule.
+  core_courses:
+    # Communications for Software Leaders I
+    - "17-603"
+    # Statistics for Decision Making
+    - "17-611"
+    # Formal Methods
+    - "17-614"
+    # Product Management Essentials I
+    - "17-619"
+    # Agile Methods
+    - "17-622"
+    # Quality Assurance
+    - "17-623"
+    # Requirements for Information Systems
+    - "17-626"
+  # Optional courses considered within max_elective_units.
+  elective_courses:
+    # How to Write Fast Code I
+    - "18-645"
+    # Introduction to Machine Learning
+    - "10-601"
+    # Introduction to Deep Learning
+    - "11-785"
+    # Distributed Systems
+    - "15-640"
+    # Networking and the Internet
+    - "15-641"
+  # Maximum total units from elective_courses in a schedule.
+  max_elective_units: 24
+
+# Courses used to evaluate prerequisite status.
 completed_courses: ["15-213"]
 
-# Active planning focus. The scalar ratings below encode the HFT
-# software-engineering priority plus the personal preference for practical
-# probability, simulation, and stochastic modeling courses.
-# Available values: Quant, HFT, FAANG
+# Categories used to select category-specific course ratings.
 prefer_categories: [HFT]
 
-# If true, only include courses that match at least one prefer_category.
-# If false (default), all courses are considered; prefer_categories only
-# affects which category-specific rating overrides are used.
+# Whether to exclude courses outside prefer_categories.
 require_categories: false
 
-# Existing time ranges to consider when generating the Time Continuity First tab.
-# Use this for courses already in the schedule so suggestions prefer smaller
-# same-day gaps around them. Multiple ranges are allowed.
+# Existing commitments considered for first-semester time conflicts.
 current_time_ranges:
-  # COM FOR SW LEADER I / 17603 E
   - label: "17-603 Communication for Software Leaders I (Section E)"
     days: "Th"
     begin: "12:30PM"
     end: "01:50PM"
-  # STATS FOR DEC MAKING / 17611 A1
   - label: "17-611 Statistics for Decision Making (Section A1)"
     days: "M W"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 1
-  # FORMAL METHODS / 17614 11
   - label: "17-614 Formal Methods (Lecture 11)"
     days: "M W"
     begin: "09:30AM"
     end: "10:50AM"
     mini: 1
-  # FORMAL METHODS / 17614 B1
   - label: "17-614 Formal Methods (Section B1)"
     days: "F"
     begin: "12:30PM"
     end: "01:50PM"
     mini: 1
-  # PROD MGMT ESSEN I / 17619 B1
   - label: "17-619 Product Management Essentials I (Section B1)"
     days: "T Th"
     begin: "02:00PM"
     end: "03:20PM"
     mini: 1
-  # AGILE METHODS / 17622 22
   - label: "17-622 Agile Methods (Lecture 22)"
     days: "M W"
     begin: "02:00PM"
     end: "03:20PM"
     mini: 2
-  # AGILE METHODS / 17622 B2
   - label: "17-622 Agile Methods (Section B2)"
     days: "F"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 2
-  # QUALITY ASSURANCE / 17623 12
   - label: "17-623 Quality Assurance (Lecture 12)"
     days: "M W"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 2
-  # QUALITY ASSURANCE / 17623 A2
   - label: "17-623 Quality Assurance (Section A2)"
     days: "F"
     begin: "12:30PM"
     end: "01:50PM"
     mini: 2
-  # RQ FOR INFO SYS / 17626 A2
   - label: "17-626 Requirements for Information Systems (Section A2)"
     days: "T Th"
     begin: "11:00AM"
     end: "12:20PM"
     mini: 2
 
-# ---------------------------------------------------------
-# Course list
-# Title, units, prerequisites, and offerings are fetched from
-# course pages at runtime and stored in out/course-snapshot.json.
-#
-# Each course has a practical current-goal priority from 1 to 5:
-#   5 = direct low-latency systems preparation
-#       or the strongest practical probability foundation
-#   4 = strong systems, trading, simulation, or modeling support
-#   3 = useful infrastructure or adjacent technical depth
-#   2 = peripheral value or strong relevance behind a known access barrier
-#   1 = little direct value or a substantial prerequisite mismatch
-# The ratings assume 15-213 has been completed. Categories remain informational.
-# ---------------------------------------------------------
-
+# Courses considered by the multi-semester suggester.
+# rating is the planning priority from 1 (lowest) to 5 (highest).
+# category enables category-specific ratings and filtering.
 courses:
-  # ---------------------------------------------------------------------------
-  # Practical probability, simulation, and stochastic modeling
-  # ---------------------------------------------------------------------------
-
-  # Probability and Computing
-  # Best general-purpose foundation for the user's existing probability work:
-  # conditional probability, random variables, expectations, tail bounds,
-  # Poisson processes, simulation, MLE/MAP, Bayesian estimation, and confidence
-  # intervals, with applications to algorithms and systems performance.
-  # F26: T/Th 2:00-3:20 plus Friday recitation; choose 9:00 or 2:00 and avoid
-  # the 1:00 recitations that overlap the recorded core Friday meetings.
-  # Requires moving 17-619 from B1 to A1 as recorded above. External graduate
-  # elective credit still requires MSE Graduate Academic Advisor approval.
-  - course: "15-559"
-    category: [HFT, Quant]
-    rating: 5
-
-  # Monte Carlo Methods and Applications
-  # Most implementation-oriented follow-up: random sampling, Markov chains,
-  # Monte Carlo integration, stochastic processes, Python coding assignments,
-  # and an applied final project. Requires basic probability and multivariable
-  # calculus. As a 300-level undergraduate course, it would use the MSE policy's
-  # single permitted undergraduate elective and requires advisor approval.
-  # Last verified offering was F24; it is absent from the current F25-F26/S26
-  # SOC window. Re-enable it when a new offering appears.
-  # - course: "15-327"
-  #   category: [Quant]
-  #   rating: 4
-
   # Introduction to Probability Modeling
-  # Stateful/time-dependent modeling follow-up covering Markov chains, Poisson
-  # processes, MDPs, MCMC, martingales, Brownian motion, and hidden Markov models.
-  # SOC does not list 15-559 among its formal prerequisites, so equivalency or
-  # instructor permission would still be needed after 15-559. As a 400-level
-  # undergraduate course, it would use the single permitted undergraduate
-  # elective and needs advisor approval.
+  # Covers Markov chains, Poisson processes, MDPs, MCMC, martingales, Brownian motion, and hidden Markov models.
   - course: "36-410"
     category: [Quant]
     rating: 4
 
   # Probability and Mathematical Statistics
-  # Best complement for inference from real observations: estimation,
-  # confidence intervals, hypothesis tests, bootstrap/permutation methods,
-  # regression, Bayesian inference, MCMC, and model selection. Graduate course;
-  # external elective credit requires MSE advisor approval.
+  # Covers estimation, hypothesis testing, regression, Bayesian inference, MCMC, and model selection.
   - course: "36-700"
     category: [Quant]
     rating: 4
 
-  # Probability & Computing: Randomized Algorithms and Markov Chains
-  # Valuable continuation for randomized algorithms, concentration bounds,
-  # Markov chains, and queueing, but F26 requires B or better in 15-559. Keep it
-  # inactive until 15-559 is completed because planner prerequisites are only
-  # advisory and would otherwise allow an invalid same-semester suggestion.
-  # - course: "15-659"
-  #   category: [HFT, Quant]
-  #   rating: 4
-
   # Advanced Database Systems
-  # Andy Pavlo's course. Content covers OLAP / data-warehouse systems
-  # (Snowflake, DuckDB, Iceberg): storage engines, query execution, and
-  # batch/throughput optimization. Strong fit for FAANG systems interviews.
-  # No prereqs. S26 confirmed.
+  # Covers analytical database storage engines, query execution, and throughput optimization.
   - course: "15-721"
     category: [FAANG]
     rating: 3
 
-  # ---------------------------------------------------------------------------
-  # HFT / Low-Latency Systems
-  # ---------------------------------------------------------------------------
-
-  # Market Microstructure and Algorithmic Trading
-  # Core HFT course. Order book dynamics, adverse selection, latency arbitrage.
-  # Also directly relevant for Quant Researchers working on execution algorithms
-  # and market impact modeling (used at Two Sigma, Citadel). Uses kdb+ and Python
-  # with real intraday data.
-  # The known 15-213 credit does not satisfy its MSCF prerequisite chain, so its
-  # practical scheduling priority stays below the accessible systems courses.
-#  - course: "46-982"
-#    category: [HFT, Quant]
-#    rating: 2
-
   # Parallel Computer Architecture and Programming
-  # SIMD, cache hierarchy, lock-free programming, memory consistency — core skills
-  # for low-latency systems engineers. Cache coherence (L1/L2 tuning), branch
-  # prediction, and CPU affinity are critical-path optimizations in
-  # performance-critical systems.
+  # Covers SIMD, cache hierarchy, lock-free programming, and memory consistency.
   - course: "15-618"
     category: [HFT]
     rating: 5
 
   # Networking and the Internet
-  # Standard TCP/IP stack design, routing, congestion control. Covers networking
-  # fundamentals but not kernel bypass (DPDK, AF_XDP), RDMA, or SmartNIC — the
-  # tools used in ultra-low-latency network paths.
+  # Covers network-stack design, routing, and congestion control.
   - course: "15-641"
     category: [HFT, FAANG]
     rating: 5
 
   # Distributed Systems
-  # Replication, consistency, fault tolerance. Core FAANG SWE competency.
-  # Also relevant to HFT infrastructure: feed handlers, order routing, and risk
-  # systems all require distributed coordination, even if the latency-critical
-  # hot path is single-machine.
+  # Covers replication, consistency, fault tolerance, and distributed coordination.
   - course: "15-640"
     category: [HFT, FAANG]
     rating: 4
 
   # Advanced and Distributed Operating Systems
-  # Deep OS internals: lock-free data structures, memory consistency models,
-  # kernel scheduling, and NUMA-aware programming. Covers user-space I/O
-  # primitives (io_uring) and the OS foundations required to understand kernel
-  # bypass techniques (DPDK, AF_XDP) that appear throughout HFT network stacks.
-  # Strongest systems-depth fit among SCS graduate courses for low-latency
-  # engineering. Prereq: undergrad OS (15-410 or equivalent).
+  # Covers OS internals, lock-free structures, memory consistency, scheduling, and NUMA-aware programming.
   - course: "15-712"
     category: [HFT, FAANG]
     rating: 5
 
-  # Markov Processes (15-853)
-  # Full title: "Theory of Markov Processes: Selected Topics with
-  # Applications in ML and GenAI". Covers Markov chains, diffusion processes,
-  # Bellman equations, Q-learning. Strong Quant Research fit (price-process
-  # modeling, RL strategies). No prereqs. S26 confirmed.
+  # Theory of Markov Processes: Selected Topics with Applications in ML and GenAI
+  # Covers Markov chains, diffusion processes, Bellman equations, and Q-learning.
   - course: "15-853"
     category: [Quant]
     rating: 2
 
   # Deep Reinforcement Learning & Control
-  # RL-based portfolio rebalancing, execution optimization, and market-making
-  # strategies. Quant Researcher territory (strategy/modeling) rather than
-  # systems/infra work. Prereq: 10-601. F26 confirmed.
+  # Covers reinforcement-learning methods for sequential decision and control problems.
   - course: "10-703"
     category: [Quant]
     rating: 1
 
   # Probabilistic Graphical Models
-  # Bayesian networks, MCMC, variational inference, deep generative models (VAEs,
-  # diffusion). Bayesian inference is core to quant risk and factor modeling and
-  # differentiating in quant researcher interviews at top firms. The generative
-  # model content overlaps with FAANG ML engineering but is less central there.
-  # Prereq: 10-601. S26 confirmed.
+  # Covers Bayesian networks, MCMC, variational inference, and deep generative models.
   - course: "10-708"
     category: [Quant, FAANG]
     rating: 1
 
   # Accounting and Finance Analytics
-  # Financial-statement analysis with ML; bridges accounting data and
-  # quantitative signals, but does not build low-latency systems depth.
+  # Applies machine learning and analytics to financial-statement data.
   - course: "95-719"
     rating: 2
 
   # Introduction to Machine Learning
-  # Foundational prereq for 10-703, 10-708, and other Quant-track courses.
-  # ML signal generation is Quant Researcher work; not directly relevant to
-  # low-latency systems engineering.
+  # Introduces foundational machine-learning methods and concepts.
   - course: "10-601"
     category: [Quant]
     rating: 2
 
   # Advanced Topics in Machine Learning and Game Theory
-  # Game theory concepts (MARL, mechanism design, strategic equilibria) are
-  # intellectually connected to market making and quote competition, but the
-  # course applies them to security/transportation/sustainability — not financial
-  # markets. Requires transferring concepts to quant finance independently.
+  # Covers multi-agent learning, mechanism design, and strategic equilibria.
   - course: "17-759"
     category: [Quant]
     rating: 1
 
   # Financial Data Science II
-  # Advanced applied data science for finance: time-series modeling, factor
-  # analysis, and ML-driven signal generation using financial datasets.
-  # Complements 46-982 (Market Microstructure) with broader quant modeling
-  # methods. Offered F26.
+  # Covers time-series modeling, factor analysis, and machine learning with financial data.
   - course: "46-923"
     category: [Quant]
     rating: 1
 
-  # (Hard math prereq - stochastic calculus required)
   # Advanced Derivative Models
-  # Pricing exotic derivatives. Math gap (no stochastic calc) makes this a
-  # high-risk enrollment.
+  # Covers models for pricing exotic derivatives.
   - course: "46-915"
     category: [Quant]
     rating: 1
 
-  # (Hard math prereq - optimization theory required)
   # Financial Optimization
-  # Portfolio optimization theory. Math gap (no optimization theory) makes this
-  # a high-risk enrollment.
+  # Covers optimization methods for portfolio construction and financial decisions.
   - course: "46-976"
     category: [Quant]
     rating: 1
 
   # Convex Optimization
-  # Lagrangian duality, gradient descent variants, ADMM, and interior-point
-  # methods. Foundational math for portfolio construction (mean-variance, CVaR),
-  # factor model calibration, and ML training loops. Serves as a stepping-stone
-  # prereq for 46-976 (Financial Optimization) and deepens ML theory for FAANG
-  # technical interviews. No prereqs beyond linear algebra and calculus.
+  # Covers duality, gradient methods, ADMM, and interior-point methods.
   - course: "10-725"
     category: [Quant, FAANG]
     rating: 2
 
   # Generative Modeling and Foundation Models
-  # Transformers, LLM pretraining/fine-tuning, RLHF, diffusion models, multimodal
-  # systems, scaling laws, distributed training — the core skill set at Google,
-  # Meta, Microsoft, and Apple right now. Also adds minor Quant value since some
-  # firms are beginning to use LLMs for text-based alpha signals.
-  # Prereq: 10-601. F26 + S26 confirmed.
+  # Covers transformers, language-model training, diffusion models, multimodal systems, and scaling laws.
   - course: "10-423"
     category: [FAANG, Quant]
     rating: 1
 
   # Software System Design
-  # Software architecture, design principles, STRIDE threat modeling, and design
-  # tradeoffs for real-world systems. Strong preparation for FAANG system design
-  # interviews; complements distributed systems depth with architecture judgment
-  # and trade-off analysis.
+  # Covers software architecture, design principles, threat modeling, and design tradeoffs.
   - course: "17-723"
     category: [FAANG]
     rating: 3
 
   # Machine Learning in Production
-  # Full ML system lifecycle: Docker, Kubernetes, Kafka, MLFlow, Prometheus,
-  # CI/CD, concept drift, A/B testing, responsible AI. The tools and practices
-  # taught here are exactly what ML engineers at Google, Meta, and Amazon use
-  # daily. One of the most directly job-ready FAANG ML engineering courses.
+  # Covers deployment, monitoring, CI/CD, concept drift, experimentation, and responsible AI.
   - course: "17-745"
     category: [FAANG]
     rating: 2
 
   # Advanced Cloud Computing
-  # Cloud infrastructure internals: Kubernetes scheduling, distributed storage,
-  # serverless, microservice reliability, and multi-region deployment. Covers
-  # the operational and architectural knowledge behind Google, Amazon, and
-  # Microsoft's cloud platforms — directly applicable to FAANG infra engineering
-  # and SRE roles. Complements 15-640 with practical cloud-native depth.
-  # Prereq: distributed systems background.
+  # Covers cloud infrastructure, distributed storage, serverless systems, reliability, and multi-region deployment.
   - course: "15-719"
     category: [FAANG, HFT]
     rating: 3
 
   # Introduction to Deep Learning
-  # Implementation-level rigor (backprop from scratch, attention from scratch in
-  # PyTorch) makes this more valuable than a typical survey course. FAANG ML
-  # interviews test both conceptual understanding and implementation ability.
+  # Covers implementation-level deep-learning foundations, backpropagation, and attention.
   - course: "11-685"
     category: [FAANG]
     rating: 1
 
   # Natural Language Processing
-  # LLM/NLP engineering is increasingly core at FAANG; relevant for AI-product
-  # roles.
+  # Covers methods for building and evaluating natural-language systems.
   - course: "11-611"
     category: [FAANG]
     rating: 1
 
   # Search Engines
-  # Information retrieval, ranking, and indexing; relevant for search-focused
-  # FAANG roles (Google, Amazon). Moderate fit.
+  # Covers information retrieval, ranking, and indexing.
   - course: "11-642"
     category: [FAANG]
     rating: 1
 
   # Engineering Data Intensive Scalable Systems
-  # Design and operation of large-scale data pipelines: Kafka, deployment,
-  # monitoring, reliability, and scaling. Directly applicable to HFT market data
-  # infrastructure and backtesting pipelines; also strong for FAANG backend/infra.
+  # Covers scalable data pipelines, deployment, monitoring, reliability, and operations.
   - course: "17-647"
     category: [HFT, FAANG]
     rating: 3
 
   # Foundations of Computational Data Science
-  # Broad intro course (stats, ML basics, data wrangling). Less goal-specific
-  # given the other targeted courses; useful as a fallback.
+  # Covers statistics, machine-learning fundamentals, and data wrangling.
   - course: "11-637"
     rating: 1
 
@@ -393,107 +266,48 @@ courses:
     rating: 1
 
   # Designing Human Centered Software
-  # Core HCI methods: user research, task analysis, iterative prototyping, and
-  # usability evaluation. Entry point for HCI as a secondary interest area;
-  # also adds value for product-facing FAANG roles where design intuition is
-  # increasingly expected of senior engineers.
+  # Covers user research, task analysis, iterative prototyping, and usability evaluation.
   - course: "05-391"
     rating: 1
 
   # Marketing for Entrepreneurship
-  # No alignment with HFT/Quant/FAANG goals. Low-priority elective for
-  # filling schedule gaps.
   - course: "45-908"
     rating: 1
 
   # Corporate Startup Lab
-  # No alignment with technical goals. Low-priority option.
   - course: "45-996"
     rating: 1
 
   # Design Patterns
-  # Foundational but too basic given existing SWE background; crowded out by
-  # higher-value technical electives.
   - course: "17-695"
     rating: 1
 
-  # ---------------------------------------------------------------------------
-  # Low-latency systems depth — community-validated by HFT practitioners
-  # ---------------------------------------------------------------------------
-
   # How to Write Fast Code I
-  # SIMD vectorization, cache hierarchy, lock-free data structures, and
-  # memory-level parallelism using linear algebra kernels as worked examples.
-  # HFT interview resources (gankinterview.com, HFT prep GitHub) list cache-line
-  # alignment, false sharing, SIMD, and memory ordering as core interview topics —
-  # 18-645 covers every one of these. Fall-only pattern (Fall 2020–2025 confirmed;
-  # Fall 2026 strongly expected). Prereq: senior ECE/CS undergrad or grad student.
+  # Covers SIMD vectorization, cache behavior, lock-free structures, and memory-level parallelism.
   - course: "18-645"
     category: [HFT, FAANG]
     rating: 5
 
-  # Operating System Design and Implementation  [grad section: 15-605]
-  # "Probably the most famous systems class at CMU" per multiple alumni bloggers
-  # (fanpu.io, abigalekim, bowad.net). A student with Jane Street connections
-  # described it as career-defining. Covers process/thread lifecycle, virtual
-  # memory, synchronization, and OS scheduler internals — precisely the topics
-  # tested in HFT SWE interviews (preemption, page faults, kernel vs. user mode,
-  # memory management). Also the explicit prerequisite for 15-712 (rated HFT: 5).
-  # Graduate students enroll as 15-605. S26 + F26 confirmed.
-  # 15-213 is completed, satisfying the listed prerequisite; advisor concurrence
-  # or recommendation may still be required for graduate enrollment.
+  # Operating System Design and Implementation
+  # Covers processes, threads, virtual memory, synchronization, and scheduler internals.
   - course: "15-605"
     category: [HFT, FAANG]
     rating: 5
 
-  # Compiler Design  [grad section: 15-611]
-  # Sponsored explicitly by Jane Street Capital — a direct practitioner signal.
-  # Jane Street builds performance-critical OCaml compilers internally and
-  # sponsors this course because compiler internals (code generation, register
-  # allocation, SSA-form optimization, instruction selection) are directly
-  # relevant to their systems work. For HFT C++ developers, knowing what
-  # the compiler does lets you write code that generates optimal machine code.
-  # Graduate students enroll as 15-611. S26 confirmed.
-  # 15-213 is completed and is one of the accepted prerequisites.
+  # Compiler Design
+  # Covers code generation, register allocation, SSA optimization, and instruction selection.
   - course: "15-611"
     category: [HFT, FAANG]
     rating: 4
 
-  # Optimizing Compilers for Modern Architectures  [NOT YET IN SOC FOR F26/S26]
-  # LLVM optimization passes, dataflow analysis, loop transformations, and
-  # register allocation — the graduate-level complement to 15-611. Understanding
-  # what the compiler does (auto-vectorization, loop unrolling, inlining,
-  # alias analysis) helps write C++ that compiles to optimal machine code,
-  # directly applicable to HFT. Praised by CMU alumni for rigor and depth.
-  # Confirmed F25; not yet posted for F26/S26 in SOC — re-add when it appears.
-  # - course: "15-745"
-  #   category: [HFT]
-  #   rating:
-  #     default: 3
-  #     HFT: 4
-
-  # ---------------------------------------------------------------------------
-  # Rigorous pricing theory (options/derivatives background bridge)
-  # ---------------------------------------------------------------------------
-
   # Discrete Time Finance
-  # Binomial-tree option pricing, no-arbitrage theory, risk-neutral measures,
-  # and the fundamental theorem of asset pricing in discrete time. Formalizes
-  # the intuition behind the options/futures pricing the student already trades.
-  # Community note: HFT SWEs don't need stochastic calculus — this is more
-  # valuable for quant research roles (options market-making, derivatives).
-  # Also the required prerequisite for 21-420. F26 confirmed by SOC.
+  # Covers binomial option pricing, no-arbitrage theory, and risk-neutral measures.
   - course: "21-370"
     category: [Quant]
     rating: 2
 
   # Continuous Time Finance
-  # Black-Scholes PDE, Itô's formula, stochastic differential equations, and
-  # risk-neutral pricing in continuous time — the core mathematical language of
-  # options market-making. Community: HFT infrastructure engineers don't need
-  # this, but quant/market-making roles (Citadel Securities vol desk, Jane Street
-  # options) use it daily. Bridges retail options intuition to rigorous theory.
-  # S26 confirmed. Prereq: 21-370 (Discrete Time Finance).
+  # Covers Black-Scholes, Ito's formula, stochastic differential equations, and continuous-time pricing.
   - course: "21-420"
     category: [Quant]
     rating: 2

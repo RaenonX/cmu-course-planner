@@ -58,8 +58,8 @@ class SectionOptionParsingTests(unittest.TestCase):
             ["Lec 1 + A", "Lec 1 + B"],
         )
         self.assertEqual(
-            [option["meetings"][0]["days"] for option in parsed["section_options"]],
-            ["MWF", "MWF"],
+            [[meeting["section"] for meeting in option["meetings"]] for option in parsed["section_options"]],
+            [["Lec 1", "A"], ["Lec 1", "B"]],
         )
 
     def test_repeated_rows_for_one_section_are_all_required(self) -> None:
@@ -71,13 +71,35 @@ class SectionOptionParsingTests(unittest.TestCase):
         self.assertEqual(len(parsed["section_options"]), 1)
         self.assertEqual(len(parsed["section_options"][0]["meetings"]), 2)
 
-    def test_equivalent_alternatives_are_merged(self) -> None:
+    def test_equivalent_alternatives_remain_distinct_registration_choices(self) -> None:
         parsed = parse_sections(section_table(
             row("A", "MW", "9:00AM", "9:50AM")
             + row("B", "MW", "9:00AM", "9:50AM")
         ), LOCATION)
 
-        self.assertEqual([option["label"] for option in parsed["section_options"]], ["A / B"])
+        self.assertEqual([option["label"] for option in parsed["section_options"]], ["A", "B"])
+
+    def test_f26_formal_methods_uses_every_complete_policy_bundle(self) -> None:
+        parsed = parse_sections(section_table(
+            row("Lec 11", "MW", "9:30AM", "10:50AM", "Y")
+            + row("Lec 41", "MW", "9:30AM", "10:50AM", "Y")
+            + row("A1", "F", "9:30AM", "10:50AM", "Y")
+            + row("B1", "F", "12:30PM", "1:50PM", "Y")
+            + row("D1", "M", "5:00PM", "6:20PM", "Y")
+        ), LOCATION, "17-614", "F26")
+
+        self.assertEqual(
+            [option["label"] for option in parsed["section_options"]],
+            ["Lec 11 + A1", "Lec 11 + B1", "Lec 41 + D1"],
+        )
+        self.assertEqual(
+            [option["modality"] for option in parsed["section_options"]],
+            ["in_person", "in_person", "online"],
+        )
+        self.assertEqual(
+            [meeting["section"] for meeting in parsed["section_options"][1]["meetings"]],
+            ["Lec 11", "B1"],
+        )
 
     def test_mini_sections_remain_separate_choices(self) -> None:
         parsed = parse_sections(section_table(

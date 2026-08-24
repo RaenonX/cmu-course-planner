@@ -1,0 +1,31 @@
+F26:
+  "17-603":
+    - {components: [A], modality: in_person}
+    - {components: [B], modality: in_person}
+    - {components: [C], modality: in_person}
+    - {components: [D], modality: online}
+    - {components: [E], modality: in_person}
+  "17-611":
+    - {components: [A1], modality: in_person}
+    - {components: [B1], modality: in_person}
+    - {components: ["Lec 41", D1], modality: online}
+  "17-614":
+    - {components: ["Lec 11", A1], modality: in_person}
+    - {components: ["Lec 11", B1], modality: in_person}
+    - {components: ["Lec 41", D1], modality: online}
+  "17-619":
+    - {components: [A1], modality: in_person}
+    - {components: [B1], modality: in_person}
+    - {components: [C1], modality: in_person}
+    - {components: [D1], modality: online}
+    - {components: [E1], modality: in_person}
+    - {components: [F1], modality: in_person}
+  "17-622":
+    - {components: ["Lec 22", B2], modality: in_person}
+    - {components: ["Lec 42", D2], modality: online}
+  "17-623":
+    - {components: ["Lec 12", A2], modality: in_person}
+    - {components: ["Lec 42", D2], modality: online}
+  "17-626":
+    - {components: [A2], modality: in_person}
+    - {components: ["Lec 42", D2], modality: online}

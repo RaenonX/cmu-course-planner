@@ -110,9 +110,12 @@ def load_snapshot(
                                 begin=meeting.get("begin") or "",
                                 end=meeting.get("end") or "",
                                 mini=_optional_mini(meeting.get("mini")),
+                                section=meeting.get("section"),
                             )
                             for meeting in option.get("meetings") or []
                         ],
+                        components=tuple(option.get("components") or [option["label"]]),
+                        modality=option.get("modality") or "in_person",
                     )
                     for option in o["section_options"]
                 ],

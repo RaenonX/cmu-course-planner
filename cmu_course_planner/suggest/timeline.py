@@ -8,6 +8,7 @@ def _timeline_entries(
     sem_courses: list[Course],
     soc_type: str,
     current_time_ranges: list[Meeting],
+    mini_filter: int | None = None,
 ) -> dict[str, list[tuple[int, int, str, str]]]:
     merged: dict[tuple[str, int, int], tuple[list[str], set[str]]] = {}
     def add_entry(day: str, begin: int, end: int, label: str, cls: str) -> None:
@@ -17,6 +18,8 @@ def _timeline_entries(
         labels.append(label)
         classes.add(cls)
     def add_meeting(meeting: Meeting, label: str, cls: str) -> None:
+        if mini_filter is not None and meeting.mini not in {None, mini_filter}:
+            return
         interval = _meeting_interval(meeting)
         if interval is None:
             return
@@ -31,7 +34,8 @@ def _timeline_entries(
         if not offering:
             continue
         for meeting in _selected_meetings(course, soc_type):
-            section = f" [{course.selected_section}]" if course.selected_section else ""
+            selected_section = meeting.section or course.selected_section
+            section = f" [{selected_section}]" if selected_section else ""
             label = f"{course.course}{_mini_suffix(meeting)}{section} {course.title}"
             add_meeting(meeting, label, "timeline-course")
     entries: dict[str, list[tuple[int, int, str, str]]] = {}
@@ -45,8 +49,9 @@ def _semester_timeline(
     sem_courses: list[Course],
     soc_type: str,
     current_time_ranges: list[Meeting],
+    mini_filter: int | None = None,
 ) -> str:
-    entries = _timeline_entries(sem_courses, soc_type, current_time_ranges)
+    entries = _timeline_entries(sem_courses, soc_type, current_time_ranges, mini_filter)
     if not entries:
         return '<p class="timeline-empty">No meeting times detected.</p>'
     all_ranges = [entry for day_entries in entries.values() for entry in day_entries]

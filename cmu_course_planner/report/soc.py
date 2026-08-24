@@ -65,7 +65,7 @@ def fetch_offering(course_id: str, sem: str, teaching_location: str) -> dict | N
     status, body = fetch(url)
     if status != 200 or "Days" not in body or "Begin" not in body:
         return None
-    sections = parse_sections(body, teaching_location)
+    sections = parse_sections(body, teaching_location, course_id, sem)
     if sections is None:
         return None
     return {

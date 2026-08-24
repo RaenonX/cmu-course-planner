@@ -2,6 +2,7 @@ import re
 
 from .html_table import data_rows, header_cells, header_index, tables
 from .section_options import build_section_options
+from .section_policies import section_bundles
 
 # Trailing digit of a section code identifies its mini slot, e.g. "A4" -> 4.
 _MINI_RE = re.compile(r'([1-6])$')
@@ -81,6 +82,7 @@ def _section_record(cells: list[str], offsets: dict[str, int], teaching_location
             "days": days,
             "begin": cells[begin_idx],
             "end": end,
+            "section": section,
         }
         mini = _section_mini(section, mini_flag)
         if meeting is not None and mini is not None:
@@ -108,7 +110,12 @@ def _section_records(html: str, teaching_location: str) -> list[dict]:
     return records
 
 
-def parse_sections(html: str, teaching_location: str) -> dict | None:
+def parse_sections(
+    html: str,
+    teaching_location: str,
+    course_id: str | None = None,
+    semester: str | None = None,
+) -> dict | None:
     """
     Parse SOC section tables for ``teaching_location``.
 
@@ -119,7 +126,8 @@ def parse_sections(html: str, teaching_location: str) -> dict | None:
     records = _section_records(html, teaching_location)
     if not records:
         return None
-    section_options = build_section_options(records)
+    bundles = section_bundles(course_id, semester)
+    section_options = build_section_options(records, bundles)
     return {
         "minis": sorted({record["mini"] for record in records if record["mini"] is not None}),
         "section_options": section_options,
