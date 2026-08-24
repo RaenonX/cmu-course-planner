@@ -49,13 +49,13 @@ def unplaced_table(
     panel_id: str,
     semesters: list[str],
     schedule: list[list[Course]],
-    units_max: int,
+    unit_caps: list[int],
     current_time_ranges: list[Meeting],
 ) -> str:
     rows = "".join(_unplaced_row(c, prefer, panel_id) for c in unplaced)
     head = TABLE_HEAD.replace("</tr>", "<th>What if?</th></tr>")
     panel = what_if_panel(
-        panel_id, semesters, schedule, unplaced, units_max, current_time_ranges
+        panel_id, semesters, schedule, unplaced, unit_caps, current_time_ranges
     )
     return (
         '<div class="unplaced">\n<h3>Not placed</h3>\n'

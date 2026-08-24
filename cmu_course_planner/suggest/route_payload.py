@@ -12,7 +12,7 @@ def route_html(
     semesters: list[str],
     schedule: list[list[Course]],
     unplaced: list[Course],
-    units_max: int,
+    unit_caps: list[int],
     courses: list[Course],
     current_time_ranges: list[Meeting],
     prefer: list[str],
@@ -22,7 +22,7 @@ def route_html(
             idx,
             semester,
             schedule[idx],
-            units_max,
+            unit_caps[idx],
             courses,
             current_time_ranges,
             prefer,
@@ -36,7 +36,7 @@ def route_html(
             f"what-if-{tab_idx}-{route_idx}",
             semesters,
             schedule,
-            units_max,
+            unit_caps,
             current_time_ranges,
         ))
     return "".join(parts)

@@ -10,11 +10,11 @@ def what_if_panel(
     semesters: list[str],
     schedule: list[list[Course]],
     unplaced: list[Course],
-    units_max: int,
+    unit_caps: list[int],
     current_time_ranges: list[Meeting],
 ) -> str:
     data = json.dumps(
-        build_what_if_data(semesters, schedule, unplaced, units_max, current_time_ranges),
+        build_what_if_data(semesters, schedule, unplaced, unit_caps, current_time_ranges),
         ensure_ascii=False,
     ).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
     course_options = "".join(

@@ -17,10 +17,18 @@ def _optional_mini(value) -> int | None:
 def load_config(path: Path) -> dict:
     with open(path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
-    for s in cfg.get("semesters", []):
+    semesters = cfg.get("semesters", [])
+    for s in semesters:
         if s not in USER_TO_SOC:
             raise ValueError(f"Unknown semester '{s}' in config. Use F, S, or Su.")
-    semester_count = len(cfg.get("semesters", []))
+    unit_caps = cfg.get("units_per_semester")
+    if not isinstance(unit_caps, list) or len(unit_caps) != len(semesters):
+        raise ValueError(
+            "units_per_semester must be a list with one unit cap per semester."
+        )
+    if any(type(unit_cap) is not int or unit_cap <= 0 for unit_cap in unit_caps):
+        raise ValueError("units_per_semester entries must be positive integers.")
+    semester_count = len(semesters)
     for entry in cfg.get("courses", []):
         fixed_semester = entry.get("fixed_semester")
         if fixed_semester is None:

@@ -20,7 +20,7 @@ def main() -> None:
 
     cfg = load_config(args.config)
     semesters: list[str] = cfg.get("semesters", ["F", "S"])
-    units_max: int = cfg.get("units_per_semester", 12)
+    unit_caps: list[int] = cfg["units_per_semester"]
     prefer: list[str] = cfg.get("prefer_categories") or []
     require: bool = cfg.get("require_categories", False)
     teaching_location: str = cfg["teaching_location"]
@@ -41,7 +41,7 @@ def main() -> None:
         routes = suggest_routes(
             courses,
             semesters,
-            units_max,
+            unit_caps,
             prefer,
             current_time_ranges,
             variant_name,
@@ -49,7 +49,7 @@ def main() -> None:
         results.append((variant_name, variant_desc, routes))
 
     print_primary_route(
-        semesters, units_max, prefer,
+        semesters, unit_caps, prefer,
         teaching_location, current_time_ranges, results,
     )
 
@@ -61,7 +61,7 @@ def main() -> None:
     html = build_html(
         semesters,
         results,
-        units_max,
+        unit_caps,
         prefer,
         teaching_location,
         snapshot_date,

@@ -138,7 +138,7 @@ class SectionOptionSchedulingTests(unittest.TestCase):
         schedule, unplaced = suggest(
             [candidate],
             ["F"],
-            12,
+            [12],
             [],
             [Meeting("M", "9:00AM", "9:50AM")],
         )

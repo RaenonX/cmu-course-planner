@@ -23,7 +23,7 @@ def analyze_swap(
     course: Course,
     soc_type: str,
     semester_courses: list[Course],
-    units_max: int,
+    unit_cap: int,
     current_time_ranges: list[Meeting],
     removed_course: Course | None,
 ) -> dict:
@@ -47,11 +47,11 @@ def analyze_swap(
             "warnings": _warnings(course, None, soc_type),
         }
 
-    slots = candidate_slots(course, units_max, soc_type, remaining)
+    slots = candidate_slots(course, unit_cap, soc_type, remaining)
     reasons = []
-    if total > units_max:
+    if total > unit_cap:
         reasons.append(
-            f"Unit limit exceeded: {total}/{units_max} units after "
+            f"Unit limit exceeded: {total}/{unit_cap} units after "
             f"removing {removed_units} and adding {course.units}."
         )
     offering = course.offering_for(soc_type)
@@ -81,7 +81,7 @@ def analyze_swap(
             return {
                 **base,
                 "status": "works",
-                "summary": f"{total}/{units_max} units · Section {option.label}{mini}",
+                "summary": f"{total}/{unit_cap} units · Section {option.label}{mini}",
                 "reasons": [],
                 "warnings": _warnings(course, selected, soc_type),
             }
@@ -108,7 +108,7 @@ def build_what_if_data(
     semesters: list[str],
     schedule: list[list[Course]],
     unplaced: list[Course],
-    units_max: int,
+    unit_caps: list[int],
     current_time_ranges: list[Meeting],
 ) -> dict:
     courses = []
@@ -116,12 +116,13 @@ def build_what_if_data(
         semester_results = []
         for index, sem in enumerate(semesters):
             semester_courses = schedule[index]
+            unit_cap = unit_caps[index]
             current = current_time_ranges if index == 0 else []
             swaps = [
-                analyze_swap(course, USER_TO_SOC[sem], semester_courses, units_max, current, None)
+                analyze_swap(course, USER_TO_SOC[sem], semester_courses, unit_cap, current, None)
             ]
             swaps.extend(
-                analyze_swap(course, USER_TO_SOC[sem], semester_courses, units_max, current, removed)
+                analyze_swap(course, USER_TO_SOC[sem], semester_courses, unit_cap, current, removed)
                 for removed in semester_courses
                 if removed.fixed_semester is None
             )
@@ -136,4 +137,4 @@ def build_what_if_data(
             "label": f"{course.course} — {course.title}",
             "semesters": semester_results,
         })
-    return {"courses": courses, "unitsMax": units_max}
+    return {"courses": courses, "unitCaps": unit_caps}

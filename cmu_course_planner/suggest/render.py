@@ -19,7 +19,7 @@ def _suggest_head() -> str:
 def build_html(
     semesters: list[str],
     results: list[tuple[str, str, list[tuple[list[list[Course]], list[Course]]]]],
-    units_max: int,
+    unit_caps: list[int],
     prefer: list[str],
     teaching_location: str,
     snapshot_date: str,
@@ -35,7 +35,8 @@ def build_html(
     parts.append(
         f'<p class="meta">Snapshot: {snapshot_date} &nbsp;·&nbsp; '
         f'Teaching location: {html_lib.escape(teaching_location)} &nbsp;·&nbsp; '
-        f'{units_max} units/semester &nbsp;·&nbsp; Category preference: {prefer_str} '
+        f'Unit caps: {" / ".join(str(cap) for cap in unit_caps)} &nbsp;·&nbsp; '
+        f'Category preference: {prefer_str} '
         f'&nbsp;·&nbsp; Scale: ★-★★★★★</p>\n'
     )
 
@@ -57,7 +58,7 @@ def build_html(
                 desc,
                 semesters,
                 routes,
-                units_max,
+                unit_caps,
                 courses,
                 current_time_ranges,
                 prefer,

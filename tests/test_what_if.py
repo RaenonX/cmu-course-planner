@@ -86,7 +86,7 @@ class WhatIfAnalysisTests(unittest.TestCase):
             ["F", "S"],
             [[scheduled], []],
             [course("candidate")],
-            12,
+            [12, 12],
             [],
         )
 
@@ -111,12 +111,29 @@ class WhatIfAnalysisTests(unittest.TestCase):
             ["F"],
             [[fixed, planned]],
             [course("candidate")],
-            24,
+            [24],
             [],
         )
 
         swaps = data["courses"][0]["semesters"][0]["swaps"]
         self.assertEqual([swap["remove"] for swap in swaps], ["", "planned"])
+
+    def test_each_semester_uses_its_own_unit_cap(self) -> None:
+        scheduled = replace(course("scheduled"), selected_section="A")
+
+        data = build_what_if_data(
+            ["F", "F"],
+            [[scheduled], [scheduled]],
+            [course("candidate", begin="10:00AM", end="10:50AM")],
+            [18, 24],
+            [],
+        )
+
+        semesters = data["courses"][0]["semesters"]
+        self.assertEqual(semesters[0]["swaps"][0]["status"], "rejected")
+        self.assertIn("24/18 units", semesters[0]["swaps"][0]["reasons"][0])
+        self.assertEqual(semesters[1]["swaps"][0]["status"], "works")
+        self.assertIn("24/24 units", semesters[1]["swaps"][0]["summary"])
 
 
 if __name__ == "__main__":

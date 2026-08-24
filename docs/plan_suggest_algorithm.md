@@ -12,7 +12,7 @@
 ```
 load_config  ──►  config_course_ids (set)
                   preferred_course_ids (set)
-                  prefer, require, semesters, units_max, teaching_location
+                  prefer, require, semesters, unit_caps, teaching_location
                   current_time_ranges
 
 load_snapshot ──► courses[]   (built from config_course_ids;
@@ -83,6 +83,8 @@ conflict with itself. The scheduler records and reports the option it selected.
 Planned semesters intentionally use seasonal offering history: every configured
 `F`, `S`, or `Su` term uses the latest detected Fall, Spring, or Summer offering.
 The planner does not claim that a future year-specific offering is confirmed.
+`units_per_semester` supplies one positive unit cap for each planned semester in
+the same order as `semesters`, so repeated seasons can have different caps.
 
 
 Scheduler details continue in [plan_suggest_algorithm_scheduler.md](plan_suggest_algorithm_scheduler.md).

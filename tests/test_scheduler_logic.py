@@ -1,12 +1,13 @@
 import unittest
 from dataclasses import replace
+from pathlib import Path
 
 from cmu_course_planner.common.labels import prereq_info, unresolved_time_badge
 from cmu_course_planner.common.prerequisites import prerequisite_status
 from cmu_course_planner.report.render import _offering_times
 from cmu_course_planner.report.section_parse import parse_sections
 from cmu_course_planner.suggest.models import Course, Meeting, Offering, SectionOption
-from cmu_course_planner.suggest.load import load_current_time_ranges
+from cmu_course_planner.suggest.load import load_config, load_current_time_ranges
 from cmu_course_planner.suggest.semester_render import _semester_heading
 from cmu_course_planner.suggest.routes import _schedule_signature
 from cmu_course_planner.suggest.scheduler import suggest
@@ -68,6 +69,13 @@ class CurrentCommitmentTests(unittest.TestCase):
         self.assertEqual(meetings[0].label, "17-622 Agile Methods (Lecture 22)")
 
 
+class ConfigTests(unittest.TestCase):
+    def test_config_uses_an_eighteen_unit_f26_cap(self) -> None:
+        config = load_config(Path("plan_config.yml"))
+
+        self.assertEqual(config["units_per_semester"], [18, 24, 24, 24])
+
+
 class MiniUnitTests(unittest.TestCase):
     def test_one_course_in_each_mini_adds_to_twelve_units(self) -> None:
         selected = [
@@ -95,7 +103,7 @@ class MiniUnitTests(unittest.TestCase):
             course("m1-a", 6, [1]), course("m1-b", 6, [1], hour=10),
             course("m2-a", 6, [2]),
         ]
-        schedule, unplaced = suggest(courses, ["F"], 12, [], [])
+        schedule, unplaced = suggest(courses, ["F"], [12], [], [])
         self.assertEqual({c.course for c in schedule[0]}, {"m1-a", "m2-a"})
         self.assertEqual([c.course for c in unplaced], ["m1-b"])
 
@@ -115,7 +123,7 @@ class FixedCourseTests(unittest.TestCase):
         planned = replace(course("planned", 12, []), rating=5)
 
         schedule, unplaced = suggest(
-            [planned, fixed_a, fixed_b], ["F", "F"], 24, [], []
+            [planned, fixed_a, fixed_b], ["F", "F"], [24, 24], [], []
         )
 
         self.assertEqual([item.course for item in schedule[0]], ["fixed-a", "fixed-b"])
@@ -139,7 +147,7 @@ class FixedCourseTests(unittest.TestCase):
             ], "https://example.test")],
         )
 
-        schedule, _ = suggest([first, second], ["F"], 24, [], [])
+        schedule, _ = suggest([first, second], ["F"], [24], [], [])
 
         self.assertEqual(
             [(item.course, item.selected_section) for item in schedule[0]],
@@ -150,7 +158,15 @@ class FixedCourseTests(unittest.TestCase):
         fixed = replace(course("fixed", 12, []), fixed_semester=1)
 
         with self.assertRaisesRegex(ValueError, "Fixed course fixed cannot be placed"):
-            suggest([fixed], ["F"], 6, [], [])
+            suggest([fixed], ["F"], [6], [], [])
+
+    def test_each_semester_uses_its_own_unit_cap(self) -> None:
+        courses = [course(f"course-{index}", 12, []) for index in range(3)]
+
+        schedule, unplaced = suggest(courses, ["F", "F"], [18, 24], [], [])
+
+        self.assertEqual([semester_unit_total(items) for items in schedule], [12, 24])
+        self.assertEqual(unplaced, [])
 
 
 class WarningTests(unittest.TestCase):

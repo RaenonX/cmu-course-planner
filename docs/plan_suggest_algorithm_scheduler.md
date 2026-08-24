@@ -2,7 +2,7 @@
 
 ## Step 2 — Greedy per-semester scheduler
 
-`suggest(courses, semesters, units_max, prefer)` assigns courses to semesters in order.
+`suggest(courses, semesters, unit_caps, prefer)` assigns courses to semesters in order.
 `suggest_routes(...)` repeats that scheduler with deterministic route seeds and keeps
 every unique schedule/unplaced combination found across 200 route seeds.
 
@@ -73,7 +73,7 @@ section label on the scheduled course.
 
 Iterate sorted course/section choices and assign the course to this semester when all three hold:
 
-1. Adding the course stays within the semester's total `units_per_semester` budget.
+1. Adding the course stays within that semester's `units_per_semester` budget.
 2. The selected section does not introduce overlapping minutes against current ranges or already selected courses in the same semester.
 3. *(implicit)* Course not already assigned
 

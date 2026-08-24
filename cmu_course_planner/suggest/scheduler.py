@@ -12,7 +12,7 @@ def _place_fixed_courses(
     courses: list[Course],
     semesters: list[str],
     schedule: list[list[Course]],
-    units_max: int,
+    unit_caps: list[int],
     current_time_ranges: list[Meeting],
     route_seed: int,
 ) -> set[str]:
@@ -29,7 +29,9 @@ def _place_fixed_courses(
             if course_idx == len(semester_fixed):
                 return selected_courses
             course = semester_fixed[course_idx]
-            slots = candidate_slots(course, units_max, soc, selected_courses)
+            slots = candidate_slots(
+                course, unit_caps[semester_idx], soc, selected_courses
+            )
             base_overlap, _ = _continuity_score(selected_courses, soc, current)
             choices = []
             for chosen_slot, option in section_choices(course, soc, slots):
@@ -68,7 +70,7 @@ def _place_fixed_courses(
 def suggest(
     courses: list[Course],
     semesters: list[str],
-    units_max: int,
+    unit_caps: list[int],
     prefer: list[str],
     current_time_ranges: list[Meeting],
     variant: str = "Rating First",
@@ -87,13 +89,14 @@ def suggest(
         courses,
         semesters,
         schedule,
-        units_max,
+        unit_caps,
         current_time_ranges,
         route_seed,
     )
 
     for idx, sem in enumerate(semesters):
         soc = USER_TO_SOC[sem]
+        unit_cap = unit_caps[idx]
         remaining_soc = {USER_TO_SOC[s] for s in semesters[idx:]}
 
         candidates = [
@@ -109,7 +112,7 @@ def suggest(
             if variant == "Time Continuity First":
                 ranked = []
                 for c in candidates:
-                    slots = candidate_slots(c, units_max, soc, schedule[idx])
+                    slots = candidate_slots(c, unit_cap, soc, schedule[idx])
                     for chosen_slot, option in section_choices(c, soc, slots):
                         selected = replace(
                             c,
@@ -136,7 +139,7 @@ def suggest(
             else:
                 ranked = []
                 for c in candidates:
-                    slots = candidate_slots(c, units_max, soc, schedule[idx])
+                    slots = candidate_slots(c, unit_cap, soc, schedule[idx])
                     for chosen_slot, option in section_choices(c, soc, slots):
                         selected = replace(
                             c,

@@ -5,11 +5,11 @@ from .render_common import _meeting_label
 from .time import _selected_section_option
 from .units import semester_unit_total
 
-def print_primary_route(semesters, units_max, prefer, teaching_location, current_time_ranges, results) -> None:
+def print_primary_route(semesters, unit_caps, prefer, teaching_location, current_time_ranges, results) -> None:
     primary_name, _, primary_routes = results[0]
     primary_sched, primary_unplaced = primary_routes[0]
     print(f"=== Suggested Schedule — {primary_name} ===")
-    print(f"  Units/semester : {units_max}")
+    print(f"  Unit caps      : {' → '.join(str(cap) for cap in unit_caps)}")
     print(f"  Semesters      : {' → '.join(SEM_LABEL[s] for s in semesters)}")
     print(f"  Teaching loc.  : {teaching_location}")
     print(f"  Current times  : {len(current_time_ranges)} range(s)")
@@ -17,9 +17,10 @@ def print_primary_route(semesters, units_max, prefer, teaching_location, current
     print()
     for idx, sem in enumerate(semesters):
         soc = USER_TO_SOC[sem]
+        unit_cap = unit_caps[idx]
         sem_courses = primary_sched[idx]
         total = semester_unit_total(sem_courses)
-        print(f"Semester {idx + 1} — {SEM_LABEL[sem]}  ({total}/{units_max} units)")
+        print(f"Semester {idx + 1} — {SEM_LABEL[sem]}  ({total}/{unit_cap} units)")
         for c in sem_courses:
             cats = f"  [{', '.join(c.category)}]" if c.category else ""
             rating = f"  [{star_rating(c.effective_rating(prefer))}]"

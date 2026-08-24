@@ -14,7 +14,7 @@ def _schedule_signature(schedule: list[list[Course]], unplaced: list[Course]) ->
 def suggest_routes(
     courses: list[Course],
     semesters: list[str],
-    units_max: int,
+    unit_caps: list[int],
     prefer: list[str],
     current_time_ranges: list[Meeting],
     variant: str,
@@ -26,7 +26,7 @@ def suggest_routes(
         schedule, unplaced = suggest(
             courses,
             semesters,
-            units_max,
+            unit_caps,
             prefer,
             current_time_ranges,
             variant,

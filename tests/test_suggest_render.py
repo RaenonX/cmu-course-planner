@@ -37,7 +37,7 @@ class LazySuggestRenderTests(unittest.TestCase):
         rendered = build_html(
             ["F"],
             [("Rating First", "Test routes", routes)],
-            12,
+            [12],
             [],
             "Pittsburgh, Pennsylvania",
             "test snapshot",
