@@ -1,49 +1,59 @@
-# Maximum suggested-course units for F26, S27, M27, and F27, in order.
-units_per_semester: [18, 24, 24, 24]
+# Maximum suggested-course units for S27, M27, and F27, in order.
+# Spring includes 39 mandatory units plus the existing 24 elective units.
+units_per_semester: [63, 24, 24]
 
 # Semesters to plan, in order. Supported values: F, S, and Su.
-semesters: [F, S, Su, F]
+semesters: [S, Su, F]
 
 # Teaching location used to select course offerings.
 teaching_location: "Pittsburgh, Pennsylvania"
 
-# Inputs for exhaustive schedule enumeration in one semester.
+# Inputs for exhaustive schedule enumeration in Spring 2027.
 feasible_schedule:
-  # Semester to enumerate.
-  semester: F26
-  # Courses required in every schedule.
+  semester: S27
   core_courses:
-    # Communications for Software Leaders I
-    - "17-603"
-    # Statistics for Decision Making
-    - "17-611"
-    # Formal Methods
-    - "17-614"
-    # Product Management Essentials I
-    - "17-619"
-    # Agile Methods
-    - "17-622"
-    # Quality Assurance
-    - "17-623"
-    # Requirements for Information Systems
-    - "17-626"
-  # Optional courses considered within max_elective_units.
+    # Communications for Software Leaders II
+    - "17-604"
+    # Software Project Management
+    - "17-632"
+    # Software Architectures: MSE
+    - "17-633"
+    # Quality Management
+    - "17-643"
+    # Studio Project I
+    - "17-671"
+  # Existing elective candidates with published Pittsburgh S27 offerings.
   elective_courses:
-    # How to Write Fast Code I
-    - "18-645"
-    # Introduction to Machine Learning
-    - "10-601"
-    # Introduction to Deep Learning
-    - "11-785"
-    # Distributed Systems
+    - "18-646"
+    - "15-618"
+    - "15-642"
+    - "10-708"
+    - "95-719"
+    - "17-629"
+    - "95-710"
+    - "95-835"
     - "15-640"
-    # Networking and the Internet
-    - "15-641"
-  # Maximum total units from elective_courses in a schedule.
+    - "11-785"
+    - "10-601"
+    - "18-660"
+    - "17-647"
+    - "17-759"
+    - "17-645"
+  # Spring elective allowance, excluding mandatory course units.
   max_elective_units: 24
 
 # Courses used to evaluate prerequisite status.
-completed_courses: ["15-213"]
+# Fall 2026 courses are treated as completed for Spring 2027 planning.
+completed_courses:
+  - "15-213"
+  - "17-603"
+  - "17-611"
+  - "17-614"
+  - "17-619"
+  - "17-622"
+  - "17-623"
+  - "17-626"
+  - "18-645"
 
 # Categories used to select category-specific course ratings.
 prefer_categories: [HFT]
@@ -51,62 +61,30 @@ prefer_categories: [HFT]
 # Whether to exclude courses outside prefer_categories.
 require_categories: false
 
-# Existing commitments considered for first-semester time conflicts.
-current_time_ranges:
-  - label: "17-603 Communication for Software Leaders I (Section E)"
-    days: "Th"
-    begin: "12:30PM"
-    end: "01:50PM"
-  - label: "17-611 Statistics for Decision Making (Section A1)"
-    days: "M W"
-    begin: "11:00AM"
-    end: "12:20PM"
-    mini: 1
-  - label: "17-614 Formal Methods (Lecture 11)"
-    days: "M W"
-    begin: "09:30AM"
-    end: "10:50AM"
-    mini: 1
-  - label: "17-614 Formal Methods (Section B1)"
-    days: "F"
-    begin: "12:30PM"
-    end: "01:50PM"
-    mini: 1
-  - label: "17-619 Product Management Essentials I (Section B1)"
-    days: "T Th"
-    begin: "02:00PM"
-    end: "03:20PM"
-    mini: 1
-  - label: "17-622 Agile Methods (Lecture 22)"
-    days: "M W"
-    begin: "02:00PM"
-    end: "03:20PM"
-    mini: 2
-  - label: "17-622 Agile Methods (Section B2)"
-    days: "F"
-    begin: "11:00AM"
-    end: "12:20PM"
-    mini: 2
-  - label: "17-623 Quality Assurance (Lecture 12)"
-    days: "M W"
-    begin: "11:00AM"
-    end: "12:20PM"
-    mini: 2
-  - label: "17-623 Quality Assurance (Section A2)"
-    days: "F"
-    begin: "12:30PM"
-    end: "01:50PM"
-    mini: 2
-  - label: "17-626 Requirements for Information Systems (Section A2)"
-    days: "T Th"
-    begin: "11:00AM"
-    end: "12:20PM"
-    mini: 2
+# Required Spring courses will be selected by the planner; no fixed sections yet.
+current_time_ranges: []
 
 # Courses considered by the multi-semester suggester.
 # rating is the planning priority from 1 (lowest) to 5 (highest).
 # category enables category-specific ratings and filtering.
 courses:
+  # Spring 2027 core for the Fall 2026 MSE Professional cohort.
+  - course: "17-604"
+    rating: 5
+    fixed_semester: 1
+  - course: "17-632"
+    rating: 5
+    fixed_semester: 1
+  - course: "17-633"
+    rating: 5
+    fixed_semester: 1
+  - course: "17-643"
+    rating: 5
+    fixed_semester: 1
+  - course: "17-671"
+    rating: 5
+    fixed_semester: 1
+
   # Networking and the Internet
   - course: "15-641"
     category: [HFT, FAANG]
@@ -145,6 +123,21 @@ courses:
   - course: "95-719"
     rating: 2
 
+  # Product Management Essentials II
+  - course: "17-629"
+    category: [FAANG, Business, Founder]
+    rating: 3
+
+  # Economic Analysis
+  - course: "95-710"
+    category: [Business, Economics, Founder]
+    rating: 3
+
+  # Time Series Forecasting in Python
+  - course: "95-835"
+    category: [Quant, HFT]
+    rating: 4
+
   # Distributed Systems
   - course: "15-640"
     category: [HFT, FAANG]
@@ -165,8 +158,32 @@ courses:
     category: [Quant]
     rating: 4
 
-  # How to Write Fast Code I
-  - course: "18-645"
+  # How to Write Fast Code II
+  - course: "18-646"
     category: [HFT, FAANG]
     rating: 5
-    fixed_semester: 1
+
+  # Engineering Scalable Systems
+  - course: "17-647"
+    category: [HFT, FAANG]
+    rating: 4
+
+  # Multi-Agent AI: Learning, Games, and Strategic Interaction
+  - course: "17-759"
+    category: [Quant, HFT]
+    rating: 4
+
+  # Safe Systems Programming in Rust (verified F26 title; reconfirm for F27).
+  - course: "17-650"
+    category: [HFT, FAANG]
+    rating: 5
+
+  # Engineering Embedded Systems
+  - course: "17-638"
+    category: [HFT]
+    rating: 4
+
+  # Machine Learning in Production
+  - course: "17-645"
+    category: [Quant, FAANG]
+    rating: 3

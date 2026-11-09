@@ -1,3 +1,31 @@
+# S27 remote sections and lecture associations verified against the MSE list:
+# https://docs.google.com/spreadsheets/d/1p5lyLy7opfGlxExgBdVajeV64PHG0vLB/edit
+S27:
+  "17-604":
+    - {components: [A], modality: in_person}
+    - {components: [B], modality: in_person}
+    - {components: [C], modality: in_person}
+    - {components: [D], modality: online}
+  "17-629":
+    - {components: [A4], modality: in_person}
+    - {components: [C4], modality: online}
+  "17-632":
+    - {components: [A3], modality: in_person}
+    - {components: ["Lec 43", D3], modality: online}
+  "17-643":
+    - {components: [A4], modality: in_person}
+    - {components: [D4], modality: online}
+  "17-645":
+    - {components: ["Lec 1", B], modality: in_person}
+    - {components: ["Lec 1", C], modality: in_person}
+    - {components: ["Lec 1", D], modality: in_person}
+    - {components: ["Lec 1", E], modality: in_person}
+    - {components: ["Lec 1", F], modality: in_person}
+    - {components: ["Lec 1", G], modality: online}
+  "17-647":
+    - {components: [A4], modality: in_person}
+    - {components: ["Lec 44", D4], modality: online}
+
 F26:
   "17-603":
     - {components: [A], modality: in_person}
