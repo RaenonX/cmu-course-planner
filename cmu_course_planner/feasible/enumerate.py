@@ -1,4 +1,5 @@
 from ..suggest.time import _meeting_buckets, _meeting_days, _meeting_interval
+from ..suggest.units import mini_workloads
 from .models import CourseChoice, FeasibleSchedule
 
 
@@ -29,6 +30,8 @@ def _conflicts(candidate: CourseChoice, selected: list[CourseChoice], soc_type: 
 def enumerate_schedules(core, electives, semester: str, max_elective_units: int) -> list[FeasibleSchedule]:
     items = [(course, True) for course in core] + [(course, False) for course in electives]
     soc_type = semester[0]
+    # The elective allowance plus mandatory units defines the total planning cap.
+    unit_cap = sum(course.units for course in core) + max_elective_units
     results: list[FeasibleSchedule] = []
 
     def visit(index: int, selected: list[CourseChoice], elective_units: int, online_count: int) -> None:
@@ -50,6 +53,12 @@ def enumerate_schedules(core, electives, semester: str, max_elective_units: int)
             if next_online > MAX_ONLINE_COURSES:
                 continue
             choice = CourseChoice(course, option, is_core)
+            workload = mini_workloads(
+                [(item.course.units, item.option.mini) for item in [*selected, choice]],
+                soc_type,
+            )
+            if max(workload.values()) > unit_cap:
+                continue
             if _conflicts(choice, selected, soc_type):
                 continue
             visit(

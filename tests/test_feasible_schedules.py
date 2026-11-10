@@ -105,7 +105,7 @@ class EnumerationTests(unittest.TestCase):
             option("11 + B1", "M", "9:00AM", "9:50AM", mini=1),
             option("41 + D1", "M", "7:00PM", "8:20PM", mini=1, modality="online"),
         ])
-        schedules = enumerate_schedules([], [formal], "F26", 6)
+        schedules = enumerate_schedules([], [formal], "F26", 12)
         self.assertEqual([item.choices[0].option.label for item in schedules], [
             "11 + A1", "11 + B1", "41 + D1",
         ])
@@ -158,7 +158,7 @@ class EnumerationTests(unittest.TestCase):
         ], mini=1, components=("B1",))
         core = course("17-603", 3, [core_option])
         elective = course("18-645", 12, [elective_option])
-        schedule = enumerate_schedules([core], [elective], "F26", 12)[0]
+        schedule = enumerate_schedules([core], [elective], "F26", 24)[0]
 
         continuity = schedule_continuity(schedule, "F26")
 

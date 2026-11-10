@@ -54,15 +54,11 @@ def analyze_swap(
             f"Unit limit exceeded: {total}/{unit_cap} units after "
             f"removing {removed_units} and adding {course.units}."
         )
-    offering = course.offering_for(soc_type)
-    occupied = {
-        selected.selected_mini: selected.course
-        for selected in remaining
-        if selected.selected_mini is not None
-    }
-    if offering and offering.minis and not any(mini not in occupied for mini in offering.minis):
-        blockers = ", ".join(f"Mini {mini} by {occupied[mini]}" for mini in offering.minis)
-        reasons.append(f"Every offered mini slot is occupied ({blockers}).")
+    if not slots and total <= unit_cap:
+        reasons.append(
+            f"Mini workload limit exceeded: every placement exceeds {unit_cap} "
+            "nominal hours/week in at least one half of the semester."
+        )
 
     choices = section_choices(course, soc_type, slots)
     base_overlap, _ = _continuity_score(remaining, soc_type, current_time_ranges)

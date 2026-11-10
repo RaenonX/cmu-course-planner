@@ -58,14 +58,15 @@ class WhatIfAnalysisTests(unittest.TestCase):
         self.assertEqual(swap["status"], "works")
         self.assertEqual(swap["unitsAfter"], 12)
 
-    def test_reports_occupied_mini_slot(self) -> None:
+    def test_reports_mini_workload_limit(self) -> None:
         scheduled = replace(course("scheduled", units=6, mini=1), selected_mini=1, selected_section="A")
         candidate = course("candidate", units=6, mini=1, begin="10:00AM", end="10:50AM")
 
         result = analyze_swap(candidate, "F", [scheduled], 12, [], None)
 
         self.assertEqual(result["status"], "rejected")
-        self.assertIn("Mini 1 by scheduled", result["reasons"][0])
+        self.assertIn("Mini workload limit exceeded", result["reasons"][0])
+        self.assertEqual(analyze_swap(candidate, "F", [scheduled], 24, [], None)["status"], "works")
 
     def test_unsatisfied_prerequisite_is_a_warning_not_a_schedule_block(self) -> None:
         result = analyze_swap(

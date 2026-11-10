@@ -24,11 +24,12 @@ function hideCoursePopover() {
   activeCourseCode = undefined;
 }
 
-function showCoursePopover(button, title) {
+function showCoursePopover(button, choice) {
   hideCoursePopover();
   activeCourseCode = button;
   button.setAttribute("aria-expanded", "true");
-  coursePopover.textContent = title;
+  coursePopover.textContent = choice.title;
+  coursePopover.className = `course-popover course-${choice.role.toLowerCase()}`;
   coursePopover.hidden = false;
   const rect = button.getBoundingClientRect();
   const left = Math.max(8, Math.min(rect.left, window.innerWidth - coursePopover.offsetWidth - 8));
@@ -49,7 +50,7 @@ function addCourseCode(parent, choice, className, onSelect) {
   button.addEventListener("click", event => {
     event.stopPropagation();
     if (onSelect) onSelect();
-    showCoursePopover(button, choice.title);
+    showCoursePopover(button, choice);
   });
   return button;
 }
@@ -73,7 +74,7 @@ function renderPickedCourses(choices) {
   add(view, "h2", "Selected courses");
   const picked = add(view, "div", undefined, "picked-courses");
   choices.forEach(choice => {
-    const chip = add(picked, "span", undefined, "course-chip");
+    const chip = add(picked, "span", undefined, `course-chip course-${choice.role.toLowerCase()}`);
     addCourseCode(chip, choice);
   });
 }
@@ -85,7 +86,7 @@ function renderTable(choices) {
     .forEach(label => add(head, "th", label));
   const body = add(table, "tbody");
   choices.forEach(choice => {
-    const row = add(body, "tr");
+    const row = add(body, "tr", undefined, `course-${choice.role.toLowerCase()}`);
     add(row, "td", choice.role);
     const courseCell = add(row, "td");
     addCourseCode(courseCell, choice);
@@ -131,7 +132,7 @@ function renderTimeline(choices, mini) {
       let lane = laneEnds.findIndex(laneEnd => item.beginMinutes >= laneEnd);
       if (lane < 0) lane = laneEnds.length;
       laneEnds[lane] = item.endMinutes;
-      const bar = add(track, "div", undefined, "timeline-bar timeline-course");
+      const bar = add(track, "div", undefined, `timeline-bar timeline-course course-${item.choice.role.toLowerCase()}`);
       bar.style.setProperty("--left", `${((item.beginMinutes - begin) / span) * 100}%`);
       bar.style.setProperty("--width", `${Math.max(((item.endMinutes - item.beginMinutes) / span) * 100, 1.5)}%`);
       bar.style.setProperty("--lane", String(lane));

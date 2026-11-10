@@ -1,4 +1,5 @@
 # Maximum suggested-course units for S27, M27, and F27, in order.
+# Also caps nominal weekly workload in each mini: full-term units + 2 * mini units.
 # Spring includes 39 mandatory units plus the existing 24 elective units.
 units_per_semester: [63, 24, 24]
 
@@ -40,6 +41,7 @@ feasible_schedule:
     - "17-759"
     - "17-645"
   # Spring elective allowance, excluding mandatory course units.
+  # Mandatory units + this allowance also caps each mini's nominal weekly workload.
   max_elective_units: 24
 
 # Courses used to evaluate prerequisite status.

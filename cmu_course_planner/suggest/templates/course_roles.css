@@ -1,0 +1,23 @@
+/* Keep course roles consistent in both schedule views and color schemes. */
+.course-core { --course-color: #fef3c7; }
+.course-elective { --course-color: #fff; }
+
+tr.course-core > td,
+tr.course-elective > td,
+.timeline-bar.course-core,
+.timeline-bar.course-elective,
+.course-chip.course-core,
+.course-chip.course-elective,
+.course-popover.course-core,
+.course-popover.course-elective {
+  background: #292929;
+  color: var(--course-color);
+}
+
+tr.course-core .course-link,
+tr.course-elective .course-link { color: var(--course-color); }
+
+tr.course-core .prereq-info > summary,
+tr.course-elective .prereq-info > summary,
+tr.course-core .semester-offerings-info > summary,
+tr.course-elective .semester-offerings-info > summary { color: var(--course-color); }

@@ -77,7 +77,7 @@ def suggest(
     route_seed: int = 0,
 ) -> tuple[list[list[Course]], list[Course]]:
     """
-    Greedy scheduler with a semester unit budget and one course per mini slot.
+    Greedy scheduler with semester units and each mini's weekly load capped.
 
     Mini-aware conflict handling:
     A course with minis=[1,2] can be placed in either slot 1 or slot 2.  A course

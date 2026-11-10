@@ -76,10 +76,11 @@ class MiniUnitTests(unittest.TestCase):
         ]
         self.assertEqual(semester_unit_total(selected), 12)
 
-    def test_same_mini_cannot_be_used_twice(self) -> None:
+    def test_same_mini_is_limited_by_workload(self) -> None:
         selected = replace(course("m1-a", 6, [1]), selected_mini=1)
         self.assertEqual(candidate_slots(course("m1-b", 6, [1]), 12, "F", [selected]), [])
         self.assertEqual(candidate_slots(course("m2-a", 6, [2]), 12, "F", [selected]), [2])
+        self.assertEqual(candidate_slots(course("m1-b", 6, [1]), 24, "F", [selected]), [1])
 
     def test_full_semester_course_counts_its_units_once(self) -> None:
         full = course("full", 6, [])

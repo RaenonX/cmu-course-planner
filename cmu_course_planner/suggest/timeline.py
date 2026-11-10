@@ -37,7 +37,8 @@ def _timeline_entries(
             selected_section = meeting.section or course.selected_section
             section = f" [{selected_section}]" if selected_section else ""
             label = f"{course.course}{_mini_suffix(meeting)}{section} {course.title}"
-            add_meeting(meeting, label, "timeline-course")
+            role = "core" if course.fixed_semester is not None else "elective"
+            add_meeting(meeting, label, f"timeline-course course-{role}")
     entries: dict[str, list[tuple[int, int, str, str]]] = {}
     for (day, begin, end), (labels, classes) in merged.items():
         cls = "timeline-overlap" if len(classes) > 1 else next(iter(classes))
