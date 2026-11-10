@@ -1,124 +1,78 @@
-# Degree Planner Algorithm: Scheduler Details
+# Degree Planner: Exhaustive Browser Search
 
-## Step 2 — Greedy per-semester scheduler
+## Report generation
 
-`plan_degree(courses, semesters, unit_caps, prefer)` assigns courses to semesters in order.
-`plan_degree_routes(...)` repeats that scheduler with deterministic route seeds and keeps
-every unique schedule/unplaced combination found across 200 route seeds.
+`degree_planner.py` validates the configuration, loads the course snapshot, and
+exports one self-contained HTML file. It embeds course units, ratings, fixed
+semesters, permitted mini slots, section alternatives, normalized meeting times,
+and reusable course-table rows. Python does not generate degree paths or
+pre-render individual schedules. Opening the HTML starts a Web Worker; no web
+server or Node installation is needed to use the report.
 
-Before the greedy loop, courses with `fixed_semester` are assigned to their
-required one-based semester. They consume the normal semester unit budget and
-must have a compatible detected section schedule. They cannot be displaced by
-planned courses.
+## Complete search
 
-### Candidate selection
+`planner_search.js` visits each course once per planned semester:
 
-For semester `sem` (SOC type `soc`), a course is a **candidate** when:
+- Fixed courses must be selected in their configured semester and cannot appear
+  in other semesters. Every compatible fixed-course section is explored.
+- Each elective may be skipped or selected with any compatible section.
+- A selection must fit total semester units and both mini workload limits.
+  Full-semester units count in both halves; a mini course contributes twice its
+  units in its active half.
+- Section mini slots must agree with the detected offering's permitted slots.
+- Selected meetings must not add overlaps against other selected courses or
+  first-semester current commitments. Meetings in different minis may share the
+  same clock time. Missing/TBA times remain advisory uncertainty.
 
-- It has not been assigned in a previous semester.
-- It has at least one detected offering with SOC type `soc` (e.g. `"F"` for Fall).
+The worker retains each unique semester course/section selection once. Course
+sets form shared tree branches, and complete paths join semester selections only
+when their course sets are disjoint. This represents the entire Cartesian product
+of compatible semester choices without storing millions of duplicated schedules.
+Course order does not create additional paths; distinct registration sections do.
 
-### Candidate sort key
+The search includes lighter schedules, postponed electives, and empty elective
+selections. It has no randomness, seed count, candidate-width limit, or route cap.
+If required courses cannot coexist, the report displays the blocking semester.
 
-Balanced:
-```
-(scarcity, -course_preference, -category_preference, course_id)   ascending
-```
+## Counts, filters, and display
 
-Preference First:
-```
-(-course_preference, -category_preference, scarcity, course_id)   ascending
-```
+`countPaths` counts compatible continuations using memoized semester/assigned-
+course states. Counts use JavaScript `BigInt`. Elective Required/Excluded filters
+are applied to the complete path, with exact counts recalculated in the worker.
+Preferences never exclude a path merely because it was not sampled.
 
-No Preference:
-```
-(scarcity, course_id)   ascending
-```
+The browser builds tree nodes only as branches are opened. At a complete
+semester course-set path, section combinations are displayed in pages of 100.
+Pagination changes only the visible list; every section combination remains
+reachable. Selecting a path builds its schedule tables and timeline from the
+shared course data. Required courses remain visible in the full schedule, while
+tree titles and section labels list electives only.
 
-Time Continuity:
-```
-(incremental_overlap, incremental_gap, scarcity, -course_preference, -category_preference, course_id)   ascending
-```
+Both ranking tabs contain the same complete path set:
 
-| Key | Value | Effect |
-|-----|-------|--------|
-| `incremental_overlap` | Added overlapping minutes against current and selected course times in compatible mini slots | Lower = fewer conflicts = placed earlier |
-| `incremental_gap` | Added same-day minutes between current and selected course intervals | Lower = tighter time continuity = placed earlier |
-| `scarcity` | Number of distinct SOC types (among remaining semesters) that offer this course | Lower = rarer = placed earlier |
-| `-course_preference` | `-1` when the course ID is listed in `prefer_courses`, else `0` | Explicit course match = placed earlier |
-| `-category_preference` | Negative count of `prefer_categories` entries matched by this course | Higher match = placed earlier |
-| `course_id` | Lexicographic course ID string | Stable tiebreak |
+- **Rating First:** descending counts of five-star electives, then four-star,
+  down through one-star; smaller same-day gaps break ties.
+- **Time Continuity First:** more elective units, then smaller same-day gaps,
+  then the rating counts above.
 
-**Scarcity** is computed against the remaining semesters from the current one onward, so a course available only in Fall is ranked ahead of one available in both Fall and Spring when scheduling a Fall semester.
+Ranking is applied semester by semester. Course IDs and selected sections provide
+stable final tie-breaks. Changing the ranking never changes feasibility.
 
-### Time continuity
+## What if?
 
-The Time Continuity variant still uses the same greedy placement loop and mini-aware conflict checks, but it re-ranks candidates after each selected course.
+`planner_what_if.js` runs in the same worker and uses `planner_constraints.js`,
+which also supplies the exhaustive search's unit, mini, and time checks. For each
+unplaced course it evaluates keeping the schedule or removing one elective.
+Fixed courses cannot be removed. Rejections name the unit/workload constraint or
+conflicting meetings; prerequisites and unresolved times appear as warnings.
+Only the selected path's analysis is calculated.
 
-For the first planned semester, the current schedule starts with `current_time_ranges` from `plan_config.yml`. Later planned semesters start from an empty current-time set. For every candidate, the scheduler computes:
+## Verification
 
-1. How many additional overlapping minutes the candidate introduces.
-2. How many additional same-day gap minutes the candidate introduces between current and selected intervals in compatible mini slots.
-3. The normal Balanced sort key as the tiebreaker.
-
-This means a non-overlapping course that sits directly before or after an existing course is preferred over one that creates a large idle gap. If two candidates have the same continuity score, the Balanced priority rules decide the order.
-
-### Greedy fill
-
-Each course is expanded into its valid section options before placement. A
-primary-only offering contributes one choice per section. An offering with a
-`Lec ...` row contributes one choice for each lecture-plus-section combination.
-The scheduler evaluates each choice independently and records the selected
-section label on the scheduled course.
-
-Iterate sorted course/section choices and assign the course to this semester when all three hold:
-
-1. Adding the course stays within that semester's `units_per_semester` budget.
-2. The selected section does not introduce overlapping minutes against current ranges or already selected courses in the same semester.
-3. *(implicit)* Course not already assigned
-
-Update state on assignment:
-- Every course consumes its listed units once. For example, stacked 6-unit Mini-1
-  and Mini-2 courses consume 12 units in total.
-- Add course to `assigned` set
-
-Stop when no remaining course fits the total unit budget, mini-slot, and time constraints.
-
-Route 1 uses the top-ranked placeable course at each decision point. Later routes
-sample all placeable choices independently at each decision using a reproducible
-seed. This avoids correlated rotations that repeatedly explore the same combinations.
-The 200 attempts are a sample, not exhaustive enumeration: a missing route does
-not establish that its course combination is infeasible.
-
-### Mini constraint
-
-Each mini course is evaluated per concrete mini section. A course with `minis=[1, 2]` is considered once for mini-1 and once for mini-2. The scheduler records the chosen slot and uses only meeting rows from that slot when computing continuity and rendering the final route. Full-semester courses have `minis=[]` and are compared against all mini slots in that semester.
-
-At most one course may occupy each mini slot in a semester. A 6-unit Mini-1 course
-and a 6-unit Mini-2 course form a valid 12-unit stack; two Mini-1 courses with no
-Mini-2 course remain invalid. `current_time_ranges` reserve time only; their units
-are intentionally outside the planned-course capacity.
-
-`current_time_ranges` entries can also provide `mini: 1` through `mini: 6`. Mini-specific current ranges only conflict with full-semester courses or courses in the same mini slot, so a mini-1 course and a mini-2 course may share the same lecture clock time.
-
-## Step 3 — Unplaced courses
-
-Any course not in `assigned` after all semesters are processed is collected into `unplaced`. These appear in the console output and in the "Not placed" section of the HTML report, with all detected offering semesters shown as clickable chips.
-
-The HTML report also provides a route-specific **What if?** analyzer. Select an
-unplaced course, a planned semester, and either keep the scheduled courses or
-remove one non-fixed course. Each option is evaluated against the same offering, unit,
-mini-slot, section, current-time, and course-time constraints used by the
-scheduler. A rejected option names the blocking constraint and, for time
-conflicts, the conflicting course or current commitment. Prerequisite status
-remains advisory and appears as a warning on otherwise valid swaps.
-
-## Output
-
-- **Console** — semester-by-semester listing for route 1 of the primary strategy, with units, mini labels, and enr-apps links.
-- **`out/degree-planner.html`** — each strategy tab lists every distinct
-  generated route in a semester-by-semester course-set tree. Branch titles and
-  leaf section labels list electives only; required courses remain in the full
-  schedule. Exact section routes are the leaves. Route bodies are individually compressed in the static
-  file and expanded into the page only when selected, keeping the DOM responsive
-  as the route list grows.
+Run `.venv/Scripts/python -m unittest discover -s tests` from the repository.
+The Python course fixtures call the actual browser JavaScript through Node for
+search and swap tests. Node is required for these development tests, not report
+creation or viewing. An independent brute-force fixture checks every assignment,
+including deferred/omitted courses and section alternatives. Other regressions
+cover fixed-course backtracking, mini limits, conflicts, more than 200 paths,
+input-order independence, exact filtering, and swap behavior.

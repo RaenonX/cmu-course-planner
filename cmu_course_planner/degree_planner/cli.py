@@ -4,11 +4,8 @@ from pathlib import Path
 
 from ..common.paths import DEFAULT_CONFIG, OUT_DIR, DEGREE_PLANNER_OUTPUT
 from ..common.config import completed_courses_from_config
-from .console import print_primary_route
 from .load import load_config, load_current_time_ranges, load_snapshot
 from .render import build_html
-from .routes import plan_degree_routes
-from .variants import ROUTE_ATTEMPTS, VARIANTS
 
 def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
@@ -36,36 +33,15 @@ def main() -> None:
         completed_courses,
     )
 
-    results = []
-    for variant_name, variant_desc in VARIANTS:
-        routes = plan_degree_routes(
-            courses,
-            semesters,
-            unit_caps,
-            prefer,
-            current_time_ranges,
-            variant_name,
-        )
-        results.append((variant_name, variant_desc, routes))
-
-    print_primary_route(
-        semesters, unit_caps, prefer,
-        teaching_location, current_time_ranges, results,
-    )
-
-    print(
-        f"Generating {len(VARIANTS)} schedule tabs with every unique route "
-        f"found across {ROUTE_ATTEMPTS} search seeds…"
-    )
+    print("Building the report with exhaustive browser-side path generation…", flush=True)
 
     html = build_html(
+        courses,
         semesters,
-        results,
         unit_caps,
         prefer,
         teaching_location,
         snapshot_date,
-        courses,
         current_time_ranges,
     )
     OUT_DIR.mkdir(exist_ok=True)

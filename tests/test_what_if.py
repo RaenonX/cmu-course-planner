@@ -3,7 +3,7 @@ from dataclasses import replace
 
 from cmu_course_planner.common.prerequisites import PrerequisiteStatus
 from cmu_course_planner.degree_planner.models import Course, Meeting, Offering, SectionOption
-from cmu_course_planner.degree_planner.what_if import analyze_swap, build_what_if_data
+from client_planner import analyze_swap, build_what_if_data
 
 
 def course(

@@ -1,11 +1,4 @@
 <script>
-async function decompressRoute(encoded) {
-  const binary = atob(encoded);
-  const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
-  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-  return new Response(stream).text();
-}
-
 function routeMessage(view, message, className = 'meta') {
   const paragraph = document.createElement('p');
   paragraph.className = className;
@@ -13,39 +6,52 @@ function routeMessage(view, message, className = 'meta') {
   view.replaceChildren(paragraph);
 }
 
-async function showRoute(panel, button) {
-  const index = Number(button.dataset.routeIndex);
+async function showRoute(panel, button, choices, used) {
   const view = panel.querySelector('.route-panel');
   const renderToken = (panel.renderToken || 0) + 1;
   panel.renderToken = renderToken;
-  panel.querySelectorAll('.route-tree-leaf').forEach(item => {
+  panel.querySelectorAll('.route-tree-leaf.is-selected').forEach(item => {
     item.classList.remove('is-selected');
     item.setAttribute('aria-selected', 'false');
   });
   button.classList.add('is-selected');
   button.setAttribute('aria-selected', 'true');
-  routeMessage(view, 'Loading route…');
+  routeMessage(view, 'Loading path…');
   try {
-    panel.routeHtml[index] ??= await decompressRoute(panel.routeData[index]);
+    const whatIfData = await workerRequest('route', {choices});
     if (panel.renderToken !== renderToken) return;
-    view.innerHTML = panel.routeHtml[index];
+    const unplaced = degreePaths.courses.filter(course => !(course.mask & used));
+    view.replaceChildren(...choices.map((choice, index) => renderSemester(index, degreePaths.terms[index].choices[choice])));
+    if (unplaced.length) {
+      const section = document.createElement('div');
+      section.className = 'unplaced';
+      section.innerHTML = '<h3>Not placed</h3>' + degreePaths.unplacedHead
+        + unplaced.map(course => course.row).join('') + '</tbody></table>' + degreePaths.whatIfPanel;
+      const whatIf = section.querySelector('.what-if');
+      const panelId = `degree-what-if-${panel.dataset.variant}`;
+      whatIf.id = panelId;
+      section.querySelectorAll('.what-if-open').forEach(button => { button.dataset.whatIfTarget = panelId; });
+      setOptions(whatIf.querySelector('.what-if-course'), unplaced, 'id', 'label');
+      whatIf.querySelector('.what-if-data').textContent = JSON.stringify(whatIfData);
+      view.append(section);
+    }
     initializeRouteContent(view);
   } catch (error) {
     if (panel.renderToken !== renderToken) return;
-    routeMessage(view, `Could not load this route: ${error.message}`, 'semester-unit-warning');
+    routeMessage(view, `Could not load this path: ${error.message}`, 'semester-unit-warning');
   }
 }
 
-function initializeSchedulePanel(panel) {
-  if (panel.routeData) return;
-  panel.routeData = JSON.parse(panel.querySelector('.route-data').textContent);
-  panel.routeHtml = [];
-  initializeRouteFilters(panel);
-  panel.querySelectorAll('.route-tree-leaf').forEach(button => {
-    button.addEventListener('click', () => showRoute(panel, button));
-  });
-  const firstButton = panel.querySelector('.route-tree-leaf');
-  if (firstButton) showRoute(panel, firstButton);
+async function initializeSchedulePanel(panel) {
+  if (panel.initialized) return;
+  panel.initialized = true;
+  try {
+    await plannerReady;
+    initializeRouteFilters(panel);
+  } catch (error) {
+    panel.querySelector('.route-count').textContent = 'Could not generate degree paths.';
+    routeMessage(panel.querySelector('.route-panel'), error.message, 'semester-unit-warning');
+  }
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {

@@ -1,14 +1,12 @@
 import html
 
-from .route_tree import Route
+from .models import Course
 
 
-def route_filters(routes: list[Route]) -> str:
+def route_filters(available: list[Course]) -> str:
     courses = {
         course.course: course.title
-        for schedule, _ in routes
-        for semester in schedule
-        for course in semester
+        for course in available
         if course.fixed_semester is None
     }
     options = "".join(

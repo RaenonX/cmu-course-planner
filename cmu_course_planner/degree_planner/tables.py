@@ -1,10 +1,9 @@
 from ..common.labels import category_badges, mini_label, prereq_info
-from .models import Course, Meeting
+from .models import Course
 from .render_common import (
     _course_cell, _course_link, _offering_chips, _rating_badge, _time_label,
 )
 from .time import _selected_section_option
-from .what_if_render import what_if_panel
 
 TABLE_HEAD = (
     "<table>\n<thead><tr>"
@@ -38,28 +37,4 @@ def _unplaced_row(c: Course, prefer: list[str], panel_id: str) -> str:
         f"<td>{_offering_chips(c)}</td>"
         f'<td><button class="what-if-open" data-what-if-target="{panel_id}" '
         f'data-course="{c.course}">Try swap</button></td></tr>\n'
-    )
-
-
-def course_table(sem_courses: list[Course], soc: str, prefer: list[str]) -> str:
-    return TABLE_HEAD + "".join(_course_row(c, soc, prefer) for c in sem_courses) + "</tbody></table>\n"
-
-
-def unplaced_table(
-    unplaced: list[Course],
-    prefer: list[str],
-    panel_id: str,
-    semesters: list[str],
-    schedule: list[list[Course]],
-    unit_caps: list[int],
-    current_time_ranges: list[Meeting],
-) -> str:
-    rows = "".join(_unplaced_row(c, prefer, panel_id) for c in unplaced)
-    head = TABLE_HEAD.replace("</tr>", "<th>What if?</th></tr>")
-    panel = what_if_panel(
-        panel_id, semesters, schedule, unplaced, unit_caps, current_time_ranges
-    )
-    return (
-        '<div class="unplaced">\n<h3>Not placed</h3>\n'
-        + head + rows + "</tbody></table>\n" + panel + "</div>\n"
     )

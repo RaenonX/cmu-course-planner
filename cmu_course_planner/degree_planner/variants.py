@@ -1,5 +1,4 @@
-ROUTE_ATTEMPTS = 200
 VARIANTS = [
-    ("Rating First", "Highest effective course rating first, then scarcity across remaining semesters"),
-    ("Time Continuity First", "Minimizes same-day gaps around current and selected course times, then applies rating-first priority"),
+    ("Rating First", "All valid paths, ordered by counts of highest-rated electives, then smaller same-day gaps"),
+    ("Time Continuity First", "All valid paths, ordered by elective units, then smaller same-day gaps and course ratings"),
 ]

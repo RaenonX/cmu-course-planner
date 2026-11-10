@@ -3,7 +3,7 @@ from dataclasses import replace
 
 from cmu_course_planner.semester_scheduler.enumerate import enumerate_schedules
 from cmu_course_planner.degree_planner.models import Course, Meeting, Offering, SectionOption
-from cmu_course_planner.degree_planner.scheduler import plan_degree
+from client_planner import plan_degree
 from cmu_course_planner.degree_planner.units import candidate_slots, mini_workloads
 
 

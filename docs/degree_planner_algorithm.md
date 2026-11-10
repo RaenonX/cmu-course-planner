@@ -23,7 +23,11 @@ load_snapshot ──► courses[]   (built from config_course_ids;
                                prerequisite status from completed_courses,
                                populated by export_report)
 
-plan_degree_routes ─► route[] = (schedule[][], unplaced[])
+build_html ─► raw course/section data + browser worker
+                  │
+                  ▼
+Browser worker ─► all compatible semester selections
+                  └─► exact path counts + dynamically expanded schedule tree
 ```
 
 ## Step 1 — Load & filter
@@ -39,9 +43,8 @@ Configured courses are kept only when:
 2. *(if `require_categories: true`)* At least one of its categories matches a `prefer_categories` entry.
 
 A course entry may set `fixed_semester` to a one-based planned-semester number.
-Fixed courses are placed before ordinary candidates and must pass the same
-offering, unit, mini-slot, section-time, and current-commitment checks. Schedule
-generation fails clearly when all fixed courses cannot coexist in their required
+Fixed courses must pass the same
+offering, unit, mini-slot, section-time, and current-commitment checks. The browser displays an error when all fixed courses cannot coexist in their required
 semester.
 
 Elective preferences list only courses without `fixed_semester`. Required and
@@ -52,9 +55,7 @@ Category values come from `export_report.py`, which reads them from `plan_config
 
 `teaching_location` is currently limited to `Pittsburgh, Pennsylvania`. `export_report.py` uses it when detecting course offerings, and `degree_planner.py` rejects snapshots generated for a different or missing location.
 
-`prefer_courses` is read as an explicit set of course IDs. It does not filter the snapshot; it marks matching courses as preferred for preference-aware schedule variants.
-
-`current_time_ranges` is optional and is used to reject first-semester schedule conflicts in all variants. The **Time Continuity** variant also uses it to prefer smaller same-day gaps. Each item has:
+`current_time_ranges` is optional and is used to reject first-semester schedule conflicts in all variants. The ranking tabs also use it when comparing same-day gaps. Each item has:
 
 ```
 label: "17-622 Agile Methods (Section B2)"

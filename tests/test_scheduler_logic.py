@@ -8,8 +8,7 @@ from cmu_course_planner.report.section_parse import parse_sections
 from cmu_course_planner.degree_planner.models import Course, Meeting, Offering, SectionOption
 from cmu_course_planner.degree_planner.load import load_current_time_ranges
 from cmu_course_planner.degree_planner.semester_render import _semester_heading
-from cmu_course_planner.degree_planner.routes import _schedule_signature
-from cmu_course_planner.degree_planner.scheduler import plan_degree
+from client_planner import plan_degree
 from cmu_course_planner.degree_planner.time import _meeting_days
 from cmu_course_planner.degree_planner.units import candidate_slots, semester_unit_total
 
@@ -209,20 +208,6 @@ class WarningTests(unittest.TestCase):
         rendered = _offering_times(["F26"], {"F26": offering})
         self.assertIn("TBA / incomplete", rendered)
         self.assertIn("TBA / incomplete", unresolved_time_badge())
-
-
-class RouteIdentityTests(unittest.TestCase):
-    def test_selected_mini_is_part_of_route_identity(self) -> None:
-        flexible = course("mini", 6, [1, 2])
-        first = _schedule_signature([[replace(flexible, selected_mini=1)]], [])
-        second = _schedule_signature([[replace(flexible, selected_mini=2)]], [])
-        self.assertNotEqual(first, second)
-
-    def test_selected_section_is_part_of_route_identity(self) -> None:
-        flexible = course("sections", 6, [])
-        first = _schedule_signature([[replace(flexible, selected_section="A")]], [])
-        second = _schedule_signature([[replace(flexible, selected_section="B")]], [])
-        self.assertNotEqual(first, second)
 
 
 if __name__ == "__main__":
