@@ -57,9 +57,9 @@ def _offering_times(semesters: list[str], offering_map: dict[str, dict | None]) 
 def build_report_html(rows_html: list[str], today, years: int, teaching_location: str) -> str:
     head = (REPORT_TEMPLATE_DIR / "report_head.html").read_text(encoding="utf-8")
     head = (
-        head.replace("{{DATE}}", today.strftime("%Y-%m-%d"))
-        .replace("{{YEARS}}", str(years))
-        .replace("{{LOCATION}}", html_lib.escape(teaching_location))
+        head.replace("{DATE}", today.strftime("%Y-%m-%d"))
+        .replace("{YEARS}", str(years))
+        .replace("{LOCATION}", html_lib.escape(teaching_location))
     )
     tail = (REPORT_TEMPLATE_DIR / "report_tail.html").read_text(encoding="utf-8")
     return head + "\n".join(rows_html) + "\n" + tail
