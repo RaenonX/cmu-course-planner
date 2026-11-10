@@ -42,7 +42,9 @@ are applied to the complete path, with exact counts recalculated in the worker.
 Preferences never exclude a path merely because it was not sampled.
 
 The browser builds tree nodes only as branches are opened. At a complete
-semester course-set path, section combinations are displayed in pages of 100.
+semester course-set path, multiple section combinations share one collapsed
+"Section variations" entry with the common rating/category badges. Expanding it
+shows the individual routes in pages of 100; a single combination needs no wrapper.
 Pagination changes only the visible list; every section combination remains
 reachable. Selecting a path builds its schedule tables and timeline from the
 shared course data. Required courses remain visible in the full schedule, while

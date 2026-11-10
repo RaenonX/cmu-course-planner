@@ -37,10 +37,29 @@ function addRouteSummary(button, used) {
 
 function renderRouteLeaves(panel, container, groups, used, total, autoSelect, offset) {
   const variant = Number(panel.dataset.variant);
+  let list = container;
+  if (total > 1n) {
+    const variants = document.createElement('details');
+    variants.className = 'route-tree-branch route-section-variants';
+    variants.setAttribute('role', 'treeitem');
+    const summary = document.createElement('summary');
+    const label = document.createElement('span');
+    label.textContent = 'Section variations';
+    addRouteSummary(label, used);
+    const count = document.createElement('span');
+    count.className = 'route-tree-count';
+    count.textContent = `${total} routes`;
+    summary.append(label, count);
+    list = document.createElement('div');
+    list.className = 'route-tree-children';
+    list.setAttribute('role', 'group');
+    variants.append(summary, list);
+    container.append(variants);
+  }
   let start = 0n;
   const pageSize = 100n;
   function render() {
-    container.replaceChildren();
+    list.replaceChildren();
     const end = start + pageSize < total ? start + pageSize : total;
     for (let ordinal = start; ordinal < end; ordinal++) {
       const choices = routeChoices(groups, variant, ordinal);
@@ -58,7 +77,7 @@ function renderRouteLeaves(panel, container, groups, used, total, autoSelect, of
       button.append(title, sections);
       addRouteSummary(button, used);
       button.addEventListener('click', () => showRoute(panel, button, choices, used));
-      container.append(button);
+      list.append(button);
       if (autoSelect && ordinal === 0n) showRoute(panel, button, choices, used);
     }
     if (total > pageSize) {
@@ -75,7 +94,7 @@ function renderRouteLeaves(panel, container, groups, used, total, autoSelect, of
         button.addEventListener('click', () => { start = next; autoSelect = false; render(); });
         controls.append(button);
       }
-      container.append(controls);
+      list.append(controls);
     }
   }
   render();
