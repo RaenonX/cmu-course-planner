@@ -37,8 +37,12 @@ The export groups schedules as a tree: each branch is a distinct elective-course
 set, and its leaves are the feasible complete-section combinations. Tree labels
 show elective course codes only; core courses and section details stay in the
 selected-schedule view. Selecting a leaf shows the picked course codes, exact
-section table, and mini timelines. Clicking a displayed course code opens its
-full title in a small popover. The exact-course-section filter keeps only
+section table, and mini timelines. Clicking a displayed course code opens its exact-term SOC page; hovering shows
+the full title. Prerequisites use the same status badges and expandable details
+as Suggested Schedule. Course preferences keep only paths containing
+every Required course and no Excluded courses. Optional courses are unrestricted.
+Reset to optional clears all course preferences. Course filtering combines with
+the exact-course-section filter, which keeps only
 schedules containing the selected course component, such as `17-623 D2`, even
 when that component belongs to a larger complete registration bundle.
 

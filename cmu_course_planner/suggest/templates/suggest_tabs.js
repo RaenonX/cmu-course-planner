@@ -40,6 +40,7 @@ function initializeSchedulePanel(panel) {
   if (panel.routeData) return;
   panel.routeData = JSON.parse(panel.querySelector('.route-data').textContent);
   panel.routeHtml = [];
+  initializeRouteFilters(panel);
   panel.querySelectorAll('.route-tree-leaf').forEach(button => {
     button.addEventListener('click', () => showRoute(panel, button));
   });

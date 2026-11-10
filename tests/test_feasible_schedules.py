@@ -144,7 +144,7 @@ class EnumerationTests(unittest.TestCase):
         rendered = build_html(config, schedules, "test snapshot")
 
         self.assertIn("cannot be fully conflict-verified", rendered)
-        self.assertIn("Advisory", rendered)
+        self.assertIn("advisory", rendered)
         self.assertIn("TBA / incomplete", rendered)
 
     def test_continuity_groups_weekdays_and_excludes_transition_minutes(self) -> None:
@@ -207,7 +207,8 @@ class EnumerationTests(unittest.TestCase):
         self.assertIn('"maxGapMinutes":0', rendered)
         self.assertIn("Gap: Total", rendered)
         self.assertIn("· Max", rendered)
-        self.assertIn("course-popover", rendered)
+        self.assertIn("link.href = choice.socLink", rendered)
+        self.assertIn("choice.prerequisiteHtml", rendered)
         self.assertIn("Section swaps needed", rendered)
         self.assertIn("sameComponents(current, choice.components)", rendered)
         self.assertIn("schedule-entry-metrics", rendered)
@@ -222,7 +223,7 @@ class EnumerationTests(unittest.TestCase):
         self.assertIn("All sections", rendered)
         self.assertIn("scheduleMatchesSection", rendered)
         self.assertIn("choice.components.includes(selectedSection.component)", rendered)
-        self.assertIn("No feasible schedules match this exact section.", rendered)
+        self.assertIn("No feasible schedules match the selected filters.", rendered)
 
 
 if __name__ == "__main__":

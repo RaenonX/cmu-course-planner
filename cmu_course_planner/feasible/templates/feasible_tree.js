@@ -1,5 +1,4 @@
 const sectionFilter = document.getElementById("section-filter");
-const filterStatus = document.getElementById("schedule-filter-status");
 let selectedSection;
 
 function sectionFilterOptions() {
@@ -46,7 +45,7 @@ function addLeaf(parent, schedule, index) {
   });
   const choices = schedule.choices.map(choiceIndex => data.choices[choiceIndex]);
   choices.filter(choice => choice.role === "Elective").forEach(choice => {
-    addCourseCode(leaf, choice, "schedule-course-code", selectLeaf);
+    addCourseCode(leaf, choice, "schedule-course-code");
   });
   if (choices.some(choice => choice.online)) leaf.classList.add("has-online");
   const swaps = sectionSwaps(choices);
@@ -59,13 +58,12 @@ function addLeaf(parent, schedule, index) {
 }
 
 function buildTree() {
-  hideCoursePopover();
   tree.replaceChildren();
   view.replaceChildren();
   selectedLeaf = undefined;
   const matching = data.schedules
     .map((schedule, index) => ({schedule, index}))
-    .filter(({schedule}) => scheduleMatchesSection(schedule));
+    .filter(({schedule}) => scheduleMatchesCourses(schedule) && scheduleMatchesSection(schedule));
   const groups = new Map();
   matching.forEach(({schedule, index}) => {
     const choices = schedule.choices.map(choiceIndex => data.choices[choiceIndex]);
@@ -102,11 +100,8 @@ function buildTree() {
     if (firstLeaf && firstLeaf.parentElement === leaves) branch.open = true;
   });
   tree.setAttribute("role", "tree");
-  filterStatus.textContent = selectedSection
-    ? `${matching.length} of ${data.schedules.length} schedules shown.`
-    : `All ${data.schedules.length} schedules shown.`;
   if (firstLeaf) render(firstIndex, firstLeaf);
-  else add(view, "p", "No feasible schedules match this exact section.", "semester-unit-warning");
+  else add(view, "p", "No feasible schedules match the selected filters.", "semester-unit-warning");
 }
 
 sectionFilter.addEventListener("change", () => {
@@ -119,5 +114,6 @@ sectionFilter.addEventListener("change", () => {
   buildTree();
 });
 
+populateCourseFilter();
 populateSectionFilter();
 buildTree();

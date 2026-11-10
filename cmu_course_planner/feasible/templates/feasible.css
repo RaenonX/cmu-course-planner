@@ -60,6 +60,37 @@ body {
   font-size: .8rem;
 }
 
+.course-filter {
+  margin: 0 0 8px;
+  padding: 8px;
+  border: 1px solid #555;
+  border-radius: 4px;
+}
+
+#course-filter-options {
+  max-height: 200px;
+  overflow: auto;
+  margin-top: 8px;
+}
+
+#course-filter-options label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: .85rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+#course-filter-options select {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+#clear-course-filter {
+  margin-bottom: 12px;
+}
+
 .schedule-tree details + details {
   margin-top: 8px;
 }
@@ -163,23 +194,6 @@ body {
 .course-code:hover,
 .course-code:focus-visible {
   color: #ff5252;
-}
-
-.course-popover {
-  position: fixed;
-  z-index: 20;
-  max-width: 280px;
-  padding: 8px 10px;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background: #292929;
-  color: #fff;
-  box-shadow: 0 8px 22px rgb(0 0 0 / 45%);
-  font-size: .85rem;
-}
-
-.course-popover[hidden] {
-  display: none;
 }
 
 .continuity-panel {

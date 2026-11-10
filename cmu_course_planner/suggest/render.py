@@ -8,7 +8,7 @@ from .render_panel import _build_schedule_panel
 def _suggest_style() -> str:
     return "\n".join(
         (SUGGEST_TEMPLATE_DIR / name).read_text(encoding="utf-8")
-        for name in ("suggest_1.css", "suggest_2.css", "suggest_3.css", "course_roles.css")
+        for name in ("suggest_1.css", "suggest_2.css", "suggest_3.css", "course_roles.css", "course_preferences.css")
     )
 
 
@@ -65,6 +65,7 @@ def build_html(
             )
         )
 
+    parts.append((SUGGEST_TEMPLATE_DIR / "suggest_filters.js").read_text(encoding="utf-8"))
     parts.append((SUGGEST_TEMPLATE_DIR / "suggest_tabs.js").read_text(encoding="utf-8"))
     parts.append((SUGGEST_TEMPLATE_DIR / "suggest_tail.html").read_text(encoding="utf-8"))
     return "".join(parts)

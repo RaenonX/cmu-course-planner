@@ -4,6 +4,7 @@ import json
 from .models import Course, Meeting
 from .route_payload import compressed_route_html, route_html
 from .route_tree import route_tree
+from .route_filters import route_filters
 from .semester_render import _semester_section
 
 
@@ -25,7 +26,7 @@ def _build_schedule_panel(
     parts.append(
         '<div class="route-layout"><nav class="route-browser" aria-label="Schedule route selection">'
         '<h2>Schedule tree</h2>'
-        '<p class="meta">Expand semester course sets, then choose an exact section route.</p>'
+        f'{route_filters(routes)}'
         f'{route_tree(routes, prefer)}</nav>'
     )
     payloads = [

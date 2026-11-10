@@ -17,6 +17,7 @@ def route_tree(routes: list[Route], prefer: list[str]) -> str:
             return "".join(
                 f'<button class="route-tree-leaf{" is-selected" if route_idx == 0 else ""}" '
                 f'data-route-index="{route_idx}" role="treeitem" '
+                f'data-courses="{html_lib.escape(" ".join(sorted({course.course for semester in schedule for course in semester})))}" '
                 f'aria-selected="{"true" if route_idx == 0 else "false"}">'
                 f'{_route_leaf_label(route_idx, schedule, prefer)}</button>\n'
                 for route_idx, schedule in branch_entries

@@ -1,0 +1,29 @@
+.route-course-options select,
+#course-filter-options select {
+  background: #fff;
+  color: #111;
+  border-color: #aaa;
+  color-scheme: light;
+}
+
+.route-course-options select[data-preference="required"],
+#course-filter-options select[data-preference="required"],
+.route-course-options option[value="required"],
+#course-filter-options option[value="required"] {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.route-course-options select[data-preference="excluded"],
+#course-filter-options select[data-preference="excluded"],
+.route-course-options option[value="excluded"],
+#course-filter-options option[value="excluded"] {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.route-course-options option[value="optional"],
+#course-filter-options option[value="optional"] {
+  background: #fff;
+  color: #111;
+}

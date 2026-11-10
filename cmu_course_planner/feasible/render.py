@@ -2,6 +2,7 @@ import html as html_lib
 import json
 from pathlib import Path
 
+from ..common.labels import prereq_info
 from ..suggest.render import _suggest_style
 from ..suggest.time import SOC_MINIS, _meeting_days, _meeting_interval
 from .config import FeasibleConfig
@@ -43,6 +44,8 @@ def _choice_data(choice: CourseChoice) -> dict:
         "role": "Core" if choice.is_core else "Elective",
         "course": course.course,
         "title": course.title,
+        "socLink": course.offered_in[0].link,
+        "prerequisiteHtml": prereq_info(course.prerequisites, course.prerequisite_status),
         "units": course.units,
         "bundle": option.label,
         "components": option.components or (option.label,),
@@ -90,7 +93,7 @@ def build_html(config: FeasibleConfig, schedules: list[FeasibleSchedule], snapsh
     template_dir = Path(__file__).parent / "templates"
     script = "\n".join(
         (template_dir / name).read_text(encoding="utf-8")
-        for name in ("feasible.js", "feasible_tree.js")
+        for name in ("feasible.js", "feasible_filters.js", "feasible_tree.js")
     )
     style = (template_dir / "feasible.css").read_text(encoding="utf-8")
     core = ", ".join(config.core_courses)
@@ -106,10 +109,14 @@ def build_html(config: FeasibleConfig, schedules: list[FeasibleSchedule], snapsh
         f"<p><strong>Electives:</strong> {html_lib.escape(electives)}</p>"
         f"<p><strong>{len(schedules)} schedule{'s' if len(schedules) != 1 else ''}</strong></p>"
         "<div class='schedule-layout'><nav class='schedule-browser' aria-label='Schedule selection'>"
-        "<h2>Schedule tree</h2><p class='meta'>Choose an elective set, then a section combination.</p>"
-        "<div class='schedule-filter'><label for='section-filter'>Exact course section</label>"
+        "<h2>Schedule tree</h2>"
+        "<div class='schedule-filter'><fieldset class='course-filter'>"
+        "<legend>Course preferences</legend>"
+        "<div id='course-filter-options'></div></fieldset>"
+        "<button id='clear-course-filter' type='button'>Reset to optional</button>"
+        "<label for='section-filter'>Exact course section</label>"
         "<select id='section-filter'><option value=''>All sections</option></select>"
-        "<p id='schedule-filter-status' class='meta' aria-live='polite'></p></div>"
+        "</div>"
         "<div id='schedule-tree' class='schedule-tree'></div></nav>"
         "<main id='schedule-view' class='schedule-view'></main></div>"
         f"<script id='schedule-data' type='application/json'>{data}</script><script>{script}</script>"

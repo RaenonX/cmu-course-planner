@@ -3,7 +3,6 @@ const tree = document.getElementById("schedule-tree");
 const view = document.getElementById("schedule-view");
 const dayNames = {M: "Mon", T: "Tue", W: "Wed", R: "Thu", F: "Fri", S: "Sat", U: "Sun"};
 let selectedLeaf;
-let activeCourseCode;
 
 function add(parent, tag, text, className) {
   const element = document.createElement(tag);
@@ -13,62 +12,39 @@ function add(parent, tag, text, className) {
   return element;
 }
 
-const coursePopover = add(document.body, "div", undefined, "course-popover");
-coursePopover.id = "course-popover";
-coursePopover.setAttribute("role", "tooltip");
-coursePopover.hidden = true;
-
-function hideCoursePopover() {
-  coursePopover.hidden = true;
-  if (activeCourseCode) activeCourseCode.setAttribute("aria-expanded", "false");
-  activeCourseCode = undefined;
+function addCourseCode(parent, choice, className) {
+  const link = add(parent, "a", choice.course, `course-code${className ? ` ${className}` : ""}`);
+  if (choice.online) link.classList.add("is-online");
+  link.href = choice.socLink;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.title = choice.title;
+  link.addEventListener("click", event => event.stopPropagation());
+  link.addEventListener("keydown", event => event.stopPropagation());
+  return link;
 }
 
-function showCoursePopover(button, choice) {
-  hideCoursePopover();
-  activeCourseCode = button;
-  button.setAttribute("aria-expanded", "true");
-  coursePopover.textContent = choice.title;
-  coursePopover.className = `course-popover course-${choice.role.toLowerCase()}`;
-  coursePopover.hidden = false;
-  const rect = button.getBoundingClientRect();
-  const left = Math.max(8, Math.min(rect.left, window.innerWidth - coursePopover.offsetWidth - 8));
-  let top = rect.bottom + 8;
-  if (top + coursePopover.offsetHeight > window.innerHeight - 8) {
-    top = rect.top - coursePopover.offsetHeight - 8;
-  }
-  coursePopover.style.left = `${left}px`;
-  coursePopover.style.top = `${Math.max(8, top)}px`;
-}
-
-function addCourseCode(parent, choice, className, onSelect) {
-  const button = add(parent, "button", choice.course, `course-code${className ? ` ${className}` : ""}`);
-  if (choice.online) button.classList.add("is-online");
-  button.type = "button";
-  button.setAttribute("aria-controls", coursePopover.id);
-  button.setAttribute("aria-expanded", "false");
-  button.addEventListener("click", event => {
-    event.stopPropagation();
-    if (onSelect) onSelect();
-    showCoursePopover(button, choice);
+function initializePrerequisites() {
+  view.querySelectorAll("details.prereq-info").forEach(details => {
+    details.addEventListener("toggle", () => {
+      if (!details.open) return;
+      view.querySelectorAll("details.prereq-info[open]").forEach(other => {
+        if (other !== details) other.open = false;
+      });
+    });
   });
-  return button;
 }
 
-document.addEventListener("click", hideCoursePopover);
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") hideCoursePopover();
+document.addEventListener("click", event => {
+  view.querySelectorAll("details.prereq-info[open]").forEach(details => {
+    if (!details.contains(event.target)) details.open = false;
+  });
 });
-window.addEventListener("resize", hideCoursePopover);
-window.addEventListener("scroll", hideCoursePopover, true);
-
-function prerequisiteLabel(choice) {
-  const status = choice.prerequisiteStatus;
-  if (status === "none") return "None";
-  if (status === "satisfied") return "Satisfied";
-  if (status === "unsatisfied") return `Unsatisfied — advisory: ${choice.prerequisites}`;
-  return `Unknown — advisory: ${choice.prerequisites}`;
-}
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    view.querySelectorAll("details.prereq-info[open]").forEach(details => { details.open = false; });
+  }
+});
 
 function renderPickedCourses(choices) {
   add(view, "h2", "Selected courses");
@@ -93,8 +69,10 @@ function renderTable(choices) {
     const meetings = choice.meetings.length
       ? choice.meetings.map(item => `${item.section}: ${item.daysLabel} ${item.begin}–${item.end}`).join(", ")
       : "TBA / incomplete";
-    [choice.title, choice.units, choice.bundle, prerequisiteLabel(choice), meetings]
+    [choice.title, choice.units, choice.bundle]
       .forEach(value => add(row, "td", String(value)));
+    add(row, "td").innerHTML = choice.prerequisiteHtml;
+    add(row, "td", meetings);
   });
 }
 
@@ -233,7 +211,6 @@ function renderSectionSwaps(choices) {
 }
 
 function render(index, leaf) {
-  hideCoursePopover();
   view.replaceChildren();
   const schedule = data.schedules[index];
   const choices = schedule.choices.map(choiceIndex => data.choices[choiceIndex]);
@@ -245,6 +222,7 @@ function render(index, leaf) {
   renderSectionSwaps(choices);
   add(view, "h3", "Sections and meetings");
   renderTable(choices);
+  initializePrerequisites();
   data.minis.forEach(mini => renderTimeline(choices, mini));
   if (selectedLeaf) {
     selectedLeaf.classList.remove("is-selected");
