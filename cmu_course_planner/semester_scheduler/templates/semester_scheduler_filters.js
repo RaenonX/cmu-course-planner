@@ -9,7 +9,9 @@ function scheduleMatchesCourses(schedule) {
 }
 
 function populateCourseFilter() {
-  const courses = new Map(data.choices.map(choice => [choice.course, choice]));
+  const courses = new Map(data.choices
+    .filter(choice => choice.role === "Elective")
+    .map(choice => [choice.course, choice]));
   [...courses.values()].sort((a, b) => a.course.localeCompare(b.course)).forEach(choice => {
     const label = add(courseFilterOptions, "label");
     const select = add(label, "select");

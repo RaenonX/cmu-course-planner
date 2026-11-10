@@ -9,6 +9,7 @@ def route_filters(routes: list[Route]) -> str:
         for schedule, _ in routes
         for semester in schedule
         for course in semester
+        if course.fixed_semester is None
     }
     options = "".join(
         f'<label><select data-course="{html.escape(code)}">'
@@ -20,7 +21,7 @@ def route_filters(routes: list[Route]) -> str:
         for code, title in sorted(courses.items())
     )
     return (
-        '<fieldset class="route-course-filter"><legend>Course preferences</legend>'
+        '<fieldset class="route-course-filter"><legend>Elective preferences</legend>'
         f'<div class="route-course-options">{options}</div></fieldset>'
         '<button class="clear-route-courses" type="button" disabled>Reset to optional</button>'
     )

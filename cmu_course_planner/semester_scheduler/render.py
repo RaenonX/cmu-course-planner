@@ -111,7 +111,7 @@ def build_html(config: SemesterSchedulerConfig, schedules: list[SemesterSchedule
         "<div class='schedule-layout'><nav class='schedule-browser' aria-label='Schedule selection'>"
         "<h2>Schedule tree</h2>"
         "<div class='schedule-filter'><fieldset class='course-filter'>"
-        "<legend>Course preferences</legend>"
+        "<legend>Elective preferences</legend>"
         "<div id='course-filter-options'></div></fieldset>"
         "<button id='clear-course-filter' type='button'>Reset to optional</button>"
         "<label for='section-filter'>Exact course section</label>"

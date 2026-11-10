@@ -44,6 +44,10 @@ offering, unit, mini-slot, section-time, and current-commitment checks. Schedule
 generation fails clearly when all fixed courses cannot coexist in their required
 semester.
 
+Elective preferences list only courses without `fixed_semester`. Required and
+Excluded preferences filter complete routes by elective selection; fixed courses
+remain included in every full schedule.
+
 Category values come from `export_report.py`, which reads them from `plan_config.yml` and writes them into the snapshot.
 
 `teaching_location` is currently limited to `Pittsburgh, Pennsylvania`. `export_report.py` uses it when detecting course offerings, and `degree_planner.py` rejects snapshots generated for a different or missing location.

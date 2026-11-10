@@ -39,8 +39,9 @@ show elective course codes only; core courses and section details stay in the
 selected-schedule view. Selecting a leaf shows the picked course codes, exact
 section table, and mini timelines. Clicking a displayed course code opens its exact-term SOC page; hovering shows
 the full title. Prerequisites use the same status badges and expandable details
-as Degree Planner. Course preferences keep only paths containing
-every Required course and no Excluded courses. Optional courses are unrestricted.
+as Degree Planner. Elective preferences list only elective courses and keep paths
+containing every Required elective and no Excluded electives. Optional electives
+are unrestricted. Core courses remain included in every full schedule.
 Reset to optional clears all course preferences. Course filtering combines with
 the exact-course-section filter, which keeps only
 schedules containing the selected course component, such as `17-623 D2`, even
