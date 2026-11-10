@@ -25,15 +25,19 @@ def _route_count_summary(schedule: list[list[Course]], prefer: list[str]) -> str
     return "".join(parts)
 
 def _route_semester_label(sem_courses: list[Course]) -> str:
-    if not sem_courses:
-        return "No courses"
-    return " + ".join(course.course for course in sorted(sem_courses, key=lambda item: item.course))
+    electives = [course for course in sem_courses if course.fixed_semester is None]
+    if not electives:
+        return "No electives"
+    return " + ".join(course.course for course in sorted(electives, key=lambda item: item.course))
 
 
 def _route_section_label(schedule: list[list[Course]]) -> str:
-    selected = [course for semester in schedule for course in semester]
+    selected = [
+        course for semester in schedule for course in semester
+        if course.fixed_semester is None
+    ]
     if not selected:
-        return "No selected sections"
+        return "No elective sections"
     return " · ".join(
         html_lib.escape(
             f"{course.course} {course.selected_section or 'Section unknown'}"

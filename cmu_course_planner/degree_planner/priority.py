@@ -1,5 +1,6 @@
+from random import Random
+
 from .models import Course
-from .variants import ROUTE_DIVERSITY_WIDTH
 
 def _sort_key(variant: str, prefer: list[str], remaining_soc: set[str]):
     def key(c: Course) -> tuple:
@@ -13,5 +14,6 @@ def _sort_key(variant: str, prefer: list[str], remaining_soc: set[str]):
 def _route_choice_index(route_seed: int, semester_idx: int, course_idx: int, candidate_count: int) -> int:
     if route_seed == 0 or candidate_count <= 1:
         return 0
-    width = min(ROUTE_DIVERSITY_WIDTH, candidate_count)
-    return (route_seed + semester_idx * 3 + course_idx * 5) % width
+    # Independently sample each decision, reproducibly. Modular rotation ties
+    # choices together and repeats routes instead of exploring combinations.
+    return Random(f"{route_seed}:{semester_idx}:{course_idx}").randrange(candidate_count)

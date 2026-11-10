@@ -85,9 +85,10 @@ Update state on assignment:
 Stop when no remaining course fits the total unit budget, mini-slot, and time constraints.
 
 Route 1 uses the top-ranked placeable course at each decision point. Later routes
-choose from the top few placeable candidates using a deterministic seed. This keeps
-each strategy's priority rules in control while producing alternate viable routes
-instead of only one greedy result.
+sample all placeable choices independently at each decision using a reproducible
+seed. This avoids correlated rotations that repeatedly explore the same combinations.
+The 200 attempts are a sample, not exhaustive enumeration: a missing route does
+not establish that its course combination is infeasible.
 
 ### Mini constraint
 
@@ -116,7 +117,8 @@ remains advisory and appears as a warning on otherwise valid swaps.
 
 - **Console** — semester-by-semester listing for route 1 of the primary strategy, with units, mini labels, and enr-apps links.
 - **`out/degree-planner.html`** — each strategy tab lists every distinct
-  generated route in a semester-by-semester course-set tree. Exact section
-  routes are the leaves. Route bodies are individually compressed in the static
+  generated route in a semester-by-semester course-set tree. Branch titles and
+  leaf section labels list electives only; required courses remain in the full
+  schedule. Exact section routes are the leaves. Route bodies are individually compressed in the static
   file and expanded into the page only when selected, keeping the DOM responsive
   as the route list grows.
