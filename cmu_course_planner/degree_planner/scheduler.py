@@ -67,7 +67,7 @@ def _place_fixed_courses(
         schedule[semester_idx] = selected
     return {course.course for course in fixed}
 
-def suggest(
+def plan_degree(
     courses: list[Course],
     semesters: list[str],
     unit_caps: list[int],

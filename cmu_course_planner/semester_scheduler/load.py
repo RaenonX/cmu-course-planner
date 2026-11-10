@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ..common.paths import SNAPSHOT
 from ..common.prerequisites import prerequisite_status
-from ..suggest.models import Course, Meeting, Offering, SectionOption
+from ..degree_planner.models import Course, Meeting, Offering, SectionOption
 
 
 def _option(raw: dict) -> SectionOption:

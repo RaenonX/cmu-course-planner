@@ -1,4 +1,4 @@
-"""Shared HTML label/badge helpers used by both the report and suggest renderers."""
+"""Shared HTML label/badge helpers used by both the report and Degree Planner renderers."""
 
 import html as html_lib
 

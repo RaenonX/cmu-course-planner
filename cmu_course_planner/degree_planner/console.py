@@ -8,7 +8,7 @@ from .units import semester_unit_total
 def print_primary_route(semesters, unit_caps, prefer, teaching_location, current_time_ranges, results) -> None:
     primary_name, _, primary_routes = results[0]
     primary_sched, primary_unplaced = primary_routes[0]
-    print(f"=== Suggested Schedule — {primary_name} ===")
+    print(f"=== Degree Planner — {primary_name} ===")
     print(f"  Unit caps      : {' → '.join(str(cap) for cap in unit_caps)}")
     print(f"  Semesters      : {' → '.join(SEM_LABEL[s] for s in semesters)}")
     print(f"  Teaching loc.  : {teaching_location}")

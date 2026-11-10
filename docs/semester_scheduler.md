@@ -1,17 +1,17 @@
-# Exhaustive Exact-Semester Schedules
+# Semester Scheduler
 
-`plan_feasible.py` enumerates every conflict-free registration schedule for the
-exact SOC semester configured under `feasible_schedule` in `plan_config.yml`.
+`semester_scheduler.py` enumerates every conflict-free registration schedule for the
+exact SOC semester configured under `semester_scheduler` in `plan_config.yml`.
 
 ## Data flow
 
 1. `export_report.py` refreshes `out/course-snapshot.json` from the CMU SOC.
 2. Term-specific policies assemble ambiguous SOC components into complete
    registration bundles, such as `Lec 11 + B1` for 17-614.
-3. `plan_feasible.py` selects one complete bundle for every core course and
+3. `semester_scheduler.py` selects one complete bundle for every core course and
    zero or one bundle for each elective course, requiring at least one elective
    course in every returned schedule.
-4. `out/feasible-schedules-F26.html` lists every feasible result with exact
+4. `out/semester-scheduler-{semester}.html` lists every conflict-free result with exact
    sections and separate Mini 1 and Mini 2 timelines.
 
 ## Constraints
@@ -34,12 +34,12 @@ Invalid, unresolvable, and not-offered course codes are fatal. The planner does
 not silently omit them.
 
 The export groups schedules as a tree: each branch is a distinct elective-course
-set, and its leaves are the feasible complete-section combinations. Tree labels
+set, and its leaves are the conflict-free complete-section combinations. Tree labels
 show elective course codes only; core courses and section details stay in the
 selected-schedule view. Selecting a leaf shows the picked course codes, exact
 section table, and mini timelines. Clicking a displayed course code opens its exact-term SOC page; hovering shows
 the full title. Prerequisites use the same status badges and expandable details
-as Suggested Schedule. Course preferences keep only paths containing
+as Degree Planner. Course preferences keep only paths containing
 every Required course and no Excluded courses. Optional courses are unrestricted.
 Reset to optional clears all course preferences. Course filtering combines with
 the exact-course-section filter, which keeps only
@@ -62,5 +62,5 @@ meeting while retaining all of their section labels.
 
 ```powershell
 .venv/Scripts/python export_report.py
-.venv/Scripts/python plan_feasible.py
+.venv/Scripts/python semester_scheduler.py
 ```

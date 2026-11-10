@@ -5,13 +5,13 @@ from cmu_course_planner.common.labels import prereq_info, unresolved_time_badge
 from cmu_course_planner.common.prerequisites import prerequisite_status
 from cmu_course_planner.report.render import _offering_times
 from cmu_course_planner.report.section_parse import parse_sections
-from cmu_course_planner.suggest.models import Course, Meeting, Offering, SectionOption
-from cmu_course_planner.suggest.load import load_current_time_ranges
-from cmu_course_planner.suggest.semester_render import _semester_heading
-from cmu_course_planner.suggest.routes import _schedule_signature
-from cmu_course_planner.suggest.scheduler import suggest
-from cmu_course_planner.suggest.time import _meeting_days
-from cmu_course_planner.suggest.units import candidate_slots, semester_unit_total
+from cmu_course_planner.degree_planner.models import Course, Meeting, Offering, SectionOption
+from cmu_course_planner.degree_planner.load import load_current_time_ranges
+from cmu_course_planner.degree_planner.semester_render import _semester_heading
+from cmu_course_planner.degree_planner.routes import _schedule_signature
+from cmu_course_planner.degree_planner.scheduler import plan_degree
+from cmu_course_planner.degree_planner.time import _meeting_days
+from cmu_course_planner.degree_planner.units import candidate_slots, semester_unit_total
 
 
 def course(course_id: str, units: int, minis: list[int], hour: int | None = None) -> Course:
@@ -96,7 +96,7 @@ class MiniUnitTests(unittest.TestCase):
             course("m1-a", 6, [1]), course("m1-b", 6, [1], hour=10),
             course("m2-a", 6, [2]),
         ]
-        schedule, unplaced = suggest(courses, ["F"], [12], [], [])
+        schedule, unplaced = plan_degree(courses, ["F"], [12], [], [])
         self.assertEqual({c.course for c in schedule[0]}, {"m1-a", "m2-a"})
         self.assertEqual([c.course for c in unplaced], ["m1-b"])
 
@@ -115,7 +115,7 @@ class FixedCourseTests(unittest.TestCase):
         fixed_b = replace(course("fixed-b", 12, []), fixed_semester=1, rating=1)
         planned = replace(course("planned", 12, []), rating=5)
 
-        schedule, unplaced = suggest(
+        schedule, unplaced = plan_degree(
             [planned, fixed_a, fixed_b], ["F", "F"], [24, 24], [], []
         )
 
@@ -140,7 +140,7 @@ class FixedCourseTests(unittest.TestCase):
             ], "https://example.test")],
         )
 
-        schedule, _ = suggest([first, second], ["F"], [24], [], [])
+        schedule, _ = plan_degree([first, second], ["F"], [24], [], [])
 
         self.assertEqual(
             [(item.course, item.selected_section) for item in schedule[0]],
@@ -151,12 +151,12 @@ class FixedCourseTests(unittest.TestCase):
         fixed = replace(course("fixed", 12, []), fixed_semester=1)
 
         with self.assertRaisesRegex(ValueError, "Fixed course fixed cannot be placed"):
-            suggest([fixed], ["F"], [6], [], [])
+            plan_degree([fixed], ["F"], [6], [], [])
 
     def test_each_semester_uses_its_own_unit_cap(self) -> None:
         courses = [course(f"course-{index}", 12, []) for index in range(3)]
 
-        schedule, unplaced = suggest(courses, ["F", "F"], [18, 24], [], [])
+        schedule, unplaced = plan_degree(courses, ["F", "F"], [18, 24], [], [])
 
         self.assertEqual([semester_unit_total(items) for items in schedule], [12, 24])
         self.assertEqual(unplaced, [])

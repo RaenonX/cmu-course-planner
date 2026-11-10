@@ -5,8 +5,8 @@ import re
 import unittest
 from dataclasses import replace
 
-from cmu_course_planner.suggest.models import Course, Offering, SectionOption
-from cmu_course_planner.suggest.render import build_html
+from cmu_course_planner.degree_planner.models import Course, Offering, SectionOption
+from cmu_course_planner.degree_planner.render import build_html
 
 
 def course(course_id: str) -> Course:
@@ -23,7 +23,7 @@ def course(course_id: str) -> Course:
     )
 
 
-class LazySuggestRenderTests(unittest.TestCase):
+class LazyDegreePlannerRenderTests(unittest.TestCase):
     def test_all_routes_are_listed_but_bodies_are_compressed(self) -> None:
         first = course("first")
         first_section_b = replace(first, selected_section="B")

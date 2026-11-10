@@ -1,9 +1,9 @@
-# Plan Suggester Algorithm: Scheduler Details
+# Degree Planner Algorithm: Scheduler Details
 
 ## Step 2 — Greedy per-semester scheduler
 
-`suggest(courses, semesters, unit_caps, prefer)` assigns courses to semesters in order.
-`suggest_routes(...)` repeats that scheduler with deterministic route seeds and keeps
+`plan_degree(courses, semesters, unit_caps, prefer)` assigns courses to semesters in order.
+`plan_degree_routes(...)` repeats that scheduler with deterministic route seeds and keeps
 every unique schedule/unplaced combination found across 200 route seeds.
 
 Before the greedy loop, courses with `fixed_semester` are assigned to their
@@ -96,7 +96,7 @@ Each mini course is evaluated per concrete mini section. A course with `minis=[1
 At most one course may occupy each mini slot in a semester. A 6-unit Mini-1 course
 and a 6-unit Mini-2 course form a valid 12-unit stack; two Mini-1 courses with no
 Mini-2 course remain invalid. `current_time_ranges` reserve time only; their units
-are intentionally outside the suggested-course capacity.
+are intentionally outside the planned-course capacity.
 
 `current_time_ranges` entries can also provide `mini: 1` through `mini: 6`. Mini-specific current ranges only conflict with full-semester courses or courses in the same mini slot, so a mini-1 course and a mini-2 course may share the same lecture clock time.
 
@@ -115,7 +115,7 @@ remains advisory and appears as a warning on otherwise valid swaps.
 ## Output
 
 - **Console** — semester-by-semester listing for route 1 of the primary strategy, with units, mini labels, and enr-apps links.
-- **`out/suggested-schedule.html`** — each strategy tab lists every distinct
+- **`out/degree-planner.html`** — each strategy tab lists every distinct
   generated route in a semester-by-semester course-set tree. Exact section
   routes are the leaves. Route bodies are individually compressed in the static
   file and expanded into the page only when selected, keeping the DOM responsive

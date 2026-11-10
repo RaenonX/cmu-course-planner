@@ -3,13 +3,13 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from cmu_course_planner.feasible.config import parse_feasible_config
-from cmu_course_planner.feasible.continuity import schedule_continuity
-from cmu_course_planner.feasible.enumerate import enumerate_schedules
-from cmu_course_planner.feasible.load import load_exact_courses
-from cmu_course_planner.feasible.models import CourseChoice, FeasibleSchedule
-from cmu_course_planner.feasible.render import _choice_data, build_html
-from cmu_course_planner.suggest.models import Course, Meeting, Offering, SectionOption
+from cmu_course_planner.semester_scheduler.config import parse_semester_scheduler_config
+from cmu_course_planner.semester_scheduler.continuity import schedule_continuity
+from cmu_course_planner.semester_scheduler.enumerate import enumerate_schedules
+from cmu_course_planner.semester_scheduler.load import load_exact_courses
+from cmu_course_planner.semester_scheduler.models import CourseChoice, SemesterSchedule
+from cmu_course_planner.semester_scheduler.render import _choice_data, build_html
+from cmu_course_planner.degree_planner.models import Course, Meeting, Offering, SectionOption
 
 
 def option(label, day, begin, end, *, mini=None, modality="in_person", unresolved=False):
@@ -31,10 +31,10 @@ def course(course_id, units, options, prerequisite_status="satisfied"):
     )
 
 
-class FeasibleConfigTests(unittest.TestCase):
+class SemesterSchedulerConfigTests(unittest.TestCase):
     def test_course_codes_are_normalized_and_lists_must_be_disjoint(self) -> None:
-        parsed = parse_feasible_config({
-            "feasible_schedule": {
+        parsed = parse_semester_scheduler_config({
+            "semester_scheduler": {
                 "semester": "F26",
                 "core_courses": ["17614"],
                 "elective_courses": ["18-645"],
@@ -48,7 +48,7 @@ class FeasibleConfigTests(unittest.TestCase):
         self.assertEqual(parsed.core_courses, ("17-614",))
         self.assertEqual(parsed.current_sections, (("17-614", ("Lec 11", "B1")),))
         with self.assertRaisesRegex(ValueError, "overlap"):
-            parse_feasible_config({"feasible_schedule": {
+            parse_semester_scheduler_config({"semester_scheduler": {
                 "semester": "F26",
                 "core_courses": ["17614"],
                 "elective_courses": ["17-614"],
@@ -134,7 +134,7 @@ class EnumerationTests(unittest.TestCase):
         )], prerequisite_status="unknown")
         elective = course("18-645", 3, [option("A", "T", "9:00AM", "9:50AM")])
         schedules = enumerate_schedules([unknown], [elective], "F26", 3)
-        config = parse_feasible_config({"feasible_schedule": {
+        config = parse_semester_scheduler_config({"semester_scheduler": {
             "semester": "F26",
             "core_courses": ["17-603"],
             "elective_courses": ["18-645"],
@@ -185,7 +185,7 @@ class EnumerationTests(unittest.TestCase):
         core = course("17-603", 3, [option("D", "M", "7:00PM", "8:20PM", modality="online")])
         elective = course("18-645", 12, [option("A", "T", "9:00AM", "9:50AM")])
         schedules = enumerate_schedules([core], [elective], "F26", 12)
-        config = parse_feasible_config({"feasible_schedule": {
+        config = parse_semester_scheduler_config({"semester_scheduler": {
             "semester": "F26",
             "core_courses": ["17-603"],
             "elective_courses": ["18-645"],
@@ -223,7 +223,7 @@ class EnumerationTests(unittest.TestCase):
         self.assertIn("All sections", rendered)
         self.assertIn("scheduleMatchesSection", rendered)
         self.assertIn("choice.components.includes(selectedSection.component)", rendered)
-        self.assertIn("No feasible schedules match the selected filters.", rendered)
+        self.assertIn("No schedules match the selected filters.", rendered)
 
 
 if __name__ == "__main__":

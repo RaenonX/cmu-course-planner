@@ -3,11 +3,11 @@ import json
 from pathlib import Path
 
 from ..common.labels import prereq_info
-from ..suggest.render import _suggest_style
-from ..suggest.time import SOC_MINIS, _meeting_days, _meeting_interval
-from .config import FeasibleConfig
+from ..degree_planner.render import _degree_planner_style
+from ..degree_planner.time import SOC_MINIS, _meeting_days, _meeting_interval
+from .config import SemesterSchedulerConfig
 from .continuity import schedule_continuity
-from .models import CourseChoice, FeasibleSchedule
+from .models import CourseChoice, SemesterSchedule
 
 
 def _choice_key(choice: CourseChoice) -> tuple:
@@ -57,7 +57,7 @@ def _choice_data(choice: CourseChoice) -> dict:
     }
 
 
-def _export_data(config: FeasibleConfig, schedules: list[FeasibleSchedule]) -> dict:
+def _export_data(config: SemesterSchedulerConfig, schedules: list[SemesterSchedule]) -> dict:
     choices: list[dict] = []
     choice_indices: dict[tuple, int] = {}
     schedule_data = []
@@ -88,20 +88,20 @@ def _export_data(config: FeasibleConfig, schedules: list[FeasibleSchedule]) -> d
     }
 
 
-def build_html(config: FeasibleConfig, schedules: list[FeasibleSchedule], snapshot_date: str) -> str:
+def build_html(config: SemesterSchedulerConfig, schedules: list[SemesterSchedule], snapshot_date: str) -> str:
     data = json.dumps(_export_data(config, schedules), separators=(",", ":")).replace("</", "<\\/")
     template_dir = Path(__file__).parent / "templates"
     script = "\n".join(
         (template_dir / name).read_text(encoding="utf-8")
-        for name in ("feasible.js", "feasible_filters.js", "feasible_tree.js")
+        for name in ("semester_scheduler.js", "semester_scheduler_filters.js", "semester_scheduler_tree.js")
     )
-    style = (template_dir / "feasible.css").read_text(encoding="utf-8")
+    style = (template_dir / "semester_scheduler.css").read_text(encoding="utf-8")
     core = ", ".join(config.core_courses)
     electives = ", ".join(config.elective_courses)
     return (
         "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width'>"
-        f"<title>Feasible schedules — {config.semester}</title><style>{_suggest_style()}{style}</style></head><body>"
-        f"<h1>All feasible schedules — {config.semester}</h1>"
+        f"<title>Semester Scheduler — {config.semester}</title><style>{_degree_planner_style()}{style}</style></head><body>"
+        f"<h1>Semester Scheduler — {config.semester}</h1>"
         f"<p class='meta'>Snapshot: {html_lib.escape(snapshot_date)} · Maximum elective units: "
         f"{config.max_elective_units} · Maximum online courses: 1</p>"
         "<p class='online-note'><span class='online-sample'>Sky blue</span> = online.</p>"

@@ -101,7 +101,7 @@ function buildTree() {
   });
   tree.setAttribute("role", "tree");
   if (firstLeaf) render(firstIndex, firstLeaf);
-  else add(view, "p", "No feasible schedules match the selected filters.", "semester-unit-warning");
+  else add(view, "p", "No schedules match the selected filters.", "semester-unit-warning");
 }
 
 sectionFilter.addEventListener("change", () => {

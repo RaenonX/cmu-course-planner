@@ -1,20 +1,20 @@
 import html as html_lib
 
-from ..common.paths import SUGGEST_TEMPLATE_DIR
+from ..common.paths import DEGREE_PLANNER_TEMPLATE_DIR
 from .models import Course, Meeting
 from .render_panel import _build_schedule_panel
 
 
-def _suggest_style() -> str:
+def _degree_planner_style() -> str:
     return "\n".join(
-        (SUGGEST_TEMPLATE_DIR / name).read_text(encoding="utf-8")
-        for name in ("suggest_1.css", "suggest_2.css", "suggest_3.css", "course_roles.css", "course_preferences.css")
+        (DEGREE_PLANNER_TEMPLATE_DIR / name).read_text(encoding="utf-8")
+        for name in ("degree_planner_1.css", "degree_planner_2.css", "degree_planner_3.css", "course_roles.css", "course_preferences.css")
     )
 
 
-def _suggest_head() -> str:
-    head = (SUGGEST_TEMPLATE_DIR / "suggest_head.html").read_text(encoding="utf-8")
-    return head.replace("{{STYLE}}", _suggest_style())
+def _degree_planner_head() -> str:
+    head = (DEGREE_PLANNER_TEMPLATE_DIR / "degree_planner_head.html").read_text(encoding="utf-8")
+    return head.replace("{{STYLE}}", _degree_planner_style())
 
 def build_html(
     semesters: list[str],
@@ -29,7 +29,7 @@ def build_html(
     """
     results: list of (variant_name, variant_desc, routes)
     """
-    parts = [_suggest_head()]
+    parts = [_degree_planner_head()]
 
     prefer_str = ", ".join(prefer) if prefer else "none"
     parts.append(
@@ -65,7 +65,7 @@ def build_html(
             )
         )
 
-    parts.append((SUGGEST_TEMPLATE_DIR / "suggest_filters.js").read_text(encoding="utf-8"))
-    parts.append((SUGGEST_TEMPLATE_DIR / "suggest_tabs.js").read_text(encoding="utf-8"))
-    parts.append((SUGGEST_TEMPLATE_DIR / "suggest_tail.html").read_text(encoding="utf-8"))
+    parts.append((DEGREE_PLANNER_TEMPLATE_DIR / "degree_planner_filters.js").read_text(encoding="utf-8"))
+    parts.append((DEGREE_PLANNER_TEMPLATE_DIR / "degree_planner_tabs.js").read_text(encoding="utf-8"))
+    parts.append((DEGREE_PLANNER_TEMPLATE_DIR / "degree_planner_tail.html").read_text(encoding="utf-8"))
     return "".join(parts)

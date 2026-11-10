@@ -1,6 +1,6 @@
-from ..suggest.time import _meeting_buckets, _meeting_days, _meeting_interval
-from ..suggest.units import mini_workloads
-from .models import CourseChoice, FeasibleSchedule
+from ..degree_planner.time import _meeting_buckets, _meeting_days, _meeting_interval
+from ..degree_planner.units import mini_workloads
+from .models import CourseChoice, SemesterSchedule
 
 
 MAX_ONLINE_COURSES = 1
@@ -27,19 +27,19 @@ def _conflicts(candidate: CourseChoice, selected: list[CourseChoice], soc_type: 
     return False
 
 
-def enumerate_schedules(core, electives, semester: str, max_elective_units: int) -> list[FeasibleSchedule]:
+def enumerate_schedules(core, electives, semester: str, max_elective_units: int) -> list[SemesterSchedule]:
     items = [(course, True) for course in core] + [(course, False) for course in electives]
     soc_type = semester[0]
     # The elective allowance plus mandatory units defines the total planning cap.
     unit_cap = sum(course.units for course in core) + max_elective_units
-    results: list[FeasibleSchedule] = []
+    results: list[SemesterSchedule] = []
 
     def visit(index: int, selected: list[CourseChoice], elective_units: int, online_count: int) -> None:
         if index == len(items):
             if elective_units == 0:
                 return
             choices = tuple(sorted(selected, key=lambda choice: choice.course.course))
-            results.append(FeasibleSchedule(choices, elective_units))
+            results.append(SemesterSchedule(choices, elective_units))
             return
         course, is_core = items[index]
         if not is_core:

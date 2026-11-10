@@ -1,8 +1,8 @@
-from ..suggest.time import (
+from ..degree_planner.time import (
     SOC_MINIS,
     _add_meeting_intervals_by_bucket,
 )
-from .models import FeasibleSchedule
+from .models import SemesterSchedule
 
 
 TRANSITION_MINUTES = 10
@@ -21,7 +21,7 @@ def _range_and_gap(intervals: list[tuple[int, int]]) -> tuple[int, int, int]:
     return range_begin, range_end, gap_minutes
 
 
-def schedule_continuity(schedule: FeasibleSchedule, semester: str) -> dict:
+def schedule_continuity(schedule: SemesterSchedule, semester: str) -> dict:
     soc_type = semester[0]
     intervals_by_day: dict[tuple[str, int], list[tuple[int, int]]] = {}
     for choice in schedule.choices:

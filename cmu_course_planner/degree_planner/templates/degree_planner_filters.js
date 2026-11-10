@@ -34,7 +34,7 @@ function initializeRouteFilters(panel) {
         leaf.setAttribute('aria-selected', 'false');
       });
       routeMessage(panel.querySelector('.route-panel'),
-        'No suggested routes match the selected courses.', 'semester-unit-warning');
+        'No degree plans match the selected courses.', 'semester-unit-warning');
     }
   }
 

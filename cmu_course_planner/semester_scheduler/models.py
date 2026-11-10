@@ -1,6 +1,6 @@
 from dataclasses import dataclass, replace
 
-from ..suggest.models import Course, SectionOption
+from ..degree_planner.models import Course, SectionOption
 
 
 @dataclass(frozen=True)
@@ -18,7 +18,7 @@ class CourseChoice:
 
 
 @dataclass(frozen=True)
-class FeasibleSchedule:
+class SemesterSchedule:
     choices: tuple[CourseChoice, ...]
     elective_units: int
 

@@ -1,4 +1,4 @@
-# Maximum suggested-course units for S27, M27, and F27, in order.
+# Maximum planned-course units for S27, M27, and F27, in order.
 # Also caps nominal weekly workload in each mini: full-term units + 2 * mini units.
 # Spring includes 39 mandatory units plus the existing 24 elective units.
 units_per_semester: [63, 24, 24]
@@ -10,7 +10,7 @@ semesters: [S, Su, F]
 teaching_location: "Pittsburgh, Pennsylvania"
 
 # Inputs for exhaustive schedule enumeration in Spring 2027.
-feasible_schedule:
+semester_scheduler:
   semester: S27
   core_courses:
     # Communications for Software Leaders II
@@ -66,7 +66,7 @@ require_categories: false
 # Required Spring courses will be selected by the planner; no fixed sections yet.
 current_time_ranges: []
 
-# Courses considered by the multi-semester suggester.
+# Courses considered by the Degree Planner.
 # rating is the planning priority from 1 (lowest) to 5 (highest).
 # category enables category-specific ratings and filtering.
 courses:

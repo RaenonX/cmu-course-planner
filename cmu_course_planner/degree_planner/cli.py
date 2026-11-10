@@ -2,18 +2,18 @@ import argparse
 import sys
 from pathlib import Path
 
-from ..common.paths import DEFAULT_CONFIG, OUT_DIR, SUGGEST_OUTPUT
+from ..common.paths import DEFAULT_CONFIG, OUT_DIR, DEGREE_PLANNER_OUTPUT
 from ..common.config import completed_courses_from_config
 from .console import print_primary_route
 from .load import load_config, load_current_time_ranges, load_snapshot
 from .render import build_html
-from .routes import suggest_routes
+from .routes import plan_degree_routes
 from .variants import ROUTE_ATTEMPTS, VARIANTS
 
 def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(description="Generate suggested CMU course schedules.")
+    parser = argparse.ArgumentParser(description="CMU Degree Planner: plan courses across semesters.")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG, metavar="FILE",
                         help=f"config file (default: {DEFAULT_CONFIG.name})")
     args = parser.parse_args()
@@ -38,7 +38,7 @@ def main() -> None:
 
     results = []
     for variant_name, variant_desc in VARIANTS:
-        routes = suggest_routes(
+        routes = plan_degree_routes(
             courses,
             semesters,
             unit_caps,
@@ -69,5 +69,5 @@ def main() -> None:
         current_time_ranges,
     )
     OUT_DIR.mkdir(exist_ok=True)
-    SUGGEST_OUTPUT.write_text(html, encoding="utf-8")
-    print(f"Schedule written → {SUGGEST_OUTPUT}")
+    DEGREE_PLANNER_OUTPUT.write_text(html, encoding="utf-8")
+    print(f"Degree Planner written → {DEGREE_PLANNER_OUTPUT}")

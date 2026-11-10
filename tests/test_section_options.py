@@ -1,9 +1,9 @@
 import unittest
 
 from cmu_course_planner.report.section_parse import parse_sections
-from cmu_course_planner.suggest.models import Course, Meeting, Offering, SectionOption
-from cmu_course_planner.suggest.scheduler import suggest
-from cmu_course_planner.suggest.time import _selected_section_option
+from cmu_course_planner.degree_planner.models import Course, Meeting, Offering, SectionOption
+from cmu_course_planner.degree_planner.scheduler import plan_degree
+from cmu_course_planner.degree_planner.time import _selected_section_option
 
 
 LOCATION = "Pittsburgh, Pennsylvania"
@@ -135,7 +135,7 @@ class SectionOptionSchedulingTests(unittest.TestCase):
             )],
         )
 
-        schedule, unplaced = suggest(
+        schedule, unplaced = plan_degree(
             [candidate],
             ["F"],
             [12],

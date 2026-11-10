@@ -5,7 +5,7 @@ from ..common.config import normalize_course_id
 
 
 @dataclass(frozen=True)
-class FeasibleConfig:
+class SemesterSchedulerConfig:
     semester: str
     core_courses: tuple[str, ...]
     elective_courses: tuple[str, ...]
@@ -16,10 +16,10 @@ class FeasibleConfig:
 def _course_list(section: dict, name: str) -> tuple[str, ...]:
     values = section.get(name)
     if not isinstance(values, list) or not values or not all(isinstance(value, str) for value in values):
-        raise ValueError(f"feasible_schedule.{name} must be a non-empty list of course codes.")
+        raise ValueError(f"semester_scheduler.{name} must be a non-empty list of course codes.")
     normalized = tuple(normalize_course_id(value) for value in values)
     if len(set(normalized)) != len(normalized):
-        raise ValueError(f"feasible_schedule.{name} contains a duplicate course code.")
+        raise ValueError(f"semester_scheduler.{name} contains a duplicate course code.")
     return normalized
 
 
@@ -46,13 +46,13 @@ def _current_sections(cfg: dict, core: tuple[str, ...]) -> tuple[tuple[str, tupl
     return tuple((course, tuple(components[course])) for course in core if components[course])
 
 
-def parse_feasible_config(cfg: dict) -> FeasibleConfig:
-    section = cfg.get("feasible_schedule")
+def parse_semester_scheduler_config(cfg: dict) -> SemesterSchedulerConfig:
+    section = cfg.get("semester_scheduler")
     if not isinstance(section, dict):
-        raise ValueError("Missing feasible_schedule configuration.")
+        raise ValueError("Missing semester_scheduler configuration.")
     semester = section.get("semester")
     if not isinstance(semester, str) or not re.fullmatch(r"[FSM]\d{2}", semester):
-        raise ValueError("feasible_schedule.semester must be an exact SOC term such as F26.")
+        raise ValueError("semester_scheduler.semester must be an exact SOC term such as F26.")
     core = _course_list(section, "core_courses")
     electives = _course_list(section, "elective_courses")
     overlap = set(core).intersection(electives)
@@ -60,5 +60,5 @@ def parse_feasible_config(cfg: dict) -> FeasibleConfig:
         raise ValueError(f"Core and elective courses overlap: {', '.join(sorted(overlap))}.")
     units = section.get("max_elective_units")
     if not isinstance(units, int) or units < 0:
-        raise ValueError("feasible_schedule.max_elective_units must be a non-negative integer.")
-    return FeasibleConfig(semester, core, electives, units, _current_sections(cfg, core))
+        raise ValueError("semester_scheduler.max_elective_units must be a non-negative integer.")
+    return SemesterSchedulerConfig(semester, core, electives, units, _current_sections(cfg, core))

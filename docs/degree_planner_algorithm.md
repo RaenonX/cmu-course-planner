@@ -1,4 +1,4 @@
-# Plan Suggester Algorithm
+# Degree Planner Algorithm
 
 ## Inputs
 
@@ -23,7 +23,7 @@ load_snapshot ──► courses[]   (built from config_course_ids;
                                prerequisite status from completed_courses,
                                populated by export_report)
 
-suggest_routes ─► route[] = (schedule[][], unplaced[])
+plan_degree_routes ─► route[] = (schedule[][], unplaced[])
 ```
 
 ## Step 1 — Load & filter
@@ -46,7 +46,7 @@ semester.
 
 Category values come from `export_report.py`, which reads them from `plan_config.yml` and writes them into the snapshot.
 
-`teaching_location` is currently limited to `Pittsburgh, Pennsylvania`. `export_report.py` uses it when detecting course offerings, and `plan_suggest.py` rejects snapshots generated for a different or missing location.
+`teaching_location` is currently limited to `Pittsburgh, Pennsylvania`. `export_report.py` uses it when detecting course offerings, and `degree_planner.py` rejects snapshots generated for a different or missing location.
 
 `prefer_courses` is read as an explicit set of course IDs. It does not filter the snapshot; it marks matching courses as preferred for preference-aware schedule variants.
 
@@ -70,7 +70,7 @@ section suffixes: fall uses mini 1/2, spring uses 3/4, and summer uses 5/6.
 Prerequisites are read from the SOC course detail page by `export_report.py` and written into `out/course-snapshot.json` as `prerequisites`. The `completed_courses` list in `plan_config.yml` supplies completed course IDs, such as `"15-213"`. The planner evaluates SOC `and`/`or` expressions (including parentheses) against that list. HTML reports render **Satisfied**, **Unsatisfied**, or **Unknown** as a compact clickable badge and show the source expression in its popover. Prerequisite status remains advisory and does not block scheduling.
 
 An offering with a TBA meeting row is retained and marked **TBA / incomplete** in
-the exported and suggested reports. Known meeting times still participate in
+the course reports and Degree Planner reports. Known meeting times still participate in
 conflict checks; the warning identifies the remaining uncertainty.
 
 SOC rows are stored as selectable `section_options`, not as one flattened list
@@ -87,7 +87,7 @@ The planner does not claim that a future year-specific offering is confirmed.
 the same order as `semesters`, so repeated seasons can have different caps.
 
 
-Scheduler details continue in [plan_suggest_algorithm_scheduler.md](plan_suggest_algorithm_scheduler.md).
+Scheduler details continue in [degree_planner_algorithm_scheduler.md](degree_planner_algorithm_scheduler.md).
 
 Exact-term exhaustive enumeration is documented separately in
-[feasible_schedules.md](feasible_schedules.md).
+[semester_scheduler.md](semester_scheduler.md).

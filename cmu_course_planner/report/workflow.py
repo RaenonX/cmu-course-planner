@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import yaml
 
-from ..common.config import completed_courses_from_config, feasible_course_ids, validate_teaching_location
+from ..common.config import completed_courses_from_config, semester_scheduler_course_ids, validate_teaching_location
 from ..common.paths import OUT_DIR, PLAN_CONFIG, REPORT_OUTPUT, SNAPSHOT
 from ..common.rating import parse_rating
 from .course_parse import _parse_course_info, _parse_prerequisites
@@ -92,7 +92,7 @@ def export_report(today, years: int) -> bool:
     completed_courses = completed_courses_from_config(cfg)
     catalog_entries = sorted(cfg["courses"], key=lambda e: e["course"])
     entries_by_course = {entry["course"]: entry for entry in catalog_entries}
-    for course_id in feasible_course_ids(cfg):
+    for course_id in semester_scheduler_course_ids(cfg):
         entries_by_course.setdefault(course_id, {"course": course_id, "rating": 1})
     entries = sorted(entries_by_course.values(), key=lambda e: e["course"])
     results = probe_offerings(entries, semesters, teaching_location)

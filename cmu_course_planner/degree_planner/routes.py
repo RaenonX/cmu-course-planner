@@ -1,5 +1,5 @@
 from .models import Course, Meeting
-from .scheduler import suggest
+from .scheduler import plan_degree
 from .variants import ROUTE_ATTEMPTS
 
 def _schedule_signature(schedule: list[list[Course]], unplaced: list[Course]) -> tuple:
@@ -11,7 +11,7 @@ def _schedule_signature(schedule: list[list[Course]], unplaced: list[Course]) ->
         tuple(c.course for c in unplaced),
     )
 
-def suggest_routes(
+def plan_degree_routes(
     courses: list[Course],
     semesters: list[str],
     unit_caps: list[int],
@@ -23,7 +23,7 @@ def suggest_routes(
     seen: set[tuple] = set()
 
     for route_seed in range(ROUTE_ATTEMPTS):
-        schedule, unplaced = suggest(
+        schedule, unplaced = plan_degree(
             courses,
             semesters,
             unit_caps,

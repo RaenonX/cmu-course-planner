@@ -11,11 +11,11 @@ def normalize_course_id(value: str) -> str:
     return f"{compact[:2]}-{compact[2:]}"
 
 
-def feasible_course_ids(cfg: dict) -> list[str]:
-    section = cfg.get("feasible_schedule") or {}
+def semester_scheduler_course_ids(cfg: dict) -> list[str]:
+    section = cfg.get("semester_scheduler") or {}
     values = [*(section.get("core_courses") or []), *(section.get("elective_courses") or [])]
     if not all(isinstance(value, str) for value in values):
-        raise ValueError("feasible_schedule course lists must contain course-code strings only.")
+        raise ValueError("semester_scheduler course lists must contain course-code strings only.")
     return list(dict.fromkeys(normalize_course_id(value) for value in values))
 
 

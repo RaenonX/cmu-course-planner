@@ -5,7 +5,7 @@
       "WebSearch",
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "Bash(.venv/Scripts/python export_report.py)",
-      "Bash(.venv/Scripts/python plan_suggest.py)",
+      "Bash(.venv/Scripts/python degree_planner.py)",
       "WebFetch"
     ]
   }
